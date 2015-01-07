@@ -37,12 +37,22 @@ public struct PointerQueue3<T>: QueueType, SequenceType, GeneratorType
 
   public func CountNodes() -> Int
   {
-    return PointerNodeCountNodes(head)
+    // For testing; don't call this under contention.
+
+    var i = 0
+    var nptr = UnsafeMutablePointer<LinkNode>(head)
+    while nptr != UnsafeMutablePointer.null()
+    { // Iterate along the linked nodes while counting
+      nptr = nptr.memory.next
+      i++
+    }
+
+    return i
   }
 
   public func enqueue(newElement: T)
   {
-    var node = UnsafeMutablePointer<PointerNode>(OSAtomicFifoDequeue(pool, offset))
+    var node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(pool, offset))
     if node != UnsafeMutablePointer.null()
     {
       node.memory.next = UnsafeMutablePointer.null()
@@ -50,11 +60,11 @@ public struct PointerQueue3<T>: QueueType, SequenceType, GeneratorType
     }
     else
     {
-      node = UnsafeMutablePointer<PointerNode>.alloc(1)
+      node = UnsafeMutablePointer<LinkNode>.alloc(1)
       node.memory.next = UnsafeMutablePointer.null()
       let item = UnsafeMutablePointer<T>.alloc(1)
       item.initialize(newElement)
-      node.memory.elem = UnsafeMutablePointer<Void>(item)
+      node.memory.elem = COpaquePointer(item)
     }
 
     OSAtomicFifoEnqueue(head, node, offset)
@@ -62,7 +72,7 @@ public struct PointerQueue3<T>: QueueType, SequenceType, GeneratorType
 
   public func dequeue() -> T?
   {
-    let node = UnsafeMutablePointer<PointerNode>(OSAtomicFifoDequeue(head, offset))
+    let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, offset))
     if node != UnsafeMutablePointer.null()
     {
       let element = UnsafeMutablePointer<T>(node.memory.elem).move()
@@ -99,25 +109,25 @@ final private class QueueDeallocator<T>
   deinit
   {
     // first, empty the queue
-    var node = UnsafeMutablePointer<PointerNode>(OSAtomicFifoDequeue(head, offset))
+    var node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, offset))
     while node != UnsafeMutablePointer.null()
     {
       let item = UnsafeMutablePointer<T>(node.memory.elem)
       item.destroy()
       item.dealloc(1)
       node.dealloc(1)
-      node = UnsafeMutablePointer<PointerNode>(OSAtomicFifoDequeue(head, offset))
+      node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, offset))
     }
     // release the queue head structure
     AtomicQueueRelease(head)
 
     // Then, drain the pool
-    node = UnsafeMutablePointer<PointerNode>(OSAtomicFifoDequeue(pool, offset))
+    node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(pool, offset))
     while node != UnsafeMutablePointer.null()
     {
       UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
-      node = UnsafeMutablePointer<PointerNode>(OSAtomicFifoDequeue(pool, offset))
+      node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(pool, offset))
     }
     // release the pool queue structure
     AtomicQueueRelease(pool)

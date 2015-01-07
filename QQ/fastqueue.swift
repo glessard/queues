@@ -14,8 +14,8 @@ import Foundation
 
 final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 {
-  private var head = UnsafeMutablePointer<PointerNode>.null()
-  private var tail = UnsafeMutablePointer<PointerNode>.null()
+  private var head: UnsafeMutablePointer<LinkNode> = nil
+  private var tail: UnsafeMutablePointer<LinkNode> = nil
 
   private var size = 0
 
@@ -47,7 +47,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 
     var i = 0
     var nptr = head
-    while nptr != UnsafeMutablePointer.null()
+    while nptr != nil
     { // Iterate along the linked nodes while counting
       nptr = nptr.memory.next
       i++
@@ -59,11 +59,11 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 
   public func enqueue(newElement: T)
   {
-    let node = UnsafeMutablePointer<PointerNode>.alloc(1)
-    node.memory.next = UnsafeMutablePointer.null()
+    let node = UnsafeMutablePointer<LinkNode>.alloc(1)
+    node.memory.next = nil
     let eptr = UnsafeMutablePointer<T>.alloc(1)
     eptr.initialize(newElement)
-    node.memory.elem = UnsafeMutablePointer<Void>(eptr)
+    node.memory.elem = COpaquePointer(eptr)
 
     OSSpinLockLock(&lock)
 
@@ -91,7 +91,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
       let oldhead = head
 
       // Promote the 2nd item to 1st
-      head = head.memory.next
+      head = UnsafeMutablePointer<LinkNode>(head.memory.next)
       size -= 1
 
       // Logical housekeeping

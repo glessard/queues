@@ -8,7 +8,7 @@
 
 struct LinkNode
 {
-  var next: COpaquePointer = nil
+  var next: UnsafeMutablePointer<LinkNode> = nil
   var elem: COpaquePointer = nil
 }
 

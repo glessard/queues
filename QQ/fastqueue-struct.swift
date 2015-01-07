@@ -8,17 +8,14 @@
 
 import Foundation
 
-private let offset = PointerNodeLinkOffset()
-private let length = PointerNodeSize()
-
 /**
   A simple queue, implemented as a linked list.
 */
 
 public struct FastQueueStruct<T>: QueueType
 {
-  private var head = UnsafeMutablePointer<UnsafeMutablePointer<PointerNode>>.alloc(1)
-  private var tail = UnsafeMutablePointer<UnsafeMutablePointer<PointerNode>>.alloc(1)
+  private var head = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>.alloc(1)
+  private var tail = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>.alloc(1)
 
   private var size = UnsafeMutablePointer<Int>.alloc(1)
   private var lock = UnsafeMutablePointer<Int32>.alloc(1)
@@ -54,7 +51,7 @@ public struct FastQueueStruct<T>: QueueType
     var nptr = head.memory
     while nptr != UnsafeMutablePointer.null()
     { // Iterate along the linked nodes while counting
-      nptr = UnsafeMutablePointer<PointerNode>(nptr.memory.next)
+      nptr = nptr.memory.next
       i++
     }
     assert(i == size.memory, "Queue might have lost data")
@@ -64,11 +61,11 @@ public struct FastQueueStruct<T>: QueueType
 
   public func enqueue(newElement: T)
   {
-    let node = UnsafeMutablePointer<PointerNode>.alloc(1)
+    let node = UnsafeMutablePointer<LinkNode>.alloc(1)
     node.memory.next = UnsafeMutablePointer.null()
     let eptr = UnsafeMutablePointer<T>.alloc(1)
     eptr.initialize(newElement)
-    node.memory.elem = UnsafeMutablePointer<Void>(eptr)
+    node.memory.elem = COpaquePointer(eptr)
 
     OSSpinLockLock(lock)
 
@@ -121,14 +118,14 @@ public struct FastQueueStruct<T>: QueueType
 
 final private class QueueDeallocator<T>
 {
-  private let head: UnsafeMutablePointer<UnsafeMutablePointer<PointerNode>>
-  private let tail: UnsafeMutablePointer<UnsafeMutablePointer<PointerNode>>
+  private let head: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>
+  private let tail: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>
 
   private let size: UnsafeMutablePointer<Int>
   private let lock: UnsafeMutablePointer<Int32>
 
-  init(head: UnsafeMutablePointer<UnsafeMutablePointer<PointerNode>>,
-       tail: UnsafeMutablePointer<UnsafeMutablePointer<PointerNode>>,
+  init(head: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>,
+       tail: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>,
        size: UnsafeMutablePointer<Int>,
        lock: UnsafeMutablePointer<Int32>)
   {

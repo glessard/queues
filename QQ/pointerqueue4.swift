@@ -34,7 +34,17 @@ public struct PointerQueue4<T>: QueueType, SequenceType, GeneratorType
 
   public func CountNodes() -> Int
   {
-    return AtomicQueueCountNodes(head, 0)
+    // For testing; don't call this under contention.
+
+    var i = 0
+    var nptr = UnsafeMutablePointer<LinkNode>(head)
+    while nptr != UnsafeMutablePointer.null()
+    { // Iterate along the linked nodes while counting
+      nptr = nptr.memory.next
+      i++
+    }
+
+    return i
   }
 
   public func enqueue(newElement: T)

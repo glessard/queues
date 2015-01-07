@@ -6,9 +6,6 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-private let offset = PointerNodeLinkOffset()
-private let length = PointerNodeSize()
-
 public final class PointerQueue<T>: QueueType, SequenceType, GeneratorType
 {
   private let head = AtomicQueueInit()
@@ -40,18 +37,29 @@ public final class PointerQueue<T>: QueueType, SequenceType, GeneratorType
 
   public func CountNodes() -> Int
   {
-    return PointerNodeCountNodes(head)
+    // For testing; don't call this under contention.
+
+    var i = 0
+    var nptr = UnsafeMutablePointer<LinkNode>(head)
+    while nptr != nil
+    { // Iterate along the linked nodes while counting
+      nptr = nptr.memory.next
+      i++
+    }
+    assert(i == Int(size), "Queue might have lost data")
+
+    return i
   }
 
   public func enqueue(newElement: T)
   {
-    let node = UnsafeMutablePointer<PointerNode>.alloc(1)
+    let node = UnsafeMutablePointer<LinkNode>.alloc(1)
     node.memory.next = UnsafeMutablePointer.null()
     let item = UnsafeMutablePointer<T>.alloc(1)
     item.initialize(newElement)
-    node.memory.elem = UnsafeMutablePointer<Void>(item)
+    node.memory.elem = COpaquePointer(item)
 
-    OSAtomicFifoEnqueue(head, node, offset)
+    OSAtomicFifoEnqueue(head, node, 0)
     OSAtomicIncrement32Barrier(&size)
   }
 
@@ -59,7 +67,7 @@ public final class PointerQueue<T>: QueueType, SequenceType, GeneratorType
   {
     if OSAtomicDecrement32Barrier(&size) >= 0
     {
-      let node = UnsafeMutablePointer<PointerNode>(OSAtomicFifoDequeue(head, offset))
+      let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
       let item = UnsafeMutablePointer<T>(node.memory.elem)
       let element = item.move()
       item.dealloc(1)

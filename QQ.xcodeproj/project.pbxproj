@@ -216,7 +216,6 @@
 				030F58D61A5B5EA500F4B44B /* fastqueue-poolstruct.swift */,
 				035A98601A53B53100F4B44B /* OSAtomic Queues */,
 				035A99681A57745200F4B44B /* AnyObject Queues */,
-				0344567E1A5CAB4D00F4B44B /* boxqueue.swift */,
 				035A98791A53C56F00F4B44B /* pointerqueue-orig.swift */,
 				035A98761A53C44A00F4B44B /* pointerqueue.swift */,
 				035A996E1A578DE600F4B44B /* pointerqueue2.swift */,
@@ -289,6 +288,7 @@
 				035A99621A576AF800F4B44B /* refqueue-s1.swift */,
 				0344566C1A5CAB2D00F4B44B /* refqueue-s2.swift */,
 				0344566D1A5CAB2D00F4B44B /* refqueue-s3.swift */,
+				0344567E1A5CAB4D00F4B44B /* boxqueue.swift */,
 			);
 			name = "AnyObject Queues";
 			sourceTree = "<group>";

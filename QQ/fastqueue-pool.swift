@@ -8,17 +8,14 @@
 
 import Foundation
 
-private let offset = PointerNodeLinkOffset()
-private let length = PointerNodeSize()
-
 /**
   A simple queue, implemented as a linked list.
 */
 
 final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
 {
-  private var head = UnsafeMutablePointer<PointerNode>.null()
-  private var tail = UnsafeMutablePointer<PointerNode>.null()
+  private var head: UnsafeMutablePointer<LinkNode> = nil
+  private var tail: UnsafeMutablePointer<LinkNode> = nil
 
   private let pool = AtomicStackInit()
 
@@ -41,12 +38,12 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
       dequeue()
     }
 
-    var node = UnsafeMutablePointer<PointerNode>(OSAtomicDequeue(pool, offset))
-    while node != UnsafeMutablePointer.null()
+    var node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
+    while node != nil
     {
       UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
-      node = UnsafeMutablePointer<PointerNode>(OSAtomicDequeue(pool, offset))
+      node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
     }
 
     AtomicStackRelease(pool)
@@ -74,7 +71,7 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
 
   public func enqueue(newElement: T)
   {
-    var node = UnsafeMutablePointer<PointerNode>(OSAtomicDequeue(pool, offset))
+    var node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
     if node != UnsafeMutablePointer.null()
     {
       node.memory.next = UnsafeMutablePointer.null()
@@ -82,11 +79,11 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
     }
     else
     {
-      node = UnsafeMutablePointer<PointerNode>.alloc(1)
+      node = UnsafeMutablePointer<LinkNode>.alloc(1)
       node.memory.next = UnsafeMutablePointer.null()
       let eptr = UnsafeMutablePointer<T>.alloc(1)
       eptr.initialize(newElement)
-      node.memory.elem = UnsafeMutablePointer(eptr)
+      node.memory.elem = COpaquePointer(eptr)
     }
 
     OSSpinLockLock(&lock)
@@ -125,7 +122,7 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
 
       let element = UnsafeMutablePointer<T>(oldhead.memory.elem).move()
 //      oldhead.memory.next = UnsafeMutablePointer.null()
-      OSAtomicEnqueue(pool, oldhead, offset)
+      OSAtomicEnqueue(pool, oldhead, 0)
 
       return element
     }
