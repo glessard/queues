@@ -34,8 +34,8 @@ public struct PointerQueue2<T>: QueueType, SequenceType, GeneratorType
     // For testing; don't call this under contention.
 
     var i = 0
-    var nptr = UnsafeMutablePointer<LinkNode>(head)
-    while nptr != UnsafeMutablePointer.null()
+    var nptr = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>(head).memory
+    while nptr != nil
     { // Iterate along the linked nodes while counting
       nptr = nptr.memory.next
       i++
@@ -48,7 +48,7 @@ public struct PointerQueue2<T>: QueueType, SequenceType, GeneratorType
   public func enqueue(newElement: T)
   {
     let node = UnsafeMutablePointer<LinkNode>.alloc(1)
-    node.memory.next = UnsafeMutablePointer.null()
+    node.memory.next = nil
     let item = UnsafeMutablePointer<T>.alloc(1)
     item.initialize(newElement)
     node.memory.elem = COpaquePointer(item)

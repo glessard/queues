@@ -59,7 +59,7 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
 
     var i = 0
     var nptr = head
-    while nptr != UnsafeMutablePointer.null()
+    while nptr != nil
     { // Iterate along the linked nodes while counting
       nptr = nptr.memory.next
       i++
@@ -72,15 +72,15 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
   public func enqueue(newElement: T)
   {
     var node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
-    if node != UnsafeMutablePointer.null()
+    if node != nil
     {
-      node.memory.next = UnsafeMutablePointer.null()
+      node.memory.next = nil
       UnsafeMutablePointer<T>(node.memory.elem).initialize(newElement)
     }
     else
     {
       node = UnsafeMutablePointer<LinkNode>.alloc(1)
-      node.memory.next = UnsafeMutablePointer.null()
+      node.memory.next = nil
       let eptr = UnsafeMutablePointer<T>.alloc(1)
       eptr.initialize(newElement)
       node.memory.elem = COpaquePointer(eptr)
@@ -116,12 +116,12 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
       size -= 1
 
       // Logical housekeeping
-      if size <= 0 { tail = UnsafeMutablePointer.null() }
+      if size <= 0 { tail = nil }
 
       OSSpinLockUnlock(&lock)
 
       let element = UnsafeMutablePointer<T>(oldhead.memory.elem).move()
-//      oldhead.memory.next = UnsafeMutablePointer.null()
+//      oldhead.memory.next = nil
       OSAtomicEnqueue(pool, oldhead, 0)
 
       return element

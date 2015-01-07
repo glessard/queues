@@ -95,7 +95,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
       size -= 1
 
       // Logical housekeeping
-      if size <= 0 { tail = UnsafeMutablePointer.null() }
+      if size <= 0 { tail = nil }
 
       OSSpinLockUnlock(&lock)
 

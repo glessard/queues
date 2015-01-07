@@ -24,8 +24,8 @@ public struct FastQueueStruct<T>: QueueType
 
   public init()
   {
-    head.initialize(UnsafeMutablePointer.null())
-    tail.initialize(UnsafeMutablePointer.null())
+    head.initialize(nil)
+    tail.initialize(nil)
 
     size.initialize(0)
     lock.initialize(OS_SPINLOCK_INIT)
@@ -49,7 +49,7 @@ public struct FastQueueStruct<T>: QueueType
 
     var i = 0
     var nptr = head.memory
-    while nptr != UnsafeMutablePointer.null()
+    while nptr != nil
     { // Iterate along the linked nodes while counting
       nptr = nptr.memory.next
       i++
@@ -62,7 +62,7 @@ public struct FastQueueStruct<T>: QueueType
   public func enqueue(newElement: T)
   {
     let node = UnsafeMutablePointer<LinkNode>.alloc(1)
-    node.memory.next = UnsafeMutablePointer.null()
+    node.memory.next = nil
     let eptr = UnsafeMutablePointer<T>.alloc(1)
     eptr.initialize(newElement)
     node.memory.elem = COpaquePointer(eptr)
@@ -97,7 +97,7 @@ public struct FastQueueStruct<T>: QueueType
       size.memory -= 1
 
       // Logical housekeeping
-      if size.memory <= 0 { tail.memory = UnsafeMutablePointer.null() }
+      if size.memory <= 0 { tail.memory = nil }
 
       OSSpinLockUnlock(lock)
 
@@ -139,7 +139,7 @@ final private class QueueDeallocator<T>
   {
     // empty the queue
     var node = head.memory
-    while node != UnsafeMutablePointer.null()
+    while node != nil
     {
       let next = node.memory.next
       let eptr = UnsafeMutablePointer<T>(node.memory.elem)

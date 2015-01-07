@@ -15,7 +15,7 @@ let offset = RefNodeLinkOffset()
 var start = mach_absolute_time()
 for i in 1...iterations
 {
-  if OSAtomicFifoDequeue(head, offset) != UnsafeMutablePointer.null()
+  if OSAtomicFifoDequeue(head, offset) != nil
   {
     _ = UnsafeMutablePointer<()>.null()
   }
@@ -57,59 +57,7 @@ dt = mach_absolute_time() - start
 println("\(dt) \(dt/iterations)")
 
 
-private let poffset = PointerNodeLinkOffset()
-private let plength = PointerNodeSize()
-
-start = mach_absolute_time()
-for i in 1...iterations
-{
-  let node = UnsafeMutablePointer<PointerNode>(malloc(plength))
-  node.memory.next = UnsafeMutablePointer.null()
-  OSAtomicEnqueue(pool, node, 0)
-  let dqed = UnsafeMutablePointer<PointerNode>(OSAtomicDequeue(pool, 0))
-  free(dqed)
-}
-dt = mach_absolute_time() - start
-println("\(dt) \(dt/iterations)")
-
-start = mach_absolute_time()
-for i in 1...iterations
-{
-  let node = UnsafeMutablePointer<PointerNode>.alloc(1)
-  node.memory.next = UnsafeMutablePointer.null()
-  OSAtomicEnqueue(pool, node, 0)
-  let dqed = UnsafeMutablePointer<PointerNode>(OSAtomicDequeue(pool, 0))
-  dqed.dealloc(1)
-}
-dt = mach_absolute_time() - start
-println("\(dt) \(dt/iterations)")
-
-
-var node = UnsafeMutablePointer<PointerNode>.null()
-var n = UnsafeMutablePointer<PointerNode>.alloc(1)
-n.initialize(PointerNode(next: nil, item: &node))
-start = mach_absolute_time()
-for i in 1...iterations
-{
-  if node == nil
-  {
-    OSAtomicEnqueue(pool, n, 0)
-    node = UnsafeMutablePointer<PointerNode>(OSAtomicDequeue(pool, 0))
-    node = UnsafeMutablePointer<PointerNode>(OSAtomicDequeue(pool, 0))
-  }
-}
-dt = mach_absolute_time() - start
-println("\(dt) \(dt/iterations)")
-
-start = mach_absolute_time()
-for i in 1...iterations
-{
-  if node == UnsafeMutablePointer.null()
-  {
-    OSAtomicEnqueue(pool, n, 0)
-    node = UnsafeMutablePointer<PointerNode>(OSAtomicDequeue(pool, 0))
-    node = UnsafeMutablePointer<PointerNode>(OSAtomicDequeue(pool, 0))
-  }
-}
-dt = mach_absolute_time() - start
-println("\(dt) \(dt/iterations)")
+var q = PointerQueue4<Int>(0)
+println(q.CountNodes())
+q.enqueue(q.CountNodes())
+println(q.CountNodes())
