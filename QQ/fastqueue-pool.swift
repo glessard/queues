@@ -19,8 +19,6 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
 
   private let pool = AtomicStackInit()
 
-  private var size = 0
-
   private var lock = OS_SPINLOCK_INIT
 
   public init() { }
@@ -33,26 +31,36 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
 
   deinit
   {
-    while size > 0
+    // Empty the queue
+    while head != nil
     {
-      dequeue()
-    }
-
-    var node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
-    while node != nil
-    {
+      let node = head
+      head = node.memory.next
+      UnsafeMutablePointer<T>(node.memory.elem).destroy()
       UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
-      node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
     }
+    tail = nil
 
+    // Then, drain the pool
+    while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
+    {
+      let node = UnsafeMutablePointer<PointerNode>(OSAtomicDequeue(pool, 0))
+      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
+      node.dealloc(1)
+    }
+    // release the pool stack structure
     AtomicStackRelease(pool)
   }
 
-  final public var isEmpty: Bool { return size == 0 }
+  final public var isEmpty: Bool {
+    return head == nil
+  }
 
-  final public var count: Int { return size }
-
+  final public var count: Int {
+    return (head == nil) ? 0 : CountNodes()
+  }
+  
   public func CountNodes() -> Int
   {
     // For testing; don't call this under contention.
@@ -64,7 +72,6 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
       nptr = nptr.memory.next
       i++
     }
-    assert(i == size, "Queue might have lost data")
 
     return i
   }
@@ -88,18 +95,16 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
 
     OSSpinLockLock(&lock)
 
-    if size <= 0
+    if head == nil
     {
       head = node
       tail = node
-      size = 1
       OSSpinLockUnlock(&lock)
       return
     }
 
     tail.memory.next = node
     tail = node
-    size += 1
     OSSpinLockUnlock(&lock)
   }
 
@@ -107,16 +112,15 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
   {
     OSSpinLockLock(&lock)
 
-    if size > 0
+    if head != nil
     {
       let oldhead = head
 
       // Promote the 2nd item to 1st
       head = head.memory.next
-      size -= 1
 
       // Logical housekeeping
-      if size <= 0 { tail = nil }
+      if head == nil { tail = nil }
 
       OSSpinLockUnlock(&lock)
 

@@ -59,9 +59,9 @@ public struct PointerQueue4<T>: QueueType, SequenceType, GeneratorType
     {
       node = UnsafeMutablePointer<LinkNode>.alloc(1)
       node.memory.next = nil
-      let eptr = UnsafeMutablePointer<T>.alloc(1)
-      eptr.initialize(newElement)
-      node.memory.elem = COpaquePointer(eptr)
+      let elem = UnsafeMutablePointer<T>.alloc(1)
+      elem.initialize(newElement)
+      node.memory.elem = COpaquePointer(elem)
     }
 
     OSAtomicFifoEnqueue(head, node, 0)
@@ -88,7 +88,7 @@ public struct PointerQueue4<T>: QueueType, SequenceType, GeneratorType
     return dequeue()
   }
 
-  public func generate() -> PointerQueue4<T>
+  public func generate() -> PointerQueue4
   {
     return self
   }

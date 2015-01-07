@@ -9,7 +9,6 @@
 public final class PointerQueue<T>: QueueType, SequenceType, GeneratorType
 {
   private let head = AtomicQueueInit()
-  private var size: Int32 = 0
 
   public init() { }
 
@@ -22,19 +21,27 @@ public final class PointerQueue<T>: QueueType, SequenceType, GeneratorType
   deinit
   {
     // first, empty the queue
-    while size > 0
+    while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
     {
-      dequeue()
+      let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
+      let item = UnsafeMutablePointer<T>(node.memory.elem)
+      item.destroy()
+      item.dealloc(1)
+      node.dealloc(1)
     }
 
     // then release the queue head structure
     AtomicQueueRelease(head)
   }
 
-  public var isEmpty: Bool { return size < 1 }
+  public var isEmpty: Bool {
+    return UnsafeMutablePointer<COpaquePointer>(head).memory == nil
+  }
 
-  public var count: Int { return Int(size) }
-
+  public var count: Int {
+    return (UnsafeMutablePointer<COpaquePointer>(head).memory == nil) ? 0 : CountNodes()
+  }
+  
   public func CountNodes() -> Int
   {
     // For testing; don't call this under contention.
@@ -46,7 +53,6 @@ public final class PointerQueue<T>: QueueType, SequenceType, GeneratorType
       nptr = nptr.memory.next
       i++
     }
-    assert(i == Int(size), "Queue might have lost data")
 
     return i
   }
@@ -55,30 +61,27 @@ public final class PointerQueue<T>: QueueType, SequenceType, GeneratorType
   {
     let node = UnsafeMutablePointer<LinkNode>.alloc(1)
     node.memory.next = nil
-    let item = UnsafeMutablePointer<T>.alloc(1)
-    item.initialize(newElement)
-    node.memory.elem = COpaquePointer(item)
+    let elem = UnsafeMutablePointer<T>.alloc(1)
+    elem.initialize(newElement)
+    node.memory.elem = COpaquePointer(elem)
 
     OSAtomicFifoEnqueue(head, node, 0)
-    OSAtomicIncrement32Barrier(&size)
   }
 
   public func dequeue() -> T?
   {
-    if OSAtomicDecrement32Barrier(&size) >= 0
+    let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
+    if node != nil
     {
-      let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
-      let item = UnsafeMutablePointer<T>(node.memory.elem)
-      let element = item.move()
-      item.dealloc(1)
+      let elem = UnsafeMutablePointer<T>(node.memory.elem)
+      let element = elem.move()
+      elem.dealloc(1)
       node.dealloc(1)
       return element
     }
-    else
-    { // We decremented once too many; increment once to correct.
-      OSAtomicIncrement32Barrier(&size)
-      return nil
-    }
+
+    // The queue is empty
+    return nil
   }
 
   public func next() -> T?

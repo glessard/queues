@@ -183,6 +183,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0344568A1A5DD47700F4B44B /* Hybrid Queues (for Any) */ = {
+			isa = PBXGroup;
+			children = (
+				035A98791A53C56F00F4B44B /* pointerqueue-orig.swift */,
+				035A98761A53C44A00F4B44B /* pointerqueue.swift */,
+				035A996E1A578DE600F4B44B /* pointerqueue2.swift */,
+				03B5515D1A57D4D500F4B44B /* pointerqueue3.swift */,
+				037414191A5B2EDE00F4B44B /* pointerqueue4.swift */,
+			);
+			name = "Hybrid Queues (for Any)";
+			sourceTree = "<group>";
+		};
 		035A981D1A539CF600F4B44B = {
 			isa = PBXGroup;
 			children = (
@@ -211,19 +223,15 @@
 				035A982C1A539CF600F4B44B /* QQ.h */,
 				035A982A1A539CF600F4B44B /* Supporting Files */,
 				035A98461A539D7300F4B44B /* queuetype.swift */,
+				034456631A5CAB1800F4B44B /* linknodes.swift */,
 				035A98431A539D4A00F4B44B /* queue.swift */,
 				035A98491A53A04300F4B44B /* fastqueue.swift */,
-				034456631A5CAB1800F4B44B /* linknodes.swift */,
 				037414131A5A04EC00F4B44B /* fastqueue-struct.swift */,
 				037414161A5A793200F4B44B /* fastqueue-pool.swift */,
 				030F58D61A5B5EA500F4B44B /* fastqueue-poolstruct.swift */,
 				035A98601A53B53100F4B44B /* OSAtomic Queues */,
 				035A99681A57745200F4B44B /* AnyObject Queues */,
-				035A98791A53C56F00F4B44B /* pointerqueue-orig.swift */,
-				035A98761A53C44A00F4B44B /* pointerqueue.swift */,
-				035A996E1A578DE600F4B44B /* pointerqueue2.swift */,
-				03B5515D1A57D4D500F4B44B /* pointerqueue3.swift */,
-				037414191A5B2EDE00F4B44B /* pointerqueue4.swift */,
+				0344568A1A5DD47700F4B44B /* Hybrid Queues (for Any) */,
 			);
 			path = QQ;
 			sourceTree = "<group>";
@@ -743,7 +751,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "QueueBenchmark/bridging-header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Debug;
 		};
@@ -753,7 +761,7 @@
 				GCC_OPTIMIZATION_LEVEL = fast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "QueueBenchmark/bridging-header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Release;
 		};

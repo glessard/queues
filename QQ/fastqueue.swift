@@ -17,8 +17,6 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
   private var head: UnsafeMutablePointer<LinkNode> = nil
   private var tail: UnsafeMutablePointer<LinkNode> = nil
 
-  private var size = 0
-
   private var lock = OS_SPINLOCK_INIT
 
   public init() { }
@@ -31,15 +29,22 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 
   deinit
   {
-    while size > 0
+    while head != nil
     {
-      dequeue()
+      let node = head
+      head = node.memory.next
+      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
+      node.dealloc(1)
     }
   }
 
-  final public var isEmpty: Bool { return size == 0 }
+  final public var isEmpty: Bool {
+    return head == nil
+  }
 
-  final public var count: Int { return size }
+  final public var count: Int {
+    return (head == nil) ? 0 : CountNodes()
+  }
 
   public func CountNodes() -> Int
   {
@@ -52,7 +57,6 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
       nptr = nptr.memory.next
       i++
     }
-    assert(i == size, "Queue might have lost data")
 
     return i
   }
@@ -67,18 +71,17 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 
     OSSpinLockLock(&lock)
 
-    if size <= 0
+    if head == nil
     {
       head = node
       tail = node
-      size = 1
       OSSpinLockUnlock(&lock)
       return
     }
 
     tail.memory.next = node
     tail = node
-    size += 1
+
     OSSpinLockUnlock(&lock)
   }
 
@@ -86,23 +89,21 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
   {
     OSSpinLockLock(&lock)
 
-    if size > 0
+    if head != nil
     {
       let oldhead = head
 
       // Promote the 2nd item to 1st
-      head = UnsafeMutablePointer<LinkNode>(head.memory.next)
-      size -= 1
+      head = head.memory.next
 
       // Logical housekeeping
-      if size <= 0 { tail = nil }
+      if head == nil { tail = nil }
 
       OSSpinLockUnlock(&lock)
 
-      let eptr = UnsafeMutablePointer<T>(oldhead.memory.elem)
-      let element = eptr.move()
+      let element = UnsafeMutablePointer<T>(oldhead.memory.elem).move()
 
-      eptr.dealloc(1)
+      UnsafeMutablePointer<T>(oldhead.memory.elem).dealloc(1)
       oldhead.dealloc(1)
 
       return element

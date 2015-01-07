@@ -89,7 +89,7 @@ public struct PointerQueue3<T>: QueueType, SequenceType, GeneratorType
     return dequeue()
   }
 
-  public func generate() -> PointerQueue3<T>
+  public func generate() -> PointerQueue3
   {
     return self
   }

@@ -12,12 +12,11 @@ import Foundation
   A simple queue, implemented as a linked list.
 */
 
-public struct FastQueueStruct<T>: QueueType
+public struct FastQueueStruct<T>: QueueType, SequenceType, GeneratorType
 {
   private var head = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>.alloc(1)
   private var tail = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>.alloc(1)
 
-  private var size = UnsafeMutablePointer<Int>.alloc(1)
   private var lock = UnsafeMutablePointer<Int32>.alloc(1)
 
   private let deallocator: QueueDeallocator<T>
@@ -27,10 +26,9 @@ public struct FastQueueStruct<T>: QueueType
     head.initialize(nil)
     tail.initialize(nil)
 
-    size.initialize(0)
     lock.initialize(OS_SPINLOCK_INIT)
 
-    deallocator = QueueDeallocator(head: head, tail: tail, size: size, lock: lock)
+    deallocator = QueueDeallocator(head: head, tail: tail, lock: lock)
   }
 
   public init(_ newElement: T)
@@ -39,9 +37,13 @@ public struct FastQueueStruct<T>: QueueType
     enqueue(newElement)
   }
 
-  public var isEmpty: Bool { return size.memory == 0 }
+  public var isEmpty: Bool {
+    return head.memory == nil
+  }
 
-  public var count: Int { return size.memory }
+  public var count: Int {
+    return (head.memory == nil) ? 0 : CountNodes()
+  }
 
   public func CountNodes() -> Int
   {
@@ -54,7 +56,6 @@ public struct FastQueueStruct<T>: QueueType
       nptr = nptr.memory.next
       i++
     }
-    assert(i == size.memory, "Queue might have lost data")
 
     return i
   }
@@ -69,18 +70,17 @@ public struct FastQueueStruct<T>: QueueType
 
     OSSpinLockLock(lock)
 
-    if size.memory <= 0
+    if head.memory == nil
     {
       head.memory = node
       tail.memory = node
-      size.memory = 1
       OSSpinLockUnlock(lock)
       return
     }
 
     tail.memory.memory.next = node
     tail.memory = node
-    size.memory += 1
+
     OSSpinLockUnlock(lock)
   }
 
@@ -88,23 +88,21 @@ public struct FastQueueStruct<T>: QueueType
   {
     OSSpinLockLock(lock)
 
-    if size.memory > 0
+    if head.memory != nil
     {
       let oldhead = head.memory
 
       // Promote the 2nd item to 1st
       head.memory = oldhead.memory.next
-      size.memory -= 1
 
       // Logical housekeeping
-      if size.memory <= 0 { tail.memory = nil }
+      if head.memory == nil { tail.memory = nil }
 
       OSSpinLockUnlock(lock)
 
-      let eptr = UnsafeMutablePointer<T>(oldhead.memory.elem)
-      let element = eptr.move()
+      let element = UnsafeMutablePointer<T>(oldhead.memory.elem).move()
 
-      eptr.dealloc(1)
+      UnsafeMutablePointer<T>(oldhead.memory.elem).dealloc(1)
       oldhead.dealloc(1)
 
       return element
@@ -114,6 +112,20 @@ public struct FastQueueStruct<T>: QueueType
     OSSpinLockUnlock(lock)
     return nil
   }
+
+  // Implementation of GeneratorType
+
+  public func next() -> T?
+  {
+    return dequeue()
+  }
+
+  // Implementation of SequenceType
+
+  public func generate() -> FastQueueStruct
+  {
+    return self
+  }
 }
 
 final private class QueueDeallocator<T>
@@ -121,17 +133,14 @@ final private class QueueDeallocator<T>
   private let head: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>
   private let tail: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>
 
-  private let size: UnsafeMutablePointer<Int>
   private let lock: UnsafeMutablePointer<Int32>
 
   init(head: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>,
        tail: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>,
-       size: UnsafeMutablePointer<Int>,
        lock: UnsafeMutablePointer<Int32>)
   {
     self.head = head
     self.tail = tail
-    self.size = size
     self.lock = lock
   }
 
@@ -154,8 +163,6 @@ final private class QueueDeallocator<T>
     tail.destroy()
     tail.dealloc(1)
 
-    size.destroy()
-    size.dealloc(1)
     lock.destroy()
     lock.dealloc(1)
   }
