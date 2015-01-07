@@ -12,4 +12,9 @@ struct LinkNode
   var elem: COpaquePointer = nil
 }
 
-let LinkNodeOffset: UInt = 0
+struct RefLinkNode
+{
+  var next: UnsafeMutablePointer<RefLinkNode> = nil
+  var elem: Unmanaged<AnyObject>
+}
+

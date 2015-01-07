@@ -9,7 +9,6 @@
 public final class RefQueueSwift1<T: AnyObject>: QueueType
 {
   private let head = AtomicQueueInit()
-  private var size: Int32 = 0
 
   public init() { }
 
@@ -22,49 +21,59 @@ public final class RefQueueSwift1<T: AnyObject>: QueueType
   deinit
   {
     // first, empty the queue
-    while size > 0
+    while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
     {
-      dequeue()
+      let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
+      Unmanaged<T>.fromOpaque(node.memory.elem).release()
+      node.dealloc(1)
     }
 
     // then release the queue head structure
     AtomicQueueRelease(head)
   }
 
-  public var isEmpty: Bool { return size < 1 }
+  public var isEmpty: Bool {
+    return UnsafeMutablePointer<COpaquePointer>(head).memory == nil
+  }
 
-  public var count: Int { return Int(size) }
+  public var count: Int {
+    return (UnsafeMutablePointer<COpaquePointer>(head).memory == nil) ? 0 : CountNodes()
+  }
 
   public func CountNodes() -> Int
   {
-    return PointerNodeCountNodes(head)
+    // For testing; don't call this under contention.
+
+    var i = 0
+    var nptr = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>(head).memory
+    while nptr != nil
+    { // Iterate along the linked nodes while counting
+      nptr = nptr.memory.next
+      i++
+    }
+
+    return i
   }
 
   public func enqueue(newElement: T)
   {
-    let node = UnsafeMutablePointer<PointerNode>.alloc(1)
+    let node = UnsafeMutablePointer<LinkNode>.alloc(1)
     node.memory.next = nil
-    let elem = Unmanaged.passRetained(newElement).toOpaque()
-    node.memory.elem = UnsafeMutablePointer<Void>(elem)
+    node.memory.elem = Unmanaged.passRetained(newElement).toOpaque()
 
     OSAtomicFifoEnqueue(head, node, 0)
-    OSAtomicIncrement32Barrier(&size)
   }
 
   public func dequeue() -> T?
   {
-    if OSAtomicDecrement32Barrier(&size) >= 0
+    let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
+    if node != nil
     {
-      let node = UnsafeMutablePointer<PointerNode>(OSAtomicFifoDequeue(head, 0))
-      let item = COpaquePointer(node.memory.elem)
-      let element = Unmanaged<T>.fromOpaque(item).takeRetainedValue()
+      let element = Unmanaged<T>.fromOpaque(node.memory.elem).takeRetainedValue()
       node.dealloc(1)
       return element
     }
-    else
-    { // We decremented once too many; increment once to correct.
-      OSAtomicIncrement32Barrier(&size)
-      return nil
-    }
+
+    return nil
   }
 }
