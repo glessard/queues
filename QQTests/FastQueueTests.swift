@@ -41,25 +41,25 @@ class FastPoolQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTest(FastPoolQueue<Int>.self, element: 0)
+    QueueTest(FastQueuePool<Int>.self, element: 0)
   }
 
   func testPerformanceFill()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestFill(FastPoolQueue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestFill(FastQueuePool<dispatch_semaphore_t>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestSpin(FastPoolQueue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestSpin(FastQueuePool<dispatch_semaphore_t>.self, element: s)
   }
 
   func testPerformanceEmpty()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestEmpty(FastPoolQueue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestEmpty(FastQueuePool<dispatch_semaphore_t>.self, element: s)
   }
 }
 
@@ -93,24 +93,24 @@ class FastPoolQueueStructTests: QQTests
 {
   func testQueue()
   {
-    QueueTest(FastPoolQueueStruct<Int>.self, element: 0)
+    QueueTest(FastQueuePoolStruct<Int>.self, element: 0)
   }
 
   func testPerformanceFill()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestFill(FastPoolQueueStruct<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestFill(FastQueuePoolStruct<dispatch_semaphore_t>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestSpin(FastPoolQueueStruct<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestSpin(FastQueuePoolStruct<dispatch_semaphore_t>.self, element: s)
   }
 
   func testPerformanceEmpty()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestEmpty(FastPoolQueueStruct<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestEmpty(FastQueuePoolStruct<dispatch_semaphore_t>.self, element: s)
   }
 }

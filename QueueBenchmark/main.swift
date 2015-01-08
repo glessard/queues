@@ -58,7 +58,7 @@ println()
 println("iOS-compatible hybrid solutions")
 
 println("FastQueue (with pool):")
-var fqueuep = FastPoolQueue(iterations)
+var fqueuep = FastQueuePool(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -71,7 +71,7 @@ print(dt/iterations); println(" ns per iteration")
 
 
 println("FastQueue (as struct with pool):")
-var fqueueps = FastPoolQueueStruct(iterations)
+var fqueueps = FastQueuePoolStruct(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -83,109 +83,14 @@ dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
 
-println()
-println("Swift + C solutions")
-
-
-println("RefQueueC1:")
-var rqueue1 = RefQueueC1(ref)
+println("AnyQueue (as struct with pool):")
+var aqueueps = AnyQueuePoolStruct(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  rqueue1.dequeue()
-  rqueue1.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
-
-
-println("RefQueueC2:")
-var rqueue2 = RefQueueC2(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  rqueue2.dequeue()
-  rqueue2.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
-
-
-println("RefQueueC3:")
-var rqueue3 = RefQueueC3(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  rqueue3.dequeue()
-  rqueue3.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
-
-
-println("RefQueueC-Struct:")
-var rqueue4 = RefQueueC1Struct(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  rqueue4.dequeue()
-  rqueue4.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
-
-
-println("RefDoubleQueue (RefQueue with Pool):")
-var rqueue2x = RefDoubleQueue(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  rqueue2x.dequeue()
-  rqueue2x.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
-
-
-println("RefDoubleQueueStruct (RefQueue with Pool as Struct):")
-var rqueue2s = RefDoubleQueue(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  rqueue2s.dequeue()
-  rqueue2s.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
-
-
-println("BoxQueue:")
-var bqueue = BoxQueue(iterations)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  bqueue.dequeue()
-  bqueue.enqueue(i)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
-
-
-println("PointerQueue (with C helpers):" )
-var pqueuec = PointerQueueWithC(iterations)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  pqueuec.dequeue()
-  pqueuec.enqueue(i)
+  aqueueps.dequeue()
+  aqueueps.enqueue(i)
 }
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
@@ -233,19 +138,6 @@ dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
 
-println("PointerQueue (pure Swift, as struct, with pool, Swift node):" )
-var pqueue4 = PointerQueue4(iterations)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  pqueue4.dequeue()
-  pqueue4.enqueue(i)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
-
-
 println("RefQueue (pure Swift):" )
 var squeue1 = RefQueueSwift1(ref)
 
@@ -286,39 +178,39 @@ print(dt/iterations); println(" ns per iteration")
 
 
 println("RefQueue (pure Swift 2, with pool):" )
-var squeue3p = RefQueuePool(ref)
+var squeue2p = RefQueuePool(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  squeue3p.dequeue()
-  squeue3p.enqueue(ref)
+  squeue2p.dequeue()
+  squeue2p.enqueue(ref)
 }
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
 
 println("RefQueue (pure Swift 2, as struct):" )
-var squeue3s = RefQueueStruct(ref)
+var squeue2s = RefQueueStruct(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  squeue3s.dequeue()
-  squeue3s.enqueue(ref)
+  squeue2s.dequeue()
+  squeue2s.enqueue(ref)
 }
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
 
 println("RefQueue (pure Swift 2, as struct with pool):" )
-var squeue3ps = RefQueuePoolStruct(ref)
+var squeue2ps = RefQueuePoolStruct(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  squeue3ps.dequeue()
-  squeue3ps.enqueue(ref)
+  squeue2ps.dequeue()
+  squeue2ps.enqueue(ref)
 }
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
@@ -326,7 +218,7 @@ print(dt/iterations); println(" ns per iteration")
 
 println()
 println("PointerQueue with Reference (pure Swift, as struct, with pool, Swift node):" )
-var pqueueref = PointerQueue4(ref)
+var pqueueref = PointerQueue3(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -337,3 +229,15 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
+println()
+println("FastQueue with Reference (pure Swift, as struct, with pool, Swift node):" )
+var fqueueref = FastQueuePoolStruct(ref)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  fqueueref.dequeue()
+  fqueueref.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration")

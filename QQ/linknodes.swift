@@ -12,16 +12,16 @@ struct LinkNode
   var elem: COpaquePointer = nil
 }
 
-struct RefLinkNode
-{
-  var next: UnsafeMutablePointer<RefLinkNode> = nil
-  var elem: Unmanaged<AnyObject>
-}
-
 struct ObjLinkNode
 {
   var next: UnsafeMutablePointer<ObjLinkNode> = nil
   var elem: AnyObject
+}
+
+struct AnyLinkNode
+{
+  var next: UnsafeMutablePointer<AnyLinkNode> = nil
+  var elem: Any
 }
 
 
@@ -29,14 +29,6 @@ struct LinkNodeQueueData
 {
   var head: UnsafeMutablePointer<LinkNode> = nil
   var tail: UnsafeMutablePointer<LinkNode> = nil
-
-  var lock: Int32 = OS_SPINLOCK_INIT
-}
-
-struct RefLinkNodeQueueData
-{
-  var head: UnsafeMutablePointer<RefLinkNode> = nil
-  var tail: UnsafeMutablePointer<RefLinkNode> = nil
 
   var lock: Int32 = OS_SPINLOCK_INIT
 }

@@ -10,6 +10,5 @@
 #define QQ_bridging_header_h
 
 #import "atomicqueue.h"
-#import "linknodes.h"
 
 #endif

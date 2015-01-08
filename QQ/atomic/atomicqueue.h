@@ -10,7 +10,6 @@
 #define QQ_atomicqueue_h
 
 #import <libkern/OSAtomic.h>
-#import "linknodes.h"
 
 OSFifoQueueHead* AtomicQueueInit();
 
@@ -24,24 +23,5 @@ OSQueueHead* AtomicStackInit();
 void AtomicStackRelease(OSQueueHead* h);
 
 long AtomicStackCountNodes(OSQueueHead* h, size_t offset);
-
-
-void RefNodeEnqueue(OSFifoQueueHead* h, id item);
-
-id   RefNodeDequeue(OSFifoQueueHead* h);
-
-long RefNodeCountNodes(OSFifoQueueHead* h);
-
-
-void RefNodeEnqueue2(OSFifoQueueHead* head, OSFifoQueueHead* pool, id item);
-
-id   RefNodeDequeue2(OSFifoQueueHead* head, OSFifoQueueHead* pool);
-
-
-void  PointerNodeEnqueue(OSFifoQueueHead* h, void* item);
-
-void* PointerNodeDequeue(OSFifoQueueHead* h);
-
-long  PointerNodeCountNodes(OSFifoQueueHead* h);
 
 #endif

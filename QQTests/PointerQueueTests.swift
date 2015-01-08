@@ -88,29 +88,3 @@ class PointerQueue3Tests: QQTests
     QueuePerformanceTestEmpty(PointerQueue3<dispatch_semaphore_t>.self, element: s)
   }
 }
-
-class PointerQueueWithCTests: QQTests
-{
-  func testQueue()
-  {
-    QueueTest(PointerQueueWithC<Int>.self, element: 0)
-  }
-
-  func testPerformanceFill()
-  {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestFill(PointerQueueWithC<dispatch_semaphore_t>.self, element: s)
-  }
-
-  func testPerformanceSpin()
-  {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestSpin(PointerQueueWithC<dispatch_semaphore_t>.self, element: s)
-  }
-
-  func testPerformanceEmpty()
-  {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestEmpty(PointerQueueWithC<dispatch_semaphore_t>.self, element: s)
-  }
-}

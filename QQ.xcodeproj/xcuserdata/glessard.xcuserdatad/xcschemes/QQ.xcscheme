@@ -68,9 +68,6 @@
                   Identifier = "FastQueueTests">
                </Test>
                <Test
-                  Identifier = "OriginalQueueTests">
-               </Test>
-               <Test
                   Identifier = "PointerQueue1Tests">
                </Test>
                <Test
@@ -84,6 +81,21 @@
                </Test>
                <Test
                   Identifier = "QQTests">
+               </Test>
+               <Test
+                  Identifier = "RefDoubleQueueTests">
+               </Test>
+               <Test
+                  Identifier = "RefQueueC1Tests">
+               </Test>
+               <Test
+                  Identifier = "RefQueueC2Tests">
+               </Test>
+               <Test
+                  Identifier = "RefQueueC3Tests">
+               </Test>
+               <Test
+                  Identifier = "RefQueueStructTests">
                </Test>
             </SkippedTests>
          </TestableReference>

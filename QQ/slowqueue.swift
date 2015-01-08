@@ -12,10 +12,10 @@ import Foundation
   A simple queue, implemented as a linked list.
 */
 
-final public class Queue<T>: QueueType, SequenceType, GeneratorType
+final public class SlowQueue<T>: QueueType, SequenceType, GeneratorType
 {
-  private var head: Node? = nil
-  private var tail: Node! = nil
+  private var head: Node<T>? = nil
+  private var tail: Node<T>! = nil
 
   private var size: Int = 0
 
@@ -85,7 +85,7 @@ final public class Queue<T>: QueueType, SequenceType, GeneratorType
       if size <= 0 { tail = nil }
 
       OSSpinLockUnlock(&lock)
-      return oldhead.elem as? T
+      return oldhead.elem
     }
 
     // queue is empty
@@ -113,12 +113,12 @@ final public class Queue<T>: QueueType, SequenceType, GeneratorType
   Clearly an implementation detail.
 */
 
-private class Node
+private class Node<T>
 {
   var next: Node? = nil
-  let elem: Any
+  let elem: T
 
-  init(_ e: Any)
+  init(_ e: T)
   {
     elem = e
   }

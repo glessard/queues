@@ -10,7 +10,7 @@
   A simple queue, implemented as a linked list.
 */
 
-public struct FastPoolQueueStruct<T>: QueueType
+public struct FastQueuePoolStruct<T>: QueueType
 {
   private let qdata = UnsafeMutablePointer<LinkNodeQueueData>.alloc(1)
   private let pool =  AtomicStackInit()
@@ -144,7 +144,7 @@ final private class QueueDeallocator<T>
     // drain the pool
     while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
     {
-      let node = UnsafeMutablePointer<PointerNode>(OSAtomicDequeue(pool, 0))
+      let node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
       UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
     }

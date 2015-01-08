@@ -36,6 +36,4 @@ id RefNodeExtract(struct RefNode* node);
 struct RefNode* RefNodeInsertCF(CFTypeRef item);
 CFTypeRef RefNodeExtractCF(struct RefNode* node);
 
-void pointerPrint(void* p);
-
 #endif

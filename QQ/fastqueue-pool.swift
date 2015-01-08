@@ -12,7 +12,7 @@ import Foundation
   A simple queue, implemented as a linked list.
 */
 
-final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
+final public class FastQueuePool<T>: QueueType, SequenceType, GeneratorType
 {
   private var head: UnsafeMutablePointer<LinkNode> = nil
   private var tail: UnsafeMutablePointer<LinkNode> = nil
@@ -45,7 +45,7 @@ final public class FastPoolQueue<T>: QueueType, SequenceType, GeneratorType
     // Then, drain the pool
     while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
     {
-      let node = UnsafeMutablePointer<PointerNode>(OSAtomicDequeue(pool, 0))
+      let node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
       UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
     }
