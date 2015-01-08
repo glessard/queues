@@ -14,8 +14,8 @@ import Foundation
 
 final public class Queue<T>: QueueType, SequenceType, GeneratorType
 {
-  private var head: Node<T>? = nil
-  private var tail: Node<T>! = nil
+  private var head: Node? = nil
+  private var tail: Node! = nil
 
   private var size: Int = 0
 
@@ -51,7 +51,7 @@ final public class Queue<T>: QueueType, SequenceType, GeneratorType
 
   public func enqueue(newElement: T)
   {
-    let newNode = Node<T>(newElement)
+    let newNode = Node(newElement)
 
     OSSpinLockLock(&lock)
     if size <= 0
@@ -85,7 +85,7 @@ final public class Queue<T>: QueueType, SequenceType, GeneratorType
       if size <= 0 { tail = nil }
 
       OSSpinLockUnlock(&lock)
-      return oldhead.element
+      return oldhead.elem as? T
     }
 
     // queue is empty
@@ -113,13 +113,13 @@ final public class Queue<T>: QueueType, SequenceType, GeneratorType
   Clearly an implementation detail.
 */
 
-private class Node<T>
+private class Node
 {
-  let element: T
-  var next: Node<T>? = nil
+  var next: Node? = nil
+  let elem: Any
 
-  init(_ e: T)
+  init(_ e: Any)
   {
-    element = e
+    elem = e
   }
 }

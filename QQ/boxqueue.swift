@@ -50,8 +50,8 @@ public final class BoxQueue<T>: QueueType
   {
     if OSAtomicDecrement32Barrier(&size) >= 0
     {
-      let box = RefNodeDequeue(head) as? Box<T>
-      return box?.element
+      let box = RefNodeDequeue(head) as? Box
+      return box?.element as T?
     }
     else
     { // We decremented once too many; increment once to correct.
@@ -67,11 +67,11 @@ public final class BoxQueue<T>: QueueType
   Clearly an implementation detail.
 */
 
-private class Box<T>
+private class Box
 {
-  let element: T
+  let element: Any
 
-  init(_ e: T)
+  init(_ e: Any)
   {
     element = e
   }
