@@ -11,28 +11,54 @@ import Foundation
 import XCTest
 import QQ
 
-class OriginalQueueTests: QQTests
+class GenericNodeQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTest(Queue<Int>.self, element: 0)
+    QueueTest(SlowQueue<Int>.self, element: 0)
   }
 
   func testPerformanceFill()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestFill(Queue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestFill(SlowQueue<dispatch_semaphore_t>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestSpin(Queue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestSpin(SlowQueue<dispatch_semaphore_t>.self, element: s)
   }
 
   func testPerformanceEmpty()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestEmpty(Queue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestEmpty(SlowQueue<dispatch_semaphore_t>.self, element: s)
+  }
+}
+
+class AnyNodeQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTest(SimpleQueue<Int>.self, element: 0)
+  }
+
+  func testPerformanceFill()
+  {
+    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
+    QueuePerformanceTestFill(SimpleQueue<dispatch_semaphore_t>.self, element: s)
+  }
+
+  func testPerformanceSpin()
+  {
+    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
+    QueuePerformanceTestSpin(SimpleQueue<dispatch_semaphore_t>.self, element: s)
+  }
+
+  func testPerformanceEmpty()
+  {
+    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
+    QueuePerformanceTestEmpty(SimpleQueue<dispatch_semaphore_t>.self, element: s)
   }
 }

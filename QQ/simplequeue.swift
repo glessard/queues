@@ -17,8 +17,6 @@ final public class SimpleQueue<T>: QueueType, SequenceType, GeneratorType
   private var head: Node? = nil
   private var tail: Node! = nil
 
-  private var size: Int = 0
-
   private var lock = OS_SPINLOCK_INIT
 
   public init() { }
@@ -29,13 +27,15 @@ final public class SimpleQueue<T>: QueueType, SequenceType, GeneratorType
     enqueue(newElement)
   }
 
-  final public var isEmpty: Bool { return size == 0 }
+  final public var isEmpty: Bool { return head == nil }
 
-  final public var count: Int { return size }
+  final public var count: Int {
+    return (head == nil) ? 0 : CountNodes()
+  }
 
   public func CountNodes() -> Int
   {
-    // For testing; don't call this under contention.
+    // This is really not thread-safe.
 
     var i = 0
     var node = head
@@ -44,7 +44,6 @@ final public class SimpleQueue<T>: QueueType, SequenceType, GeneratorType
       node = n.next
       i++
     }
-    assert(i == size, "Queue might have lost data")
 
     return Int(i)
   }
@@ -54,35 +53,29 @@ final public class SimpleQueue<T>: QueueType, SequenceType, GeneratorType
     let newNode = Node(newElement)
 
     OSSpinLockLock(&lock)
-    if size <= 0
+    if head == nil
     {
       head = newNode
       tail = newNode
-      size = 1
       OSSpinLockUnlock(&lock)
       return
     }
 
     tail.next = newNode
     tail = newNode
-    size += 1
     OSSpinLockUnlock(&lock)
   }
 
   public func dequeue() -> T?
   {
     OSSpinLockLock(&lock)
-    if size > 0
+    if let oldhead = head
     {
-      let oldhead = head!
-
       // Promote the 2nd node to 1st
       head = oldhead.next
 
-      size -= 1
-
       // Logical housekeeping
-      if size <= 0 { tail = nil }
+      if head == nil { tail = nil }
 
       OSSpinLockUnlock(&lock)
       return oldhead.elem as? T

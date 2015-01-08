@@ -58,7 +58,7 @@ public final class RefQueueSwift3<T: AnyObject>: QueueType
   public func enqueue(item: T)
   {
     let node = UnsafeMutablePointer<AnyLinkNode>.alloc(1)
-    node.initialize(AnyLinkNode(next: nil, elem: item))
+    node.initialize(AnyLinkNode(item))
 
     OSAtomicFifoEnqueue(head, node, 0)
   }

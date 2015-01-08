@@ -15,14 +15,38 @@ let ref = dispatch_semaphore_create(1)!
 
 println("Swift-Only solutions")
 
-println("Queue:")
-var queue = Queue(iterations)
+//println("Slow Queue:")
+//var queue1 = SlowQueue(iterations)
+//
+//then = mach_absolute_time()
+//for i in 1...iterations
+//{
+//  queue1.dequeue()
+//  queue1.enqueue(i)
+//}
+//dt = mach_absolute_time() - then
+//print(dt/iterations); println(" ns per iteration")
+
+
+println("SimpleQueue:")
+var queue2 = SimpleQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  queue.dequeue()
-  queue.enqueue(i)
+  queue2.dequeue()
+  queue2.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration")
+
+
+println("LinkQueue:")
+var lqueue = LinkQueue(iterations)
+for i in 1...iterations
+{
+  lqueue.dequeue()
+  lqueue.enqueue(i)
 }
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
@@ -41,50 +65,8 @@ dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
 
-println("FastQueue (as struct):")
-var fqueuess = FastQueueStruct(iterations)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  fqueuess.dequeue()
-  fqueuess.enqueue(i)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
-
-
-println()
-println("iOS-compatible hybrid solutions")
-
-println("FastQueue (with pool):")
-var fqueuep = FastQueuePool(iterations)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  fqueuep.dequeue()
-  fqueuep.enqueue(i)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
-
-
-println("FastQueue (as struct with pool):")
-var fqueueps = FastQueuePoolStruct(iterations)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  fqueueps.dequeue()
-  fqueueps.enqueue(i)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
-
-
-println("AnyQueue (as struct with pool):")
-var aqueueps = AnyQueuePoolStruct(iterations)
+println("AnyLinkQueue:")
+var aqueueps = AnyLinkQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -230,8 +212,8 @@ dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
 println()
-println("FastQueue with Reference (pure Swift, as struct, with pool, Swift node):" )
-var fqueueref = FastQueuePoolStruct(ref)
+println("FastQueue with Reference:" )
+var fqueueref = FastQueue(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations

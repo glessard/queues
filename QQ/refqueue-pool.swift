@@ -70,7 +70,7 @@ public final class RefQueuePool<T: AnyObject>: QueueType
     {
       node = UnsafeMutablePointer<ObjLinkNode>.alloc(1)
     }
-    node.initialize(ObjLinkNode(next: nil, elem: item))
+    node.initialize(ObjLinkNode(item))
 
     OSAtomicFifoEnqueue(head, node, 0)
   }

@@ -10,20 +10,17 @@ struct LinkNode
 {
   var next: UnsafeMutablePointer<LinkNode> = nil
   var elem: COpaquePointer = nil
-}
 
-struct ObjLinkNode
-{
-  var next: UnsafeMutablePointer<ObjLinkNode> = nil
-  var elem: AnyObject
-}
+  init(_ p: COpaquePointer)
+  {
+    elem = p
+  }
 
-struct AnyLinkNode
-{
-  var next: UnsafeMutablePointer<AnyLinkNode> = nil
-  var elem: Any
+  init<T>(_ p: UnsafeMutablePointer<T>)
+  {
+    elem = COpaquePointer(p)
+  }
 }
-
 
 struct LinkNodeQueueData
 {
@@ -31,4 +28,27 @@ struct LinkNodeQueueData
   var tail: UnsafeMutablePointer<LinkNode> = nil
 
   var lock: Int32 = OS_SPINLOCK_INIT
+}
+
+
+struct ObjLinkNode
+{
+  var next: UnsafeMutablePointer<ObjLinkNode> = nil
+  var elem: AnyObject
+
+  init(_ e: AnyObject)
+  {
+    elem = e
+  }
+}
+
+struct AnyLinkNode
+{
+  var next: UnsafeMutablePointer<AnyLinkNode> = nil
+  var elem: Any
+
+  init(_ e: Any)
+  {
+    elem = e
+  }
 }

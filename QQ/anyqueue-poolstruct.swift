@@ -67,7 +67,7 @@ public struct AnyQueuePoolStruct<T>: QueueType
     {
       node = UnsafeMutablePointer<AnyLinkNode>.alloc(1)
     }
-    node.initialize(AnyLinkNode(next: nil, elem: newElement))
+    node.initialize(AnyLinkNode(newElement))
 
     OSSpinLockLock(lock)
     if head.memory == nil

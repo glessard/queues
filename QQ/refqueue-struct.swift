@@ -49,7 +49,7 @@ public struct RefQueueStruct<T: AnyObject>: QueueType
   public func enqueue(item: T)
   {
     let node = UnsafeMutablePointer<ObjLinkNode>.alloc(1)
-    node.initialize(ObjLinkNode(next: nil, elem: item))
+    node.initialize(ObjLinkNode(item))
 
     OSAtomicFifoEnqueue(head, node, 0)
   }

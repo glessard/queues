@@ -12,10 +12,10 @@ import Foundation
   A simple queue, implemented as a linked list.
 */
 
-final public class SlowQueue<T>: QueueType, SequenceType, GeneratorType
+final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
 {
-  private var head: Node<T>? = nil
-  private var tail: Node<T>! = nil
+  private var head: UnsafeMutablePointer<LinkNode> = nil
+  private var tail: UnsafeMutablePointer<LinkNode> = nil
 
   private var lock = OS_SPINLOCK_INIT
 
@@ -27,6 +27,18 @@ final public class SlowQueue<T>: QueueType, SequenceType, GeneratorType
     enqueue(newElement)
   }
 
+  deinit
+  {
+    while head != nil
+    {
+      let node = head
+      head = node.memory.next
+      UnsafeMutablePointer<T>(node.memory.elem).destroy()
+      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
+      node.dealloc(1)
+    }
+  }
+
   final public var isEmpty: Bool { return head == nil }
 
   final public var count: Int {
@@ -35,13 +47,13 @@ final public class SlowQueue<T>: QueueType, SequenceType, GeneratorType
 
   public func CountNodes() -> Int
   {
-    // This is highly not thread-safe
+    // This is really not thread-safe.
 
     var i = 0
-    var node = head
-    while let n = node
+    var nptr = head
+    while nptr != nil
     { // Iterate along the linked nodes while counting
-      node = n.next
+      nptr = nptr.memory.next
       i++
     }
 
@@ -50,35 +62,49 @@ final public class SlowQueue<T>: QueueType, SequenceType, GeneratorType
 
   public func enqueue(newElement: T)
   {
-    let newNode = Node(newElement)
+    let node = UnsafeMutablePointer<LinkNode>.alloc(1)
+    node.memory.next = nil
+    let eptr = UnsafeMutablePointer<T>.alloc(1)
+    eptr.initialize(newElement)
+    node.memory.elem = COpaquePointer(eptr)
 
     OSSpinLockLock(&lock)
+
     if head == nil
     {
-      head = newNode
-      tail = newNode
+      head = node
+      tail = node
       OSSpinLockUnlock(&lock)
       return
     }
 
-    tail.next = newNode
-    tail = newNode
+    tail.memory.next = node
+    tail = node
     OSSpinLockUnlock(&lock)
   }
 
   public func dequeue() -> T?
   {
     OSSpinLockLock(&lock)
-    if let oldhead = head
+
+    if head != nil
     {
-      // Promote the 2nd node to 1st
-      head = oldhead.next
+      let oldhead = head
+
+      // Promote the 2nd item to 1st
+      head = head.memory.next
 
       // Logical housekeeping
       if head == nil { tail = nil }
 
       OSSpinLockUnlock(&lock)
-      return oldhead.elem
+
+      let element = UnsafeMutablePointer<T>(oldhead.memory.elem).move()
+
+      UnsafeMutablePointer<T>(oldhead.memory.elem).dealloc(1)
+      oldhead.dealloc(1)
+
+      return element
     }
 
     // queue is empty
@@ -98,21 +124,5 @@ final public class SlowQueue<T>: QueueType, SequenceType, GeneratorType
   public func generate() -> Self
   {
     return self
-  }
-}
-
-/**
-  A simple Node for the Queue implemented above.
-  Clearly an implementation detail.
-*/
-
-private class Node<T>
-{
-  var next: Node? = nil
-  let elem: T
-
-  init(_ e: T)
-  {
-    elem = e
   }
 }
