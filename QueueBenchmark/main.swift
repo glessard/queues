@@ -285,7 +285,7 @@ dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
 
-println("RefQueue (pure Swift 3, with pool):" )
+println("RefQueue (pure Swift 2, with pool):" )
 var squeue3p = RefQueuePool(ref)
 
 then = mach_absolute_time()
@@ -298,7 +298,7 @@ dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
 
-println("RefQueue (pure Swift 3, as struct):" )
+println("RefQueue (pure Swift 2, as struct):" )
 var squeue3s = RefQueueStruct(ref)
 
 then = mach_absolute_time()
@@ -311,7 +311,7 @@ dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
 
-println("RefQueue (pure Swift 3, as struct with pool):" )
+println("RefQueue (pure Swift 2, as struct with pool):" )
 var squeue3ps = RefQueuePoolStruct(ref)
 
 then = mach_absolute_time()

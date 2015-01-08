@@ -24,8 +24,8 @@ public final class RefQueuePool<T: AnyObject>: QueueType
     // first, empty the queue
     while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
     {
-      let node = UnsafeMutablePointer<RefLinkNode>(OSAtomicFifoDequeue(head, 0))
-      node.memory.elem.release()
+      let node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(head, 0))
+      node.destroy()
       node.dealloc(1)
     }
     // release the queue head structure
@@ -34,7 +34,7 @@ public final class RefQueuePool<T: AnyObject>: QueueType
     // drain the pool
     while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
     {
-      UnsafeMutablePointer<RefLinkNode>(OSAtomicFifoDequeue(pool, 0)).dealloc(1)
+      UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(pool, 0)).dealloc(1)
     }
     // finally release the pool queue
     AtomicQueueRelease(pool)
@@ -53,7 +53,7 @@ public final class RefQueuePool<T: AnyObject>: QueueType
     // For testing; don't call this under contention.
 
     var i = 0
-    var nptr = UnsafeMutablePointer<UnsafeMutablePointer<RefLinkNode>>(head).memory
+    var nptr = UnsafeMutablePointer<UnsafeMutablePointer<ObjLinkNode>>(head).memory
     while nptr != nil
     { // Iterate along the linked nodes while counting
       nptr = nptr.memory.next
@@ -65,22 +65,23 @@ public final class RefQueuePool<T: AnyObject>: QueueType
   
   public func enqueue(item: T)
   {
-    var node = UnsafeMutablePointer<RefLinkNode>(OSAtomicFifoDequeue(pool, 0))
+    var node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(pool, 0))
     if node == nil
     {
-      node = UnsafeMutablePointer<RefLinkNode>.alloc(1)
+      node = UnsafeMutablePointer<ObjLinkNode>.alloc(1)
     }
-    node.memory = RefLinkNode(next: nil, elem: Unmanaged.passRetained(item))
+    node.initialize(ObjLinkNode(next: nil, elem: item))
 
     OSAtomicFifoEnqueue(head, node, 0)
   }
 
   public func dequeue() -> T?
   {
-    let node = UnsafeMutablePointer<RefLinkNode>(OSAtomicFifoDequeue(head, 0))
+    let node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(head, 0))
     if node != nil
     {
-      let element = node.memory.elem.takeRetainedValue() as? T
+      let element = node.memory.elem as? T
+      node.destroy()
       node.memory.next = nil
       OSAtomicFifoEnqueue(pool, node, 0)
       return element

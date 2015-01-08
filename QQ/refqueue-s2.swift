@@ -23,8 +23,8 @@ public final class RefQueueSwift2<T: AnyObject>: QueueType
     // first, empty the queue
     while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
     {
-      let node = UnsafeMutablePointer<RefNode>(OSAtomicFifoDequeue(head, 0))
-      node.memory.elem.release()
+      let node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(head, 0))
+      node.destroy()
       node.dealloc(1)
     }
 
@@ -45,7 +45,7 @@ public final class RefQueueSwift2<T: AnyObject>: QueueType
     // For testing; don't call this under contention.
 
     var i = 0
-    var nptr = UnsafeMutablePointer<UnsafeMutablePointer<RefNode>>(head).memory
+    var nptr = UnsafeMutablePointer<UnsafeMutablePointer<ObjLinkNode>>(head).memory
     while nptr != nil
     { // Iterate along the linked nodes while counting
       nptr = nptr.memory.next
@@ -57,19 +57,19 @@ public final class RefQueueSwift2<T: AnyObject>: QueueType
 
   public func enqueue(item: T)
   {
-    let node = UnsafeMutablePointer<RefNode>.alloc(1)
-    node.memory.next = nil
-    node.memory.elem = Unmanaged.passRetained(item)
+    let node = UnsafeMutablePointer<ObjLinkNode>.alloc(1)
+    node.initialize(ObjLinkNode(next: nil, elem: item))
 
     OSAtomicFifoEnqueue(head, node, 0)
   }
 
   public func dequeue() -> T?
   {
-    let node = UnsafeMutablePointer<RefNode>(OSAtomicFifoDequeue(head, 0))
+    let node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(head, 0))
     if node != nil
     {
-      let element = node.memory.elem.takeRetainedValue() as? T
+      let element = node.memory.elem as? T
+      node.destroy()
       node.dealloc(1)
       return element
     }

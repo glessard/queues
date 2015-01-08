@@ -18,6 +18,12 @@ struct RefLinkNode
   var elem: Unmanaged<AnyObject>
 }
 
+struct ObjLinkNode
+{
+  var next: UnsafeMutablePointer<ObjLinkNode> = nil
+  var elem: AnyObject
+}
+
 
 struct LinkNodeQueueData
 {
