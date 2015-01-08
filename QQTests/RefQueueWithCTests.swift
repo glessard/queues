@@ -16,52 +16,52 @@ class RefQueueC1Tests: QQTests
   func testQueue()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueueTest(RefQueue<dispatch_semaphore_t>.self, element: s)
+    QueueTest(RefQueueC1<dispatch_semaphore_t>.self, element: s)
   }
 
   func testPerformanceFill()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestFill(RefQueue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestFill(RefQueueC1<dispatch_semaphore_t>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestSpin(RefQueue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestSpin(RefQueueC1<dispatch_semaphore_t>.self, element: s)
   }
 
   func testPerformanceEmpty()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestEmpty(RefQueue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestEmpty(RefQueueC1<dispatch_semaphore_t>.self, element: s)
   }
 }
 
-class RefQueueStructTests: QQTests
+class RefQueueC1StructTests: QQTests
 {
   func testQueue()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueueTest(RefQueueStruct<dispatch_semaphore_t>.self, element: s)
+    QueueTest(RefQueueC1Struct<dispatch_semaphore_t>.self, element: s)
   }
 
   func testPerformanceFill()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestFill(RefQueueStruct<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestFill(RefQueueC1Struct<dispatch_semaphore_t>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestSpin(RefQueueStruct<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestSpin(RefQueueC1Struct<dispatch_semaphore_t>.self, element: s)
   }
 
   func testPerformanceEmpty()
   {
     var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestEmpty(RefQueueStruct<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestEmpty(RefQueueC1Struct<dispatch_semaphore_t>.self, element: s)
   }
 }
 

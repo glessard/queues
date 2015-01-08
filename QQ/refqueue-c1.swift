@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-public final class RefQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
+public final class RefQueueC1<T: AnyObject>: QueueType, SequenceType, GeneratorType
 {
   private let head = AtomicQueueInit()
   private var size: Int32 = 0

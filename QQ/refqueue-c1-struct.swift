@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-public struct RefQueueStruct<T: AnyObject>: QueueType, SequenceType, GeneratorType
+public struct RefQueueC1Struct<T: AnyObject>: QueueType, SequenceType, GeneratorType
 {
   private let head = AtomicQueueInit()
   private var size = UnsafeMutablePointer<Int32>.alloc(1)
@@ -62,7 +62,7 @@ public struct RefQueueStruct<T: AnyObject>: QueueType, SequenceType, GeneratorTy
 
   // Implementation of SequenceType
 
-  public func generate() -> RefQueueStruct<T>
+  public func generate() -> RefQueueC1Struct
   {
     return self
   }

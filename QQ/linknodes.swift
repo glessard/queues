@@ -27,3 +27,10 @@ struct LinkNodeQueueData
   var lock: Int32 = OS_SPINLOCK_INIT
 }
 
+struct RefLinkNodeQueueData
+{
+  var head: UnsafeMutablePointer<RefLinkNode> = nil
+  var tail: UnsafeMutablePointer<RefLinkNode> = nil
+
+  var lock: Int32 = OS_SPINLOCK_INIT
+}

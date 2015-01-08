@@ -8,7 +8,7 @@
 
 import Foundation
 
-var iterations: UInt64 = 10_000
+var iterations: UInt64 = 100_000
 var then = mach_absolute_time()
 var dt = mach_absolute_time() - then
 let ref = dispatch_semaphore_create(1)!
@@ -42,13 +42,13 @@ print(dt/iterations); println(" ns per iteration")
 
 
 println("FastQueue (as struct):")
-var fqueues = FastQueueStruct(iterations)
+var fqueuess = FastQueueStruct(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  fqueues.dequeue()
-  fqueues.enqueue(i)
+  fqueuess.dequeue()
+  fqueuess.enqueue(i)
 }
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
@@ -88,7 +88,7 @@ println("Swift + C solutions")
 
 
 println("RefQueueC1:")
-var rqueue1 = RefQueue(ref)
+var rqueue1 = RefQueueC1(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -127,7 +127,7 @@ print(dt/iterations); println(" ns per iteration")
 
 
 println("RefQueueC-Struct:")
-var rqueue4 = RefQueueStruct(ref)
+var rqueue4 = RefQueueC1Struct(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -285,6 +285,45 @@ dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
 
+println("RefQueue (pure Swift 3, with pool):" )
+var squeue3p = RefQueuePool(ref)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  squeue3p.dequeue()
+  squeue3p.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration")
+
+
+println("RefQueue (pure Swift 3, as struct):" )
+var squeue3s = RefQueueStruct(ref)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  squeue3s.dequeue()
+  squeue3s.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration")
+
+
+println("RefQueue (pure Swift 3, as struct with pool):" )
+var squeue3ps = RefQueuePoolStruct(ref)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  squeue3ps.dequeue()
+  squeue3ps.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration")
+
+
 println()
 println("PointerQueue with Reference (pure Swift, as struct, with pool, Swift node):" )
 var pqueueref = PointerQueue4(ref)
@@ -297,3 +336,4 @@ for i in 1...iterations
 }
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
+

@@ -6,30 +6,21 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-public final class RefQueueSwift3<T: AnyObject>: QueueType
+public struct RefQueueStruct<T: AnyObject>: QueueType
 {
   private let head = AtomicQueueInit()
 
-  public init() { }
+  private let deallocator: QueueDeallocator<T>
 
-  convenience public init(_ newElement: T)
+  public init()
+  {
+    deallocator = QueueDeallocator(head: head)
+  }
+
+  public init(_ newElement: T)
   {
     self.init()
     enqueue(newElement)
-  }
-
-  deinit
-  {
-    // first, empty the queue
-    while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
-    {
-      let node = UnsafeMutablePointer<RefLinkNode>(OSAtomicFifoDequeue(head, 0))
-      node.memory.elem.release()
-      node.dealloc(1)
-    }
-
-    // then release the queue head structure
-    AtomicQueueRelease(head)
   }
 
   public var isEmpty: Bool {
@@ -74,5 +65,29 @@ public final class RefQueueSwift3<T: AnyObject>: QueueType
     }
 
     return nil
+  }
+}
+
+final private class QueueDeallocator<T>
+{
+  private let head: COpaquePointer
+
+  init(head: COpaquePointer)
+  {
+    self.head = head
+  }
+
+  deinit
+  {
+    // first, empty the queue
+    while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
+    {
+      let node = UnsafeMutablePointer<RefLinkNode>(OSAtomicFifoDequeue(head, 0))
+      node.memory.elem.release()
+      node.dealloc(1)
+    }
+
+    // then release the queue head structure
+    AtomicQueueRelease(head)
   }
 }
