@@ -14,21 +14,14 @@ import Foundation
 
 public struct FastQueueStruct<T>: QueueType, SequenceType, GeneratorType
 {
-  private var head = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>.alloc(1)
-  private var tail = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>.alloc(1)
-
-  private var lock = UnsafeMutablePointer<Int32>.alloc(1)
-
+  private let qdata = UnsafeMutablePointer<LinkNodeQueueData>.alloc(1)
   private let deallocator: QueueDeallocator<T>
 
   public init()
   {
-    head.initialize(nil)
-    tail.initialize(nil)
+    qdata.initialize(LinkNodeQueueData())
 
-    lock.initialize(OS_SPINLOCK_INIT)
-
-    deallocator = QueueDeallocator(head: head, tail: tail, lock: lock)
+    deallocator = QueueDeallocator(data: qdata)
   }
 
   public init(_ newElement: T)
@@ -38,11 +31,11 @@ public struct FastQueueStruct<T>: QueueType, SequenceType, GeneratorType
   }
 
   public var isEmpty: Bool {
-    return head.memory == nil
+    return qdata.memory.head == nil
   }
 
   public var count: Int {
-    return (head.memory == nil) ? 0 : CountNodes()
+    return (qdata.memory.head == nil) ? 0 : CountNodes()
   }
 
   public func CountNodes() -> Int
@@ -50,7 +43,7 @@ public struct FastQueueStruct<T>: QueueType, SequenceType, GeneratorType
     // For testing; don't call this under contention.
 
     var i = 0
-    var nptr = head.memory
+    var nptr = qdata.memory.head
     while nptr != nil
     { // Iterate along the linked nodes while counting
       nptr = nptr.memory.next
@@ -68,37 +61,37 @@ public struct FastQueueStruct<T>: QueueType, SequenceType, GeneratorType
     eptr.initialize(newElement)
     node.memory.elem = COpaquePointer(eptr)
 
-    OSSpinLockLock(lock)
+    OSSpinLockLock(&qdata.memory.lock)
 
-    if head.memory == nil
+    if qdata.memory.head == nil
     {
-      head.memory = node
-      tail.memory = node
-      OSSpinLockUnlock(lock)
+      qdata.memory.head = node
+      qdata.memory.tail = node
+      OSSpinLockUnlock(&qdata.memory.lock)
       return
     }
 
-    tail.memory.memory.next = node
-    tail.memory = node
+    qdata.memory.tail.memory.next = node
+    qdata.memory.tail = node
 
-    OSSpinLockUnlock(lock)
+    OSSpinLockUnlock(&qdata.memory.lock)
   }
 
   public func dequeue() -> T?
   {
-    OSSpinLockLock(lock)
+    OSSpinLockLock(&qdata.memory.lock)
 
-    if head.memory != nil
+    if qdata.memory.head != nil
     {
-      let oldhead = head.memory
+      let oldhead = qdata.memory.head
 
       // Promote the 2nd item to 1st
-      head.memory = oldhead.memory.next
+      qdata.memory.head = oldhead.memory.next
 
       // Logical housekeeping
-      if head.memory == nil { tail.memory = nil }
+      if qdata.memory.head == nil { qdata.memory.tail = nil }
 
-      OSSpinLockUnlock(lock)
+      OSSpinLockUnlock(&qdata.memory.lock)
 
       let element = UnsafeMutablePointer<T>(oldhead.memory.elem).move()
 
@@ -109,7 +102,7 @@ public struct FastQueueStruct<T>: QueueType, SequenceType, GeneratorType
     }
 
     // queue is empty
-    OSSpinLockUnlock(lock)
+    OSSpinLockUnlock(&qdata.memory.lock)
     return nil
   }
 
@@ -130,40 +123,26 @@ public struct FastQueueStruct<T>: QueueType, SequenceType, GeneratorType
 
 final private class QueueDeallocator<T>
 {
-  private let head: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>
-  private let tail: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>
+  private let qdata: UnsafeMutablePointer<LinkNodeQueueData>
 
-  private let lock: UnsafeMutablePointer<Int32>
-
-  init(head: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>,
-       tail: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>,
-       lock: UnsafeMutablePointer<Int32>)
+  init(data: UnsafeMutablePointer<LinkNodeQueueData>)
   {
-    self.head = head
-    self.tail = tail
-    self.lock = lock
+    qdata = data
   }
 
   deinit
   {
     // empty the queue
-    var node = head.memory
-    while node != nil
+    while qdata.memory.head != nil
     {
-      let next = node.memory.next
-      let eptr = UnsafeMutablePointer<T>(node.memory.elem)
-      eptr.destroy()
-      eptr.dealloc(1)
+      let node = qdata.memory.head
+      qdata.memory.head = node.memory.next
+      UnsafeMutablePointer<T>(node.memory.elem).destroy()
+      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
-      node = next
     }
     // release the queue head structure
-    head.destroy()
-    head.dealloc(1)
-    tail.destroy()
-    tail.dealloc(1)
-
-    lock.destroy()
-    lock.dealloc(1)
+    qdata.destroy()
+    qdata.dealloc(1)
   }
 }

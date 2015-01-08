@@ -12,23 +12,16 @@
 
 public struct FastPoolQueueStruct<T>: QueueType
 {
-  private var head = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>.alloc(1)
-  private var tail = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>.alloc(1)
-
-  private var lock = UnsafeMutablePointer<Int32>.alloc(1)
-
-  private let pool = AtomicStackInit()
+  private let qdata = UnsafeMutablePointer<LinkNodeQueueData>.alloc(1)
+  private let pool =  AtomicStackInit()
 
   private let deallocator: QueueDeallocator<T>
 
   public init()
   {
-    head.initialize(nil)
-    tail.initialize(nil)
+    qdata.initialize(LinkNodeQueueData())
 
-    lock.initialize(OS_SPINLOCK_INIT)
-
-    deallocator = QueueDeallocator(head: head, tail: tail, lock: lock, pool: pool)
+    deallocator = QueueDeallocator(data: qdata, pool: pool)
   }
 
   public init(_ newElement: T)
@@ -38,19 +31,19 @@ public struct FastPoolQueueStruct<T>: QueueType
   }
 
   public var isEmpty: Bool {
-    return head.memory == nil
+    return qdata.memory.head == nil
   }
 
   public var count: Int {
-    return (head.memory == nil) ? 0 : CountNodes()
+    return (qdata.memory.head == nil) ? 0 : CountNodes()
   }
-  
+
   public func CountNodes() -> Int
   {
     // For testing; don't call this under contention.
 
     var i = 0
-    var nptr = head.memory
+    var nptr = qdata.memory.head
     while nptr != nil
     { // Iterate along the linked nodes while counting
       nptr = nptr.memory.next
@@ -77,35 +70,37 @@ public struct FastPoolQueueStruct<T>: QueueType
       node.memory.elem = COpaquePointer(eptr)
     }
 
-    OSSpinLockLock(lock)
-    if head.memory == nil
+    OSSpinLockLock(&qdata.memory.lock)
+
+    if qdata.memory.head == nil
     {
-      head.memory = node
-      tail.memory = node
-      OSSpinLockUnlock(lock)
+      qdata.memory.head = node
+      qdata.memory.tail = node
+      OSSpinLockUnlock(&qdata.memory.lock)
       return
     }
 
-    tail.memory.memory.next = node
-    tail.memory = node
-    OSSpinLockUnlock(lock)
+    qdata.memory.tail.memory.next = node
+    qdata.memory.tail = node
+
+    OSSpinLockUnlock(&qdata.memory.lock)
   }
 
   public func dequeue() -> T?
   {
-    OSSpinLockLock(lock)
+    OSSpinLockLock(&qdata.memory.lock)
 
-    if head.memory != nil
+    if qdata.memory.head != nil
     {
-      let oldhead = head.memory
+      let oldhead = qdata.memory.head
 
       // Promote the 2nd item to 1st
-      head.memory = oldhead.memory.next
+      qdata.memory.head = oldhead.memory.next
 
       // Logical housekeeping
-      if head.memory == nil { tail.memory = nil }
+      if qdata.memory.head == nil { qdata.memory.tail = nil }
 
-      OSSpinLockUnlock(lock)
+      OSSpinLockUnlock(&qdata.memory.lock)
 
       let element = UnsafeMutablePointer<T>(oldhead.memory.elem).move()
 //      oldhead.memory.next = nil
@@ -115,47 +110,36 @@ public struct FastPoolQueueStruct<T>: QueueType
     }
 
     // queue is empty
-    OSSpinLockUnlock(lock)
+    OSSpinLockUnlock(&qdata.memory.lock)
     return nil
   }
 }
 
 final private class QueueDeallocator<T>
 {
-  private let head: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>
-  private let tail: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>
+  private let qdata: UnsafeMutablePointer<LinkNodeQueueData>
+  private let pool:  COpaquePointer
 
-  private let lock: UnsafeMutablePointer<Int32>
-
-  private let pool: COpaquePointer
-
-  init(head: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>,
-       tail: UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>,
-       lock: UnsafeMutablePointer<Int32>,
-       pool: COpaquePointer)
+  init(data: UnsafeMutablePointer<LinkNodeQueueData>, pool: COpaquePointer)
   {
-    self.head = head
-    self.tail = tail
-    self.lock = lock
+    self.qdata = data
     self.pool = pool
   }
 
   deinit
   {
     // empty the queue
-    while head.memory != nil
+    while qdata.memory.head != nil
     {
-      let node = head.memory
-      head.memory = node.memory.next
+      let node = qdata.memory.head
+      qdata.memory.head = node.memory.next
       UnsafeMutablePointer<T>(node.memory.elem).destroy()
       UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
     }
     // release the queue head structure
-    head.destroy()
-    head.dealloc(1)
-    tail.destroy()
-    tail.dealloc(1)
+    qdata.destroy()
+    qdata.dealloc(1)
 
     // drain the pool
     while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
@@ -166,8 +150,5 @@ final private class QueueDeallocator<T>
     }
     // release the pool stack structure
     AtomicStackRelease(pool)
-
-    lock.destroy()
-    lock.dealloc(1)
   }
 }
