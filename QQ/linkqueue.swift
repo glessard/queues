@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Foundation
-
 /**
   A simple queue, implemented as a linked list.
 */
@@ -42,10 +40,10 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
   final public var isEmpty: Bool { return head == nil }
 
   final public var count: Int {
-    return (head == nil) ? 0 : CountNodes()
+    return (head == nil) ? 0 : countElements()
   }
 
-  public func CountNodes() -> Int
+  public func countElements() -> Int
   {
     // This is really not thread-safe.
 

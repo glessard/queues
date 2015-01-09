@@ -60,5 +60,5 @@ public protocol QueueType
     For testing, mostly. Walk the linked list while counting the nodes.
   */
 
-  func CountNodes() -> Int
+  func countElements() -> Int
 }

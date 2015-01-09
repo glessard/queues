@@ -35,10 +35,10 @@ public struct FastQueue<T>: QueueType, SequenceType, GeneratorType
   }
 
   public var count: Int {
-    return (qdata.memory.head == nil) ? 0 : CountNodes()
+    return (qdata.memory.head == nil) ? 0 : countElements()
   }
 
-  public func CountNodes() -> Int
+  public func countElements() -> Int
   {
     // For testing; don't call this under contention.
 
@@ -56,19 +56,13 @@ public struct FastQueue<T>: QueueType, SequenceType, GeneratorType
   public func enqueue(newElement: T)
   {
     var node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
-    if node != nil
-    {
-      node.memory.next = nil
-      UnsafeMutablePointer<T>(node.memory.elem).initialize(newElement)
-    }
-    else
+    if node == nil
     {
       node = UnsafeMutablePointer<LinkNode>.alloc(1)
-      node.memory.next = nil
-      let eptr = UnsafeMutablePointer<T>.alloc(1)
-      eptr.initialize(newElement)
-      node.memory.elem = COpaquePointer(eptr)
+      node.memory.elem = COpaquePointer(UnsafeMutablePointer<T>.alloc(1))
     }
+    node.memory.next = nil
+    UnsafeMutablePointer<T>(node.memory.elem).initialize(newElement)
 
     OSSpinLockLock(&qdata.memory.lock)
 

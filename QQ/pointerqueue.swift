@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-public struct PointerQueue3<T>: QueueType, SequenceType, GeneratorType
+public struct PointerQueue<T>: QueueType, SequenceType, GeneratorType
 {
   private let head = AtomicQueueInit()
   private let pool = AtomicStackInit()
@@ -29,10 +29,10 @@ public struct PointerQueue3<T>: QueueType, SequenceType, GeneratorType
   }
 
   public var count: Int {
-    return (UnsafeMutablePointer<COpaquePointer>(head).memory == nil) ? 0 : CountNodes()
+    return (UnsafeMutablePointer<COpaquePointer>(head).memory == nil) ? 0 : countElements()
   }
 
-  public func CountNodes() -> Int
+  public func countElements() -> Int
   {
     // Not thread safe.
     return AtomicQueueCountNodes(head, 0)
@@ -70,7 +70,7 @@ public struct PointerQueue3<T>: QueueType, SequenceType, GeneratorType
     return dequeue()
   }
 
-  public func generate() -> PointerQueue3
+  public func generate() -> PointerQueue
   {
     return self
   }

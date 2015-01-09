@@ -30,10 +30,10 @@ final public class SlowQueue<T>: QueueType, SequenceType, GeneratorType
   final public var isEmpty: Bool { return head == nil }
 
   final public var count: Int {
-    return (head == nil) ? 0 : CountNodes()
+    return (head == nil) ? 0 : countElements()
   }
 
-  public func CountNodes() -> Int
+  public func countElements() -> Int
   {
     // This is highly not thread-safe
 

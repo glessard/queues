@@ -41,18 +41,18 @@ final public class AnyLinkQueue<T>: QueueType, SequenceType, GeneratorType
   final public var isEmpty: Bool { return head == nil }
 
   final public var count: Int {
-    return (head == nil) ? 0 : CountNodes()
+    return (head == nil) ? 0 : countElements()
   }
 
-  public func CountNodes() -> Int
+  public func countElements() -> Int
   {
     // This is really not thread-safe.
 
     var i = 0
-    var nptr = head
-    while nptr != nil
+    var node = head
+    while node != nil
     { // Iterate along the linked nodes while counting
-      nptr = nptr.memory.next
+      node = node.memory.next
       i++
     }
 
@@ -65,7 +65,6 @@ final public class AnyLinkQueue<T>: QueueType, SequenceType, GeneratorType
     node.initialize(AnyLinkNode(newElement))
 
     OSSpinLockLock(&lock)
-
     if head == nil
     {
       head = node

@@ -29,10 +29,10 @@ public struct RefQueuePoolStruct<T: AnyObject>: QueueType
   }
 
   public var count: Int {
-    return (UnsafeMutablePointer<COpaquePointer>(head).memory == nil) ? 0 : CountNodes()
+    return (UnsafeMutablePointer<COpaquePointer>(head).memory == nil) ? 0 : countElements()
   }
 
-  public func CountNodes() -> Int
+  public func countElements() -> Int
   {
     // For testing; don't call this under contention.
 

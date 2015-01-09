@@ -22,7 +22,7 @@ class QQTests: XCTestCase
     {
       let r = arc4random_uniform(2)
 
-      XCTAssert(q.CountNodes() == q.count, "stored element count does not match actual element count")
+      XCTAssert(q.countElements() == q.count, "stored element count does not match actual element count")
 
       if r == 0
       {

@@ -35,10 +35,10 @@ public struct FastQueueStruct<T>: QueueType, SequenceType, GeneratorType
   }
 
   public var count: Int {
-    return (qdata.memory.head == nil) ? 0 : CountNodes()
+    return (qdata.memory.head == nil) ? 0 : countElements()
   }
 
-  public func CountNodes() -> Int
+  public func countElements() -> Int
   {
     // For testing; don't call this under contention.
 

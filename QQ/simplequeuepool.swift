@@ -12,10 +12,12 @@ import Foundation
   A simple queue, implemented as a linked list.
 */
 
-final public class SimpleQueue<T>: QueueType, SequenceType, GeneratorType
+final public class SimpleQueuePool<T>: QueueType, SequenceType, GeneratorType
 {
   private var head: Node? = nil
   private var tail: Node! = nil
+
+  private var pool: Node? = nil
 
   private var lock = OS_SPINLOCK_INIT
 
@@ -50,9 +52,20 @@ final public class SimpleQueue<T>: QueueType, SequenceType, GeneratorType
 
   public func enqueue(newElement: T)
   {
-    let newNode = Node(newElement)
-
+    var newNode: Node
     OSSpinLockLock(&lock)
+    if let oldNode = pool
+    {
+      pool = oldNode.next
+      newNode = oldNode
+      newNode.next = nil
+      newNode.elem = newElement
+    }
+    else
+    {
+      newNode = Node(newElement)
+    }
+
     if head == nil
     {
       head = newNode
@@ -77,8 +90,14 @@ final public class SimpleQueue<T>: QueueType, SequenceType, GeneratorType
       // Logical housekeeping
       if head == nil { tail = nil }
 
+      let element = oldhead.elem as? T
+
+      oldhead.elem = nil
+      oldhead.next = pool
+      pool = oldhead
+
       OSSpinLockUnlock(&lock)
-      return oldhead.elem as? T
+      return element
     }
 
     // queue is empty
@@ -109,7 +128,7 @@ final public class SimpleQueue<T>: QueueType, SequenceType, GeneratorType
 private class Node
 {
   var next: Node? = nil
-  let elem: Any
+  var elem: Any!
 
   init(_ e: Any)
   {
