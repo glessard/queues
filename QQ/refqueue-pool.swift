@@ -8,7 +8,7 @@
 
 import Darwin
 
-public final class RefQueuePool<T: AnyObject>: QueueType
+public final class RefQueuePool<T: AnyObject>: QueueType, SequenceType, GeneratorType
 {
   private let head = AtomicQueueInit()
   private let pool = AtomicStackInit()
@@ -52,13 +52,13 @@ public final class RefQueuePool<T: AnyObject>: QueueType
 
   public func countElements() -> Int
   {
-    // For testing; don't call this under contention.
+    // This is really not thread-safe.
 
     var i = 0
-    var nptr = UnsafeMutablePointer<UnsafeMutablePointer<ObjLinkNode>>(head).memory
-    while nptr != nil
+    var node = UnsafeMutablePointer<UnsafeMutablePointer<ObjLinkNode>>(head).memory
+    while node != nil
     { // Iterate along the linked nodes while counting
-      nptr = nptr.memory.next
+      node = node.memory.next
       i++
     }
 
@@ -89,5 +89,19 @@ public final class RefQueuePool<T: AnyObject>: QueueType
     }
 
     return nil
+  }
+
+  // Implementation of GeneratorType
+
+  public func next() -> T?
+  {
+    return dequeue()
+  }
+
+  // Implementation of SequenceType
+
+  public func generate() -> Self
+  {
+    return self
   }
 }

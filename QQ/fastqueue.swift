@@ -45,10 +45,10 @@ public struct FastQueue<T>: QueueType, SequenceType, GeneratorType
     // For testing; don't call this under contention.
 
     var i = 0
-    var nptr = qdata.memory.head
-    while nptr != nil
+    var node = qdata.memory.head
+    while node != nil
     { // Iterate along the linked nodes while counting
-      nptr = nptr.memory.next
+      node = node.memory.next
       i++
     }
 

@@ -8,22 +8,42 @@
 
 import Darwin
 
-public struct PointerQueue<T>: QueueType, SequenceType, GeneratorType
+public final class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
 {
   private let head = AtomicQueueInit()
   private let pool = AtomicStackInit()
 
-  private let deallocator: QueueDeallocator<T>
+  public init() { }
 
-  public init()
-  {
-    deallocator = QueueDeallocator(head: head, pool: pool)
-  }
-
-  public init(_ newElement: T)
+  public convenience init(_ newElement: T)
   {
     self.init()
     enqueue(newElement)
+  }
+
+  deinit
+  {
+    // first, empty the queue
+    while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
+    {
+      let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
+      let item = UnsafeMutablePointer<T>(node.memory.elem)
+      item.destroy()
+      item.dealloc(1)
+      node.dealloc(1)
+    }
+    // release the queue head structure
+    AtomicQueueRelease(head)
+
+    // Then, drain the pool
+    while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
+    {
+      let node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
+      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
+      node.dealloc(1)
+    }
+    // release the pool queue structure
+    AtomicStackRelease(pool)
   }
 
   public var isEmpty: Bool {
@@ -39,13 +59,13 @@ public struct PointerQueue<T>: QueueType, SequenceType, GeneratorType
     // Not thread safe.
 
     var i = 0
-    var nptr = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>(head).memory
-    while nptr != nil
+    var node = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>(head).memory
+    while node != nil
     { // Iterate along the linked nodes while counting
-      nptr = nptr.memory.next
+      node = node.memory.next
       i++
     }
-    
+
     return i
   }
 
@@ -81,45 +101,8 @@ public struct PointerQueue<T>: QueueType, SequenceType, GeneratorType
     return dequeue()
   }
 
-  public func generate() -> PointerQueue
+  public func generate() -> Self
   {
     return self
-  }
-}
-
-final private class QueueDeallocator<T>
-{
-  private let head: QueueHead
-  private let pool: StackHead
-
-  init(head: QueueHead, pool: StackHead)
-  {
-    self.head = head
-    self.pool = pool
-  }
-
-  deinit
-  {
-    // first, empty the queue
-    while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
-    {
-      let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
-      let item = UnsafeMutablePointer<T>(node.memory.elem)
-      item.destroy()
-      item.dealloc(1)
-      node.dealloc(1)
-    }
-    // release the queue head structure
-    AtomicQueueRelease(head)
-
-    // Then, drain the pool
-    while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
-    {
-      let node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
-      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
-      node.dealloc(1)
-    }
-    // release the pool queue structure
-    AtomicStackRelease(pool)
   }
 }

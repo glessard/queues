@@ -47,10 +47,10 @@ public final class RefQueue<T: AnyObject>: QueueType, SequenceType, GeneratorTyp
     // This is really not thread-safe.
 
     var i = 0
-    var nptr = UnsafeMutablePointer<UnsafeMutablePointer<ObjLinkNode>>(head).memory
-    while nptr != nil
+    var node = UnsafeMutablePointer<UnsafeMutablePointer<ObjLinkNode>>(head).memory
+    while node != nil
     { // Iterate along the linked nodes while counting
-      nptr = nptr.memory.next
+      node = node.memory.next
       i++
     }
 
