@@ -12,7 +12,7 @@ import Darwin
   A simple queue, implemented as a linked list.
 */
 
-public final class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
+final public class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
 {
   private var head: UnsafeMutablePointer<ObjLinkNode> = nil
   private var tail: UnsafeMutablePointer<ObjLinkNode> = nil

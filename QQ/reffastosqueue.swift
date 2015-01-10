@@ -8,9 +8,10 @@
 
 import Darwin
 
-public final class RefQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
+final public class RefFastOSQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
 {
   private let head = AtomicQueueInit()
+  private let pool = AtomicStackInit()
 
   public init() { }
 
@@ -29,9 +30,16 @@ public final class RefQueue<T: AnyObject>: QueueType, SequenceType, GeneratorTyp
       node.destroy()
       node.dealloc(1)
     }
-
-    // then release the queue head structure
+    // release the queue head structure
     AtomicQueueRelease(head)
+
+    // drain the pool
+    while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
+    {
+      UnsafeMutablePointer<ObjLinkNode>(OSAtomicDequeue(pool, 0)).dealloc(1)
+    }
+    // finally release the pool queue
+    AtomicStackRelease(pool)
   }
 
   public var isEmpty: Bool {
@@ -56,10 +64,14 @@ public final class RefQueue<T: AnyObject>: QueueType, SequenceType, GeneratorTyp
 
     return i
   }
-
+  
   public func enqueue(newElement: T)
   {
-    let node = UnsafeMutablePointer<ObjLinkNode>.alloc(1)
+    var node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicDequeue(pool, 0))
+    if node == nil
+    {
+      node = UnsafeMutablePointer<ObjLinkNode>.alloc(1)
+    }
     node.initialize(ObjLinkNode(newElement))
 
     OSAtomicFifoEnqueue(head, node, 0)
@@ -72,7 +84,7 @@ public final class RefQueue<T: AnyObject>: QueueType, SequenceType, GeneratorTyp
     {
       let element = node.memory.elem as? T
       node.destroy()
-      node.dealloc(1)
+      OSAtomicEnqueue(pool, node, 0)
       return element
     }
 

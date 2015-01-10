@@ -8,10 +8,9 @@
 
 import Darwin
 
-final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
+final public class LinkOSQueue<T>: QueueType, SequenceType, GeneratorType
 {
   private let head = AtomicQueueInit()
-  private let pool = AtomicStackInit()
 
   public init() { }
 
@@ -32,18 +31,8 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
       item.dealloc(1)
       node.dealloc(1)
     }
-    // release the queue head structure
+    // then release the queue head structure
     AtomicQueueRelease(head)
-
-    // Then, drain the pool
-    while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
-    {
-      let node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
-      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
-      node.dealloc(1)
-    }
-    // release the pool queue structure
-    AtomicStackRelease(pool)
   }
 
   public var isEmpty: Bool {
@@ -53,7 +42,7 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
   public var count: Int {
     return (UnsafeMutablePointer<COpaquePointer>(head).memory == nil) ? 0 : countElements()
   }
-
+  
   public func countElements() -> Int
   {
     // Not thread safe.
@@ -71,14 +60,10 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
 
   public func enqueue(newElement: T)
   {
-    var node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
-    if node == nil
-    {
-      node = UnsafeMutablePointer<LinkNode>.alloc(1)
-      node.memory.elem = COpaquePointer(UnsafeMutablePointer<T>.alloc(1))
-    }
-    node.memory.next = nil
-    UnsafeMutablePointer<T>(node.memory.elem).initialize(newElement)
+    let node = UnsafeMutablePointer<LinkNode>.alloc(1)
+    let elem = UnsafeMutablePointer<T>.alloc(1)
+    elem.initialize(newElement)
+    node.memory = LinkNode(elem)
 
     OSAtomicFifoEnqueue(head, node, 0)
   }
@@ -89,10 +74,12 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
     if node != nil
     {
       let element = UnsafeMutablePointer<T>(node.memory.elem).move()
-      OSAtomicEnqueue(pool, node, 0)
+      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
+      node.dealloc(1)
       return element
     }
 
+    // The queue is empty
     return nil
   }
 

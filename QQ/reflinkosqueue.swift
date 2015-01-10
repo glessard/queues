@@ -1,5 +1,5 @@
 //
-//  pointerqueue.swift
+//  refqueue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-12-13.
@@ -8,13 +8,13 @@
 
 import Darwin
 
-public final class PointerQueue1<T>: QueueType, SequenceType, GeneratorType
+final public class RefLinkOSQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
 {
   private let head = AtomicQueueInit()
 
   public init() { }
 
-  public convenience init(_ newElement: T)
+  convenience public init(_ newElement: T)
   {
     self.init()
     enqueue(newElement)
@@ -25,10 +25,8 @@ public final class PointerQueue1<T>: QueueType, SequenceType, GeneratorType
     // first, empty the queue
     while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
     {
-      let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
-      let item = UnsafeMutablePointer<T>(node.memory.elem)
-      item.destroy()
-      item.dealloc(1)
+      let node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(head, 0))
+      node.destroy()
       node.dealloc(1)
     }
 
@@ -43,13 +41,13 @@ public final class PointerQueue1<T>: QueueType, SequenceType, GeneratorType
   public var count: Int {
     return (UnsafeMutablePointer<COpaquePointer>(head).memory == nil) ? 0 : countElements()
   }
-  
+
   public func countElements() -> Int
   {
-    // Not thread safe.
+    // This is really not thread-safe.
 
     var i = 0
-    var node = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>(head).memory
+    var node = UnsafeMutablePointer<UnsafeMutablePointer<ObjLinkNode>>(head).memory
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
@@ -61,33 +59,34 @@ public final class PointerQueue1<T>: QueueType, SequenceType, GeneratorType
 
   public func enqueue(newElement: T)
   {
-    let node = UnsafeMutablePointer<LinkNode>.alloc(1)
-    let elem = UnsafeMutablePointer<T>.alloc(1)
-    elem.initialize(newElement)
-    node.memory = LinkNode(elem)
+    let node = UnsafeMutablePointer<ObjLinkNode>.alloc(1)
+    node.initialize(ObjLinkNode(newElement))
 
     OSAtomicFifoEnqueue(head, node, 0)
   }
 
   public func dequeue() -> T?
   {
-    let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
+    let node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(head, 0))
     if node != nil
     {
-      let element = UnsafeMutablePointer<T>(node.memory.elem).move()
-      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
+      let element = node.memory.elem as? T
+      node.destroy()
       node.dealloc(1)
       return element
     }
 
-    // The queue is empty
     return nil
   }
+
+  // Implementation of GeneratorType
 
   public func next() -> T?
   {
     return dequeue()
   }
+
+  // Implementation of SequenceType
 
   public func generate() -> Self
   {
