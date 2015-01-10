@@ -105,7 +105,6 @@
 		035A98561A53B0A500F4B44B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		035A98681A53BCE200F4B44B /* atomicqueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = atomicqueue.h; path = atomic/atomicqueue.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		035A98691A53BCE200F4B44B /* atomicqueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = atomicqueue.m; path = atomic/atomicqueue.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		035A98741A53BFDD00F4B44B /* bridging-header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "bridging-header.h"; sourceTree = "<group>"; };
 		03678C101A60963700F4B44B /* atomicqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = atomicqueue.swift; sourceTree = "<group>"; };
 		03678C151A60A4F000F4B44B /* reflinkqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = reflinkqueue.swift; sourceTree = "<group>"; };
 		03678C191A611D3400F4B44B /* reffastqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = reffastqueue.swift; sourceTree = "<group>"; };
@@ -226,7 +225,6 @@
 			isa = PBXGroup;
 			children = (
 				035A98561A53B0A500F4B44B /* main.swift */,
-				035A98741A53BFDD00F4B44B /* bridging-header.h */,
 			);
 			path = QueueBenchmark;
 			sourceTree = "<group>";
@@ -664,7 +662,7 @@
 					"$(inherited)",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "QueueBenchmark/bridging-header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Debug;
@@ -674,7 +672,7 @@
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = fast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "QueueBenchmark/bridging-header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Release;
@@ -688,7 +686,7 @@
 					"$(inherited)",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "QueueBenchmark/bridging-header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Debug;
@@ -698,7 +696,7 @@
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = fast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "QueueBenchmark/bridging-header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Release;

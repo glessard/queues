@@ -27,9 +27,8 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
     while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
     {
       let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
-      let item = UnsafeMutablePointer<T>(node.memory.elem)
-      item.destroy()
-      item.dealloc(1)
+      UnsafeMutablePointer<T>(node.memory.elem).destroy()
+      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
     }
     // release the queue head structure
@@ -42,7 +41,7 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
       UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
     }
-    // release the pool queue structure
+    // release the pool stack structure
     AtomicStackRelease(pool)
   }
 
