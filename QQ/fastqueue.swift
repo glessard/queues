@@ -100,7 +100,6 @@ public struct FastQueue<T>: QueueType, SequenceType, GeneratorType
 
       let element = UnsafeMutablePointer<T>(node.memory.elem).move()
       OSAtomicEnqueue(pool, node, 0)
-
       return element
     }
 
@@ -123,9 +122,9 @@ public struct FastQueue<T>: QueueType, SequenceType, GeneratorType
 final private class QueueDeallocator<T>
 {
   private let qdata: UnsafeMutablePointer<LinkNodeQueueData>
-  private let pool:  COpaquePointer
+  private let pool:  StackHead
 
-  init(data: UnsafeMutablePointer<LinkNodeQueueData>, pool: COpaquePointer)
+  init(data: UnsafeMutablePointer<LinkNodeQueueData>, pool: StackHead)
   {
     self.qdata = data
     self.pool = pool

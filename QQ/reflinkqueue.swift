@@ -12,10 +12,10 @@ import Darwin
   A simple queue, implemented as a linked list.
 */
 
-final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
+public final class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
 {
-  private var head: UnsafeMutablePointer<LinkNode> = nil
-  private var tail: UnsafeMutablePointer<LinkNode> = nil
+  private var head: UnsafeMutablePointer<ObjLinkNode> = nil
+  private var tail: UnsafeMutablePointer<ObjLinkNode> = nil
 
   private var lock = OS_SPINLOCK_INIT
 
@@ -33,8 +33,7 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
     {
       let node = head
       head = node.memory.next
-      UnsafeMutablePointer<T>(node.memory.elem).destroy()
-      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
+      node.destroy()
       node.dealloc(1)
     }
   }
@@ -62,10 +61,8 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
 
   public func enqueue(newElement: T)
   {
-    let node = UnsafeMutablePointer<LinkNode>.alloc(1)
-    let elem = UnsafeMutablePointer<T>.alloc(1)
-    elem.initialize(newElement)
-    node.memory = LinkNode(elem)
+    let node = UnsafeMutablePointer<ObjLinkNode>.alloc(1)
+    node.initialize(ObjLinkNode(newElement))
 
     OSSpinLockLock(&lock)
 
@@ -98,8 +95,8 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
 
       OSSpinLockUnlock(&lock)
 
-      let element = UnsafeMutablePointer<T>(node.memory.elem).move()
-      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
+      let element = node.memory.elem as? T
+      node.destroy()
       node.dealloc(1)
       return element
     }

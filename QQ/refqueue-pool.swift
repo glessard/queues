@@ -11,7 +11,7 @@ import Darwin
 public final class RefQueuePool<T: AnyObject>: QueueType
 {
   private let head = AtomicQueueInit()
-  private let pool = AtomicQueueInit()
+  private let pool = AtomicStackInit()
 
   public init() { }
 
@@ -36,10 +36,10 @@ public final class RefQueuePool<T: AnyObject>: QueueType
     // drain the pool
     while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
     {
-      UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(pool, 0)).dealloc(1)
+      UnsafeMutablePointer<ObjLinkNode>(OSAtomicDequeue(pool, 0)).dealloc(1)
     }
     // finally release the pool queue
-    AtomicQueueRelease(pool)
+    AtomicStackRelease(pool)
   }
 
   public var isEmpty: Bool {
@@ -67,7 +67,7 @@ public final class RefQueuePool<T: AnyObject>: QueueType
   
   public func enqueue(newElement: T)
   {
-    var node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(pool, 0))
+    var node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicDequeue(pool, 0))
     if node == nil
     {
       node = UnsafeMutablePointer<ObjLinkNode>.alloc(1)
@@ -84,8 +84,7 @@ public final class RefQueuePool<T: AnyObject>: QueueType
     {
       let element = node.memory.elem as? T
       node.destroy()
-      node.memory.next = nil
-      OSAtomicFifoEnqueue(pool, node, 0)
+      OSAtomicEnqueue(pool, node, 0)
       return element
     }
 

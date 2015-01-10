@@ -8,7 +8,7 @@
 
 import Darwin
 
-public final class RefQueue<T: AnyObject>: QueueType
+public final class RefQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
 {
   private let head = AtomicQueueInit()
 
@@ -44,7 +44,7 @@ public final class RefQueue<T: AnyObject>: QueueType
 
   public func countElements() -> Int
   {
-    // For testing; don't call this under contention.
+    // This is really not thread-safe.
 
     var i = 0
     var nptr = UnsafeMutablePointer<UnsafeMutablePointer<ObjLinkNode>>(head).memory
@@ -77,5 +77,19 @@ public final class RefQueue<T: AnyObject>: QueueType
     }
 
     return nil
+  }
+
+  // Implementation of GeneratorType
+
+  public func next() -> T?
+  {
+    return dequeue()
+  }
+
+  // Implementation of SequenceType
+
+  public func generate() -> Self
+  {
+    return self
   }
 }

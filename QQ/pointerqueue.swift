@@ -89,10 +89,10 @@ public struct PointerQueue<T>: QueueType, SequenceType, GeneratorType
 
 final private class QueueDeallocator<T>
 {
-  private let head: COpaquePointer
-  private let pool: COpaquePointer
+  private let head: QueueHead
+  private let pool: StackHead
 
-  init(head: COpaquePointer, pool: COpaquePointer)
+  init(head: QueueHead, pool: StackHead)
   {
     self.head = head
     self.pool = pool
