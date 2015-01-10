@@ -8,14 +8,10 @@
 
 import Darwin
 
-/**
-  A simple queue, implemented as a linked list.
-*/
-
 final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 {
-  private var head: UnsafeMutablePointer<LinkNode> = nil
-  private var tail: UnsafeMutablePointer<LinkNode> = nil
+  private var head: COpaquePointer = nil
+  private var tail: COpaquePointer  = nil
 
   private let pool = AtomicStackInit()
   private var lock = OS_SPINLOCK_INIT
@@ -31,10 +27,11 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
   deinit
   {
     // empty the queue
-    while head != nil
+    var h = UnsafeMutablePointer<LinkNode>(head)
+    while h != nil
     {
-      let node = head
-      head = node.memory.next
+      let node = h
+      h = node.memory.next
       UnsafeMutablePointer<T>(node.memory.elem).destroy()
       UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
@@ -62,7 +59,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
     // Not thread safe.
 
     var i = 0
-    var node = head
+    var node = UnsafeMutablePointer<LinkNode>(head)
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
@@ -87,15 +84,14 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 
     if head == nil
     {
-      head = node
-      tail = node
+      head = COpaquePointer(node)
+      tail = COpaquePointer(node)
       OSSpinLockUnlock(&lock)
       return
     }
 
-    tail.memory.next = node
-    tail = node
-
+    UnsafeMutablePointer<LinkNode>(tail).memory.next = node
+    tail = COpaquePointer(node)
     OSSpinLockUnlock(&lock)
   }
 
@@ -105,10 +101,10 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 
     if head != nil
     {
-      let node = head
+      let node = UnsafeMutablePointer<LinkNode>(head)
 
       // Promote the 2nd item to 1st
-      head = node.memory.next
+      head = COpaquePointer(node.memory.next)
 
       // Logical housekeeping
       if head == nil { tail = nil }

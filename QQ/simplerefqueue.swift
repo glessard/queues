@@ -6,11 +6,7 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Foundation
-
-/**
-  A simple queue, implemented as a linked list.
-*/
+import Darwin
 
 final public class SimpleRefQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
 {
@@ -27,15 +23,15 @@ final public class SimpleRefQueue<T: AnyObject>: QueueType, SequenceType, Genera
     enqueue(newElement)
   }
 
-  final public var isEmpty: Bool { return head == nil }
+  public var isEmpty: Bool { return head == nil }
 
-  final public var count: Int {
+  public var count: Int {
     return (head == nil) ? 0 : countElements()
   }
 
   public func countElements() -> Int
   {
-    // This is really not thread-safe.
+    // Not thread safe.
 
     var i = 0
     var node = head

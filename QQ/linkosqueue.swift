@@ -22,16 +22,15 @@ final public class LinkOSQueue<T>: QueueType, SequenceType, GeneratorType
 
   deinit
   {
-    // first, empty the queue
+    // empty the queue
     while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
     {
       let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
-      let item = UnsafeMutablePointer<T>(node.memory.elem)
-      item.destroy()
-      item.dealloc(1)
+      UnsafeMutablePointer<T>(node.memory.elem).destroy()
+      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
     }
-    // then release the queue head structure
+    // release the queue head structure
     AtomicQueueRelease(head)
   }
 
@@ -42,7 +41,7 @@ final public class LinkOSQueue<T>: QueueType, SequenceType, GeneratorType
   public var count: Int {
     return (UnsafeMutablePointer<COpaquePointer>(head).memory == nil) ? 0 : countElements()
   }
-  
+
   public func countElements() -> Int
   {
     // Not thread safe.
@@ -83,10 +82,14 @@ final public class LinkOSQueue<T>: QueueType, SequenceType, GeneratorType
     return nil
   }
 
+  // Implementation of GeneratorType
+
   public func next() -> T?
   {
     return dequeue()
   }
+
+  // Implementation of SequenceType
 
   public func generate() -> Self
   {

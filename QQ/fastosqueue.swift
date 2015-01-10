@@ -23,7 +23,7 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
 
   deinit
   {
-    // first, empty the queue
+    // empty the queue
     while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
     {
       let node = UnsafeMutablePointer<LinkNode>(OSAtomicFifoDequeue(head, 0))
@@ -34,7 +34,7 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
     // release the queue head structure
     AtomicQueueRelease(head)
 
-    // Then, drain the pool
+    // drain the pool
     while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
     {
       let node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))

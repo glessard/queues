@@ -8,7 +8,7 @@
 
 
 /*
-  Initialize an OSAtomicFifoQueueHead struct, even though we don't
+  Initialize an OSFifoQueueHead struct, even though we don't
   have the definition of it. See libkern/OSAtomic.h
 */
 
@@ -36,7 +36,7 @@ func AtomicQueueRelease(h: QueueHead)
 
 
 /*
-  Initialize an OSAtomicQueueHead struct, even though we don't
+  Initialize an OSQueueHead struct, even though we don't
   have the definition of it. See libkern/OSAtomic.h
 */
 

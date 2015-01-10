@@ -52,7 +52,7 @@ final public class RefFastOSQueue<T: AnyObject>: QueueType, SequenceType, Genera
 
   public func countElements() -> Int
   {
-    // This is really not thread-safe.
+    // Not thread safe.
 
     var i = 0
     var node = UnsafeMutablePointer<UnsafeMutablePointer<ObjLinkNode>>(head).memory

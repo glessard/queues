@@ -8,14 +8,10 @@
 
 import Darwin
 
-/**
-  A simple queue, implemented as a linked list.
-*/
-
 final public class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
 {
-  private var head: UnsafeMutablePointer<ObjLinkNode> = nil
-  private var tail: UnsafeMutablePointer<ObjLinkNode> = nil
+  private var head: COpaquePointer = nil
+  private var tail: COpaquePointer = nil
 
   private var lock = OS_SPINLOCK_INIT
 
@@ -29,27 +25,28 @@ final public class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, Generato
 
   deinit
   {
-    while head != nil
+    var h = UnsafeMutablePointer<ObjLinkNode>(head)
+    while h != nil
     {
-      let node = head
-      head = node.memory.next
+      let node = h
+      h = node.memory.next
       node.destroy()
       node.dealloc(1)
     }
   }
 
-  final public var isEmpty: Bool { return head == nil }
+  public var isEmpty: Bool { return head == nil }
 
-  final public var count: Int {
+  public var count: Int {
     return (head == nil) ? 0 : countElements()
   }
 
   public func countElements() -> Int
   {
-    // This is really not thread-safe.
+    // Not thread safe.
 
     var i = 0
-    var node = head
+    var node = UnsafeMutablePointer<ObjLinkNode>(head)
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
@@ -68,14 +65,14 @@ final public class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, Generato
 
     if head == nil
     {
-      head = node
-      tail = node
+      head = COpaquePointer(node)
+      tail = COpaquePointer(node)
       OSSpinLockUnlock(&lock)
       return
     }
 
-    tail.memory.next = node
-    tail = node
+    UnsafeMutablePointer<ObjLinkNode>(tail).memory.next = node
+    tail = COpaquePointer(node)
     OSSpinLockUnlock(&lock)
   }
 
@@ -85,10 +82,10 @@ final public class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, Generato
 
     if head != nil
     {
-      let node = head
+      let node = UnsafeMutablePointer<ObjLinkNode>(head)
 
       // Promote the 2nd item to 1st
-      head = head.memory.next
+      head = COpaquePointer(node.memory.next)
 
       // Logical housekeeping
       if head == nil { tail = nil }
