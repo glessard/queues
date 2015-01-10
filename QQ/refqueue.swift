@@ -6,7 +6,9 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-public final class RefQueueSwift2<T: AnyObject>: QueueType
+import Darwin
+
+public final class RefQueue<T: AnyObject>: QueueType
 {
   private let head = AtomicQueueInit()
 

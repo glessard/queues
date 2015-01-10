@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
+import Darwin
+
 public struct PointerQueue<T>: QueueType, SequenceType, GeneratorType
 {
   private let head = AtomicQueueInit()
@@ -35,7 +37,16 @@ public struct PointerQueue<T>: QueueType, SequenceType, GeneratorType
   public func countElements() -> Int
   {
     // Not thread safe.
-    return AtomicQueueCountNodes(head, 0)
+
+    var i = 0
+    var nptr = UnsafeMutablePointer<UnsafeMutablePointer<LinkNode>>(head).memory
+    while nptr != nil
+    { // Iterate along the linked nodes while counting
+      nptr = nptr.memory.next
+      i++
+    }
+    
+    return i
   }
 
   public func enqueue(newElement: T)

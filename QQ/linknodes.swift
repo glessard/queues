@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Guillaume Lessard. All rights reserved.
 //
 
+import Darwin
+
 struct LinkNode
 {
   var next: UnsafeMutablePointer<LinkNode> = nil

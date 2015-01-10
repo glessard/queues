@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
+import Darwin
+
 public final class RefQueuePool<T: AnyObject>: QueueType
 {
   private let head = AtomicQueueInit()

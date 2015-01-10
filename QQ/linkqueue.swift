@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
+import Darwin
+
 /**
   A simple queue, implemented as a linked list.
 */
