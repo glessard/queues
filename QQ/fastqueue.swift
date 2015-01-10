@@ -88,18 +88,18 @@ public struct FastQueue<T>: QueueType, SequenceType, GeneratorType
 
     if qdata.memory.head != nil
     {
-      let oldhead = qdata.memory.head
+      let node = qdata.memory.head
 
       // Promote the 2nd item to 1st
-      qdata.memory.head = oldhead.memory.next
+      qdata.memory.head = node.memory.next
 
       // Logical housekeeping
       if qdata.memory.head == nil { qdata.memory.tail = nil }
 
       OSSpinLockUnlock(&qdata.memory.lock)
 
-      let element = UnsafeMutablePointer<T>(oldhead.memory.elem).move()
-      OSAtomicEnqueue(pool, oldhead, 0)
+      let element = UnsafeMutablePointer<T>(node.memory.elem).move()
+      OSAtomicEnqueue(pool, node, 0)
 
       return element
     }

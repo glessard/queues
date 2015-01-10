@@ -31,6 +31,9 @@
 		03678C111A60963700F4B44B /* atomicqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C101A60963700F4B44B /* atomicqueue.swift */; };
 		03678C121A60963700F4B44B /* atomicqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C101A60963700F4B44B /* atomicqueue.swift */; };
 		03678C131A60963700F4B44B /* atomicqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C101A60963700F4B44B /* atomicqueue.swift */; };
+		03678C161A60A4F000F4B44B /* reflinkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C151A60A4F000F4B44B /* reflinkqueue.swift */; };
+		03678C171A60A4F000F4B44B /* reflinkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C151A60A4F000F4B44B /* reflinkqueue.swift */; };
+		03678C181A60A4F000F4B44B /* reflinkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C151A60A4F000F4B44B /* reflinkqueue.swift */; };
 		036939AC1A5E1FFA00F4B44B /* refqueue-pool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036939AB1A5E1FFA00F4B44B /* refqueue-pool.swift */; };
 		036939AD1A5E1FFA00F4B44B /* refqueue-pool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036939AB1A5E1FFA00F4B44B /* refqueue-pool.swift */; };
 		036939B91A5EFB3500F4B44B /* slowqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036939B81A5EFB3500F4B44B /* slowqueue.swift */; };
@@ -97,6 +100,7 @@
 		035A98691A53BCE200F4B44B /* atomicqueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = atomicqueue.m; path = atomic/atomicqueue.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		035A98741A53BFDD00F4B44B /* bridging-header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "bridging-header.h"; sourceTree = "<group>"; };
 		03678C101A60963700F4B44B /* atomicqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = atomicqueue.swift; sourceTree = "<group>"; };
+		03678C151A60A4F000F4B44B /* reflinkqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = reflinkqueue.swift; sourceTree = "<group>"; };
 		036939AB1A5E1FFA00F4B44B /* refqueue-pool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = "refqueue-pool.swift"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		036939B81A5EFB3500F4B44B /* slowqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = slowqueue.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		037414031A5856E100F4B44B /* dqtest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = dqtest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -171,6 +175,7 @@
 				035A98431A539D4A00F4B44B /* simplequeue.swift */,
 				03D1E8771A5F70C700F4B44B /* simplerefqueue.swift */,
 				035A98491A53A04300F4B44B /* linkqueue.swift */,
+				03678C151A60A4F000F4B44B /* reflinkqueue.swift */,
 				030F58D61A5B5EA500F4B44B /* fastqueue.swift */,
 				035A98601A53B53100F4B44B /* OSAtomic Helpers */,
 				035A99681A57745200F4B44B /* OSAtomicFifo Queues */,
@@ -403,6 +408,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				035A986E1A53BCE200F4B44B /* atomicqueue.m in Sources */,
+				03678C161A60A4F000F4B44B /* reflinkqueue.swift in Sources */,
 				03678C111A60963700F4B44B /* atomicqueue.swift in Sources */,
 				030F58D71A5B5EA500F4B44B /* fastqueue.swift in Sources */,
 				035A98441A539D4A00F4B44B /* simplequeue.swift in Sources */,
@@ -436,6 +442,7 @@
 				0344567B1A5CAB2D00F4B44B /* refqueue.swift in Sources */,
 				035A98721A53BFA800F4B44B /* atomicqueue.m in Sources */,
 				034456651A5CAB1800F4B44B /* linknodes.swift in Sources */,
+				03678C171A60A4F000F4B44B /* reflinkqueue.swift in Sources */,
 				0374141B1A5B2EDE00F4B44B /* pointerqueue.swift in Sources */,
 				035A98571A53B0A500F4B44B /* main.swift in Sources */,
 				035A985D1A53B0B000F4B44B /* linkqueue.swift in Sources */,
@@ -456,6 +463,7 @@
 				03678C131A60963700F4B44B /* atomicqueue.swift in Sources */,
 				034456881A5D1B1F00F4B44B /* queuetype.swift in Sources */,
 				0374140A1A58582400F4B44B /* atomicqueue.m in Sources */,
+				03678C181A60A4F000F4B44B /* reflinkqueue.swift in Sources */,
 				037414061A5856E100F4B44B /* main.swift in Sources */,
 				034456891A5D1B2D00F4B44B /* linknodes.swift in Sources */,
 			);

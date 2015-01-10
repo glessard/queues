@@ -69,16 +69,16 @@ final public class SimpleRefQueue<T: AnyObject>: QueueType, SequenceType, Genera
   public func dequeue() -> T?
   {
     OSSpinLockLock(&lock)
-    if let oldhead = head
+    if let node = head
     {
       // Promote the 2nd node to 1st
-      head = oldhead.next
+      head = node.next
 
       // Logical housekeeping
       if head == nil { tail = nil }
 
       OSSpinLockUnlock(&lock)
-      return oldhead.elem as? T
+      return node.elem as? T
     }
 
     // queue is empty

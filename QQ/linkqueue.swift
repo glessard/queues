@@ -89,7 +89,7 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
 
     if head != nil
     {
-      let oldhead = head
+      let node = head
 
       // Promote the 2nd item to 1st
       head = head.memory.next
@@ -99,10 +99,10 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
 
       OSSpinLockUnlock(&lock)
 
-      let element = UnsafeMutablePointer<T>(oldhead.memory.elem).move()
+      let element = UnsafeMutablePointer<T>(node.memory.elem).move()
 
-      UnsafeMutablePointer<T>(oldhead.memory.elem).dealloc(1)
-      oldhead.dealloc(1)
+      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
+      node.dealloc(1)
 
       return element
     }

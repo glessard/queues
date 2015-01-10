@@ -65,14 +65,14 @@ public final class RefQueuePool<T: AnyObject>: QueueType
     return i
   }
   
-  public func enqueue(item: T)
+  public func enqueue(newElement: T)
   {
     var node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(pool, 0))
     if node == nil
     {
       node = UnsafeMutablePointer<ObjLinkNode>.alloc(1)
     }
-    node.initialize(ObjLinkNode(item))
+    node.initialize(ObjLinkNode(newElement))
 
     OSAtomicFifoEnqueue(head, node, 0)
   }
