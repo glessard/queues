@@ -1,6 +1,6 @@
 //
 //  QueueTests.swift
-//  concurrency
+//  QQ
 //
 //  Created by Guillaume Lessard on 2014-09-09.
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.

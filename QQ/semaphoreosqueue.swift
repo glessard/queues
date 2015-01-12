@@ -1,5 +1,5 @@
 //
-//  refqueue.swift
+//  semaphoreosqueue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-12-13.

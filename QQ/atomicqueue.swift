@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  atomicqueue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2015-01-09.

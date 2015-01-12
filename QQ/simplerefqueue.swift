@@ -1,6 +1,6 @@
 //
-//  queue.swift
-//  concurrency
+//  simplerefqueue.swift
+//  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
