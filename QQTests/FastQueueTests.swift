@@ -1,6 +1,6 @@
 //
 //  FastQueueTests.swift
-//  QQ
+//  QQTests
 //
 //  Created by Guillaume Lessard on 2014-09-09.
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
@@ -15,50 +15,68 @@ class FastQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTest(FastQueue<Int>.self, element: 0)
+    QueueTestCount(FastQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(FastQueue<UInt64>)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(FastQueue<Thing>)
   }
 
   func testPerformanceFill()
   {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestFill(FastQueue<dispatch_semaphore_t>.self, element: s)
+    var s = Thing()
+    QueuePerformanceTestFill(FastQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestSpin(FastQueue<dispatch_semaphore_t>.self, element: s)
+    var s = Thing()
+    QueuePerformanceTestSpin(FastQueue<Thing>.self, element: s)
   }
 
   func testPerformanceEmpty()
   {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestEmpty(FastQueue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestEmpty(FastQueue<Thing>.self)
   }
 }
 
-class LinkQueueTests: QQTests
+class FastOSQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTest(LinkQueue<Int>.self, element: 0)
+    QueueTestCount(FastOSQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(FastOSQueue<UInt64>)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(FastOSQueue<Thing>)
   }
 
   func testPerformanceFill()
   {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestFill(LinkQueue<dispatch_semaphore_t>.self, element: s)
+    var s = Thing()
+    QueuePerformanceTestFill(FastOSQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestSpin(LinkQueue<dispatch_semaphore_t>.self, element: s)
+    var s = Thing()
+    QueuePerformanceTestSpin(FastOSQueue<Thing>.self, element: s)
   }
 
   func testPerformanceEmpty()
   {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestEmpty(LinkQueue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestEmpty(FastOSQueue<Thing>.self)
   }
 }

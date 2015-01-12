@@ -1,5 +1,5 @@
 //
-//  simplerefqueue.swift
+//  Thing-arcqueue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
@@ -7,8 +7,9 @@
 //
 
 import Darwin
+import Dispatch
 
-final public class SimpleRefQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
+final public class ThingARCQueue: QueueType
 {
   private var head: Node? = nil
   private var tail: Node! = nil
@@ -17,7 +18,7 @@ final public class SimpleRefQueue<T: AnyObject>: QueueType, SequenceType, Genera
 
   public init() { }
 
-  public convenience init(_ newElement: T)
+  public convenience init(_ newElement: Thing)
   {
     self.init()
     enqueue(newElement)
@@ -44,7 +45,7 @@ final public class SimpleRefQueue<T: AnyObject>: QueueType, SequenceType, Genera
     return i
   }
 
-  public func enqueue(newElement: T)
+  public func enqueue(newElement: Thing)
   {
     let newNode = Node(newElement)
 
@@ -62,7 +63,7 @@ final public class SimpleRefQueue<T: AnyObject>: QueueType, SequenceType, Genera
     OSSpinLockUnlock(&lock)
   }
 
-  public func dequeue() -> T?
+  public func dequeue() -> Thing?
   {
     OSSpinLockLock(&lock)
     if let node = head
@@ -74,26 +75,12 @@ final public class SimpleRefQueue<T: AnyObject>: QueueType, SequenceType, Genera
       if head == nil { tail = nil }
 
       OSSpinLockUnlock(&lock)
-      return node.elem as? T
+      return node.elem
     }
 
     // queue is empty
     OSSpinLockUnlock(&lock)
     return nil
-  }
-
-  // Implementation of GeneratorType
-
-  public func next() -> T?
-  {
-    return dequeue()
-  }
-
-  // Implementation of SequenceType
-
-  public func generate() -> Self
-  {
-    return self
   }
 }
 
@@ -105,9 +92,9 @@ final public class SimpleRefQueue<T: AnyObject>: QueueType, SequenceType, Genera
 private class Node
 {
   var next: Node? = nil
-  let elem: AnyObject
+  let elem: Thing
 
-  init(_ e: AnyObject)
+  init(_ e: Thing)
   {
     elem = e
   }

@@ -12,13 +12,13 @@ import QQ
 
 class QQTests: XCTestCase
 {
-  let performanceTestIterations=300_000
+  let performanceTestIterations=900_000
 
-  func QueueTest<E, Q: QueueType where Q.Element == E>(_: Q.Type, element: E)
+  func QueueTestCount<E, Q: QueueType where Q.Element == E>(_: Q.Type, element: E)
   {
     var q = Q()
 
-    for i in 1...10_000
+    for i in 1...1_000
     {
       let r = arc4random_uniform(2)
 
@@ -58,6 +58,48 @@ class QQTests: XCTestCase
     }
   }
 
+  func QueueRefTest<Q: QueueType where Q.Element == Thing>(_: Q.Type)
+  {
+    var q = Q()
+    let iterations = 100
+    var a = Array<Thing>()
+
+    for i in 0..<iterations
+    {
+      a.append(Thing())
+      q.enqueue(a[i])
+    }
+
+    for i in 0..<iterations
+    {
+      if let t = q.dequeue()
+      {
+        XCTAssert(t.id == a[i].id, "Wrong object dequeued")
+      }
+    }
+  }
+
+  func QueueIntTest<Q: QueueType where Q.Element == UInt64>(_: Q.Type)
+  {
+    var q = Q()
+    let iterations = 100
+    var a = Array<UInt64>(count: iterations, repeatedValue: 0)
+
+    for i in 0..<iterations
+    {
+      a[i] = UInt64(arc4random())
+      q.enqueue(a[i])
+    }
+
+    for i in 0..<iterations
+    {
+      if let r = q.dequeue()
+      {
+        XCTAssert(r == a[i], "Wrong object dequeued")
+      }
+    }
+  }
+
   func QueuePerformanceTestFill<E, Q: QueueType where Q.Element == E>(_: Q.Type, element: E)
   {
     self.measureBlock() {
@@ -86,7 +128,7 @@ class QQTests: XCTestCase
     }
   }
 
-  func QueuePerformanceTestEmpty<E, Q: QueueType where Q.Element == E>(_: Q.Type, element: E)
+  func QueuePerformanceTestEmpty<Q: QueueType>(_: Q.Type)
   {
     self.measureBlock() {
       var q = Q()

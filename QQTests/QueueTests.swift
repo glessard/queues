@@ -1,6 +1,6 @@
 //
 //  QueueTests.swift
-//  QQ
+//  QQTests
 //
 //  Created by Guillaume Lessard on 2014-09-09.
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
@@ -13,52 +13,100 @@ import QQ
 
 class GenericNodeQueueTests: QQTests
 {
-  func testQueue()
+  func testQueueCount()
   {
-    QueueTest(SlowQueue<Int>.self, element: 0)
+    QueueTestCount(SlowQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(SlowQueue<UInt64>)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(SlowQueue<Thing>)
   }
 
   func testPerformanceFill()
   {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestFill(SlowQueue<dispatch_semaphore_t>.self, element: s)
+    var s = Thing()
+    QueuePerformanceTestFill(SlowQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestSpin(SlowQueue<dispatch_semaphore_t>.self, element: s)
+    var s = Thing()
+    QueuePerformanceTestSpin(SlowQueue<Thing>.self, element: s)
   }
 
   func testPerformanceEmpty()
   {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestEmpty(SlowQueue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestEmpty(SlowQueue<Thing>.self)
   }
 }
 
-class AnyNodeQueueTests: QQTests
+class ARCQueueTests: QQTests
 {
-  func testQueue()
+  func testQueueConut()
   {
-    QueueTest(SimpleQueue<Int>.self, element: 0)
+    QueueTestCount(ARCQueue<Int>.self, element: 0)
   }
 
+  func testQueueInt()
+  {
+    QueueIntTest(ARCQueue<UInt64>)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(ARCQueue<Thing>)
+  }
+  
   func testPerformanceFill()
   {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestFill(SimpleQueue<dispatch_semaphore_t>.self, element: s)
+    var s = Thing()
+    QueuePerformanceTestFill(ARCQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestSpin(SimpleQueue<dispatch_semaphore_t>.self, element: s)
+    var s = Thing()
+    QueuePerformanceTestSpin(ARCQueue<Thing>.self, element: s)
   }
 
   func testPerformanceEmpty()
   {
-    var s: dispatch_semaphore_t = dispatch_semaphore_create(1)
-    QueuePerformanceTestEmpty(SimpleQueue<dispatch_semaphore_t>.self, element: s)
+    QueuePerformanceTestEmpty(ARCQueue<Thing>.self)
+  }
+}
+
+class RefARCQueueTests: QQTests
+{
+  func testQueueCount()
+  {
+    QueueTestCount(RefARCQueue<Thing>.self, element: Thing())
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(RefARCQueue<Thing>)
+  }
+
+  func testPerformanceFill()
+  {
+    var s = Thing()
+    QueuePerformanceTestFill(RefARCQueue<Thing>.self, element: s)
+  }
+
+  func testPerformanceSpin()
+  {
+    var s = Thing()
+    QueuePerformanceTestSpin(RefARCQueue<Thing>.self, element: s)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(RefARCQueue<Thing>.self)
   }
 }

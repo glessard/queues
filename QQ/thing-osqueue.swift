@@ -1,5 +1,5 @@
 //
-//  semaphoreosqueue.swift
+//  Thing-osqueue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-12-13.
@@ -9,14 +9,14 @@
 import Darwin
 import Dispatch
 
-final public class SemaphoreOSQueue: QueueType
+final public class ThingOSQueue: QueueType
 {
   private let head = AtomicQueueInit()
   private let pool = AtomicStackInit()
 
   public init() { }
 
-  convenience public init(_ newElement: dispatch_semaphore_t)
+  convenience public init(_ newElement: Thing)
   {
     self.init()
     enqueue(newElement)
@@ -27,7 +27,7 @@ final public class SemaphoreOSQueue: QueueType
     // first, empty the queue
     while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
     {
-      let node = UnsafeMutablePointer<SemaphoreNode>(OSAtomicFifoDequeue(head, 0))
+      let node = UnsafeMutablePointer<ThingNode>(OSAtomicFifoDequeue(head, 0))
       node.destroy()
       node.dealloc(1)
     }
@@ -37,7 +37,7 @@ final public class SemaphoreOSQueue: QueueType
     // drain the pool
     while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
     {
-      UnsafeMutablePointer<SemaphoreNode>(OSAtomicDequeue(pool, 0)).dealloc(1)
+      UnsafeMutablePointer<ThingNode>(OSAtomicDequeue(pool, 0)).dealloc(1)
     }
     // finally release the pool queue
     AtomicStackRelease(pool)
@@ -56,7 +56,7 @@ final public class SemaphoreOSQueue: QueueType
     // Not thread safe.
 
     var i = 0
-    var node = UnsafeMutablePointer<UnsafeMutablePointer<SemaphoreNode>>(head).memory
+    var node = UnsafeMutablePointer<UnsafeMutablePointer<ThingNode>>(head).memory
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
@@ -66,21 +66,21 @@ final public class SemaphoreOSQueue: QueueType
     return i
   }
   
-  public func enqueue(newElement: dispatch_semaphore_t)
+  public func enqueue(newElement: Thing)
   {
-    var node = UnsafeMutablePointer<SemaphoreNode>(OSAtomicDequeue(pool, 0))
+    var node = UnsafeMutablePointer<ThingNode>(OSAtomicDequeue(pool, 0))
     if node == nil
     {
-      node = UnsafeMutablePointer<SemaphoreNode>.alloc(1)
+      node = UnsafeMutablePointer<ThingNode>.alloc(1)
     }
-    node.initialize(SemaphoreNode(newElement))
+    node.initialize(ThingNode(newElement))
 
     OSAtomicFifoEnqueue(head, node, 0)
   }
 
-  public func dequeue() -> dispatch_semaphore_t?
+  public func dequeue() -> Thing?
   {
-    let node = UnsafeMutablePointer<SemaphoreNode>(OSAtomicFifoDequeue(head, 0))
+    let node = UnsafeMutablePointer<ThingNode>(OSAtomicFifoDequeue(head, 0))
     if node != nil
     {
       let element = node.memory.elem
@@ -93,12 +93,12 @@ final public class SemaphoreOSQueue: QueueType
   }
 }
 
-private struct SemaphoreNode
+private struct ThingNode
 {
-  var next: UnsafeMutablePointer<SemaphoreNode> = nil
-  var elem: dispatch_semaphore_t
+  var next: UnsafeMutablePointer<ThingNode> = nil
+  var elem: Thing
 
-  init(_ s: dispatch_semaphore_t)
+  init(_ s: Thing)
   {
     elem = s
   }

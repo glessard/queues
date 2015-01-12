@@ -1,5 +1,5 @@
 //
-//  simplequeue.swift
+//  refarcqueue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
@@ -8,7 +8,7 @@
 
 import Darwin
 
-final public class SimpleQueue<T>: QueueType, SequenceType, GeneratorType
+final public class RefARCQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
 {
   private var head: Node? = nil
   private var tail: Node! = nil
@@ -105,9 +105,9 @@ final public class SimpleQueue<T>: QueueType, SequenceType, GeneratorType
 private class Node
 {
   var next: Node? = nil
-  let elem: Any
+  let elem: AnyObject
 
-  init(_ e: Any)
+  init(_ e: AnyObject)
   {
     elem = e
   }

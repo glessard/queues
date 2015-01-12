@@ -8,10 +8,10 @@
 
 import Foundation
 
-var iterations: UInt64 = 100_000
+var iterations: UInt64 = 1_000_000
 var then = mach_absolute_time()
 var dt = mach_absolute_time() - then
-let ref = dispatch_semaphore_create(1)!
+let ref = Thing()
 
 println("Swift-Only solutions")
 
@@ -39,8 +39,8 @@ dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration with AnyObject references")
 
 
-println("SimpleQueue:")
-var queue2 = SimpleQueue(iterations)
+println("ARCQueue:")
+var queue2 = ARCQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -51,7 +51,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
-var queue2ref = SimpleQueue(ref)
+var queue2ref = ARCQueue(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -115,8 +115,8 @@ print(dt/iterations); println(" ns per iteration with AnyObject references")
 println()
 println("AnyObject queues")
 
-println("SimpleRefQueue")
-var srqueue = SimpleRefQueue(ref)
+println("RefARCQueue")
+var srqueue = RefARCQueue(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -257,8 +257,8 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
-println("SemaphoreQueue:" )
-var semqueue = SemaphoreQueue(ref)
+println("ThingQueue:" )
+var semqueue = ThingQueue(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -267,10 +267,10 @@ for i in 1...iterations
   semqueue.enqueue(ref)
 }
 dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration with dispatch_semaphore_t references")
+print(dt/iterations); println(" ns per iteration with Thing references")
 
-println("SemaphoreOSQueue:" )
-var semosqueue = SemaphoreOSQueue(ref)
+println("ThingOSQueue:" )
+var semosqueue = ThingOSQueue(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -279,4 +279,4 @@ for i in 1...iterations
   semosqueue.enqueue(ref)
 }
 dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration with dispatch_semaphore_t references")
+print(dt/iterations); println(" ns per iteration with Thing references")
