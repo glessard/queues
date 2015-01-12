@@ -29,9 +29,6 @@
 		035A985B1A53B0B000F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
 		035A985C1A53B0B000F4B44B /* arcqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98431A539D4A00F4B44B /* arcqueue.swift */; };
 		035A985D1A53B0B000F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
-		035A986D1A53BCE200F4B44B /* atomicqueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 035A98681A53BCE200F4B44B /* atomicqueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		035A986E1A53BCE200F4B44B /* atomicqueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 035A98691A53BCE200F4B44B /* atomicqueue.m */; };
-		035A98721A53BFA800F4B44B /* atomicqueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 035A98691A53BCE200F4B44B /* atomicqueue.m */; };
 		035A996A1A5777DE00F4B44B /* QQTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98391A539CF600F4B44B /* QQTests.swift */; };
 		03678C111A60963700F4B44B /* atomicqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C101A60963700F4B44B /* atomicqueue.swift */; };
 		03678C121A60963700F4B44B /* atomicqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C101A60963700F4B44B /* atomicqueue.swift */; };
@@ -93,7 +90,6 @@
 		0344566C1A5CAB2D00F4B44B /* reflinkosqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = reflinkosqueue.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		035A98271A539CF600F4B44B /* QQ.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = QQ.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		035A982B1A539CF600F4B44B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		035A982C1A539CF600F4B44B /* QQ.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QQ.h; sourceTree = "<group>"; };
 		035A98321A539CF600F4B44B /* QQTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QQTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		035A98381A539CF600F4B44B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		035A98391A539CF600F4B44B /* QQTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = QQTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -104,8 +100,6 @@
 		035A984E1A53AC2A00F4B44B /* FastQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FastQueueTests.swift; sourceTree = "<group>"; };
 		035A98541A53B0A500F4B44B /* QueueBenchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = QueueBenchmark; sourceTree = BUILT_PRODUCTS_DIR; };
 		035A98561A53B0A500F4B44B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		035A98681A53BCE200F4B44B /* atomicqueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = atomicqueue.h; path = atomic/atomicqueue.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		035A98691A53BCE200F4B44B /* atomicqueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = atomicqueue.m; path = atomic/atomicqueue.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		03678C101A60963700F4B44B /* atomicqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = atomicqueue.swift; sourceTree = "<group>"; };
 		03678C151A60A4F000F4B44B /* reflinkqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = reflinkqueue.swift; sourceTree = "<group>"; };
 		03678C191A611D3400F4B44B /* reffastqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = reffastqueue.swift; sourceTree = "<group>"; };
@@ -170,7 +164,6 @@
 		035A98291A539CF600F4B44B /* QQ */ = {
 			isa = PBXGroup;
 			children = (
-				035A982C1A539CF600F4B44B /* QQ.h */,
 				035A982A1A539CF600F4B44B /* Supporting Files */,
 				03678C141A60A3AC00F4B44B /* Definitions */,
 				036939B81A5EFB3500F4B44B /* slowqueue.swift */,
@@ -225,8 +218,6 @@
 		035A98601A53B53100F4B44B /* OSAtomic Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				035A98681A53BCE200F4B44B /* atomicqueue.h */,
-				035A98691A53BCE200F4B44B /* atomicqueue.m */,
 				03678C101A60963700F4B44B /* atomicqueue.swift */,
 			);
 			name = "OSAtomic Helpers";
@@ -284,7 +275,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				035A986D1A53BCE200F4B44B /* atomicqueue.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -405,7 +395,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				035A986E1A53BCE200F4B44B /* atomicqueue.m in Sources */,
 				03678C161A60A4F000F4B44B /* reflinkqueue.swift in Sources */,
 				03678C111A60963700F4B44B /* atomicqueue.swift in Sources */,
 				03223F1C1A645AC500F4B44B /* thing-arcqueue.swift in Sources */,
@@ -448,7 +437,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0344567B1A5CAB2D00F4B44B /* reflinkosqueue.swift in Sources */,
-				035A98721A53BFA800F4B44B /* atomicqueue.m in Sources */,
 				034456651A5CAB1800F4B44B /* linknodes.swift in Sources */,
 				03FFF9DE1A63B28300F4B44B /* int-osqueue.swift in Sources */,
 				03678C171A60A4F000F4B44B /* reflinkqueue.swift in Sources */,
