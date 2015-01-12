@@ -228,3 +228,28 @@ for i in 1...iterations
 }
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration with AnyObject references")
+
+println()
+println("SemaphoreQueue:" )
+var semqueue = SemaphoreQueue(ref)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  semqueue.dequeue()
+  semqueue.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration with dispatch_semaphore_t references")
+
+println("SemaphoreOSQueue:" )
+var semosqueue = SemaphoreOSQueue(ref)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  semosqueue.dequeue()
+  semosqueue.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration with dispatch_semaphore_t references")

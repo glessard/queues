@@ -53,6 +53,10 @@
 		03B5515A1A57D00800F4B44B /* SwiftyRefQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B551591A57D00800F4B44B /* SwiftyRefQueueTests.swift */; };
 		03D1E8781A5F70C700F4B44B /* simplerefqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D1E8771A5F70C700F4B44B /* simplerefqueue.swift */; };
 		03D1E8791A5F70C700F4B44B /* simplerefqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D1E8771A5F70C700F4B44B /* simplerefqueue.swift */; };
+		03FFF9D71A63A9AF00F4B44B /* semaphoreosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FFF9D61A63A9AF00F4B44B /* semaphoreosqueue.swift */; };
+		03FFF9D81A63A9AF00F4B44B /* semaphoreosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FFF9D61A63A9AF00F4B44B /* semaphoreosqueue.swift */; };
+		03FFF9DA1A63AC6200F4B44B /* semaphorequeue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FFF9D91A63AC6200F4B44B /* semaphorequeue.swift */; };
+		03FFF9DB1A63AC6200F4B44B /* semaphorequeue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FFF9D91A63AC6200F4B44B /* semaphorequeue.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -117,6 +121,8 @@
 		03B551521A57B9D300F4B44B /* PointerQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PointerQueueTests.swift; sourceTree = "<group>"; };
 		03B551591A57D00800F4B44B /* SwiftyRefQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyRefQueueTests.swift; sourceTree = "<group>"; };
 		03D1E8771A5F70C700F4B44B /* simplerefqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = simplerefqueue.swift; sourceTree = "<group>"; };
+		03FFF9D61A63A9AF00F4B44B /* semaphoreosqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = semaphoreosqueue.swift; sourceTree = "<group>"; };
+		03FFF9D91A63AC6200F4B44B /* semaphorequeue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = semaphorequeue.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -186,6 +192,7 @@
 				03D1E8771A5F70C700F4B44B /* simplerefqueue.swift */,
 				03678C151A60A4F000F4B44B /* reflinkqueue.swift */,
 				03678C191A611D3400F4B44B /* reffastqueue.swift */,
+				03FFF9D91A63AC6200F4B44B /* semaphorequeue.swift */,
 				035A98601A53B53100F4B44B /* OSAtomic Helpers */,
 				035A99681A57745200F4B44B /* OSAtomicFifo Queues */,
 			);
@@ -246,6 +253,7 @@
 				03678C291A61239C00F4B44B /* fastosqueue.swift */,
 				0344566C1A5CAB2D00F4B44B /* reflinkosqueue.swift */,
 				036939AB1A5E1FFA00F4B44B /* reffastosqueue.swift */,
+				03FFF9D61A63A9AF00F4B44B /* semaphoreosqueue.swift */,
 			);
 			name = "OSAtomicFifo Queues";
 			sourceTree = "<group>";
@@ -428,7 +436,9 @@
 				035A984A1A53A04300F4B44B /* linkqueue.swift in Sources */,
 				036939AC1A5E1FFA00F4B44B /* reffastosqueue.swift in Sources */,
 				03678C1A1A611D3400F4B44B /* reffastqueue.swift in Sources */,
+				03FFF9D71A63A9AF00F4B44B /* semaphoreosqueue.swift in Sources */,
 				03D1E8781A5F70C700F4B44B /* simplerefqueue.swift in Sources */,
+				03FFF9DA1A63AC6200F4B44B /* semaphorequeue.swift in Sources */,
 				036939B91A5EFB3500F4B44B /* slowqueue.swift in Sources */,
 				034456641A5CAB1800F4B44B /* linknodes.swift in Sources */,
 			);
@@ -458,6 +468,7 @@
 				03678C201A61205500F4B44B /* linkosqueue.swift in Sources */,
 				035A98571A53B0A500F4B44B /* main.swift in Sources */,
 				035A985D1A53B0B000F4B44B /* linkqueue.swift in Sources */,
+				03FFF9DB1A63AC6200F4B44B /* semaphorequeue.swift in Sources */,
 				035A985B1A53B0B000F4B44B /* queuetype.swift in Sources */,
 				035A985C1A53B0B000F4B44B /* simplequeue.swift in Sources */,
 				03678C2B1A61239C00F4B44B /* fastosqueue.swift in Sources */,
@@ -465,6 +476,7 @@
 				036939BA1A5EFB3500F4B44B /* slowqueue.swift in Sources */,
 				03678C121A60963700F4B44B /* atomicqueue.swift in Sources */,
 				03D1E8791A5F70C700F4B44B /* simplerefqueue.swift in Sources */,
+				03FFF9D81A63A9AF00F4B44B /* semaphoreosqueue.swift in Sources */,
 				030F58D81A5B62CF00F4B44B /* fastqueue.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
