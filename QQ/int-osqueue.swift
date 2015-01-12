@@ -1,5 +1,5 @@
 //
-//  pointerqueue.swift
+//  int-osqueue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-12-13.

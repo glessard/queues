@@ -229,7 +229,34 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration with AnyObject references")
 
+
 println()
+println("nongeneric queues")
+
+println("IntQueue:" )
+var intqueue = IntQueue(iterations)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  intqueue.dequeue()
+  intqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration")
+
+println("IntOSQueue:" )
+var intosqueue = IntOSQueue(iterations)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  intosqueue.dequeue()
+  intosqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration")
+
 println("SemaphoreQueue:" )
 var semqueue = SemaphoreQueue(ref)
 
@@ -253,15 +280,3 @@ for i in 1...iterations
 }
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration with dispatch_semaphore_t references")
-
-println("IntOSQueue:" )
-var intosqueue = IntOSQueue(iterations)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  intosqueue.dequeue()
-  intosqueue.enqueue(i)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
