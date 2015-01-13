@@ -14,6 +14,11 @@
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
+		<key>ReferenceLifetime.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
@@ -38,6 +43,11 @@
 			<true/>
 		</dict>
 		<key>037414021A5856E100F4B44B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>03E8617A1A648C9300F4B44B</key>
 		<dict>
 			<key>primary</key>
 			<true/>
