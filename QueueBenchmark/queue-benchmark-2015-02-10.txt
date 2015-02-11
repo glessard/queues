@@ -1,0 +1,44 @@
+Swift-Only solutions
+Slow Queue:
+491 ns per iteration
+566 ns per iteration with AnyObject references
+ARCQueue:
+359 ns per iteration
+443 ns per iteration with AnyObject references
+LinkQueue:
+338 ns per iteration
+388 ns per iteration with AnyObject references
+FastQueue:
+151 ns per iteration
+199 ns per iteration with AnyObject references
+
+AnyObject queues
+RefARCQueue
+405 ns per iteration with AnyObject references
+RefLinkQueue
+278 ns per iteration with AnyObject references
+RefFastQueue
+228 ns per iteration with AnyObject references
+
+Swift with OSAtomicFifoQueue:
+LinkOSQueue:
+346 ns per iteration
+388 ns per iteration with AnyObject references
+FastOSQueue:
+153 ns per iteration
+202 ns per iteration with AnyObject references
+
+RefLinkOSQueue:
+280 ns per iteration with AnyObject references
+RefFastOSQueue:
+226 ns per iteration with AnyObject references
+
+nongeneric queues
+IntQueue:
+129 ns per iteration
+IntOSQueue:
+127 ns per iteration
+ThingQueue:
+181 ns per iteration with Thing references
+ThingOSQueue:
+181 ns per iteration with Thing references
