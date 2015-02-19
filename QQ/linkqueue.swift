@@ -10,8 +10,8 @@ import Darwin
 
 final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
 {
-  private var head: UnsafeMutablePointer<LinkNode> = nil
-  private var tail: UnsafeMutablePointer<LinkNode>  = nil
+  private var head: UnsafeMutablePointer<Node<T>> = nil
+  private var tail: UnsafeMutablePointer<Node<T>>  = nil
 
   private var lock = OS_SPINLOCK_INIT
 
@@ -25,13 +25,11 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
 
   deinit
   {
-    var h = UnsafeMutablePointer<LinkNode>(head)
-    while h != nil
+    while head != nil
     {
-      let node = h
-      h = node.memory.next
-      UnsafeMutablePointer<T>(node.memory.elem).destroy()
-      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
+      let node = head
+      head = UnsafeMutablePointer<Node<T>>(node.memory.next)
+      node.destroy()
       node.dealloc(1)
     }
   }
@@ -47,10 +45,10 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
     // Not thread safe.
 
     var i = 0
-    var node = UnsafeMutablePointer<LinkNode>(head)
+    var node = UnsafeMutablePointer<Node<T>>(head)
     while node != nil
     { // Iterate along the linked nodes while counting
-      node = node.memory.next
+      node = UnsafeMutablePointer<Node<T>>(node.memory.next)
       i++
     }
 
@@ -59,10 +57,8 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
 
   public func enqueue(newElement: T)
   {
-    let node = UnsafeMutablePointer<LinkNode>.alloc(1)
-    let elem = UnsafeMutablePointer<T>.alloc(1)
-    elem.initialize(newElement)
-    node.memory = LinkNode(elem)
+    let node = UnsafeMutablePointer<Node<T>>.alloc(1)
+    node.initialize(Node(newElement))
 
     OSSpinLockLock(&lock)
 
@@ -74,7 +70,7 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
       return
     }
 
-    tail.memory.next = node
+    tail.memory.next = COpaquePointer(node)
     tail = node
     OSSpinLockUnlock(&lock)
   }
@@ -88,15 +84,15 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
       let node = head
 
       // Promote the 2nd item to 1st
-      head = node.memory.next
+      head = UnsafeMutablePointer<Node<T>>(node.memory.next)
 
       // Logical housekeeping
       if head == nil { tail = nil }
 
       OSSpinLockUnlock(&lock)
 
-      let element = UnsafeMutablePointer<T>(node.memory.elem).move()
-      UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
+      let element = node.memory.elem
+      node.destroy()
       node.dealloc(1)
       return element
     }
@@ -118,5 +114,16 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
   public func generate() -> Self
   {
     return self
+  }
+}
+
+private struct Node<T>
+{
+  var next: COpaquePointer = nil
+  let elem: T
+
+  init(_ e: T)
+  {
+    elem = e
   }
 }
