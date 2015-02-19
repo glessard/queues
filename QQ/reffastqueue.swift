@@ -103,7 +103,7 @@ final public class RefFastQueue<T: AnyObject>: QueueType, SequenceType, Generato
 
       OSSpinLockUnlock(&lock)
 
-      let element = node.memory.elem as? T
+      let element = node.memory.elem as! T
       node.destroy()
       OSAtomicEnqueue(pool, node, 0)
       return element

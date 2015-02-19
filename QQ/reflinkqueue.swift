@@ -92,7 +92,7 @@ final public class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, Generato
 
       OSSpinLockUnlock(&lock)
 
-      let element = node.memory.elem as? T
+      let element = node.memory.elem as! T
       node.destroy()
       node.dealloc(1)
       return element

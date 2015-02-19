@@ -82,7 +82,7 @@ final public class RefFastOSQueue<T: AnyObject>: QueueType, SequenceType, Genera
     let node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(head, 0))
     if node != nil
     {
-      let element = node.memory.elem as? T
+      let element = node.memory.elem as! T
       node.destroy()
       OSAtomicEnqueue(pool, node, 0)
       return element

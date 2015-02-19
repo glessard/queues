@@ -74,7 +74,7 @@ final public class RefARCQueue<T: AnyObject>: QueueType, SequenceType, Generator
       if head == nil { tail = nil }
 
       OSSpinLockUnlock(&lock)
-      return node.elem as? T
+      return (node.elem as! T)
     }
 
     // queue is empty
