@@ -10,8 +10,8 @@ import Darwin
 
 final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 {
-  private var head: COpaquePointer = nil
-  private var tail: COpaquePointer  = nil
+  private var head: UnsafeMutablePointer<LinkNode> = nil
+  private var tail: UnsafeMutablePointer<LinkNode>  = nil
 
   private let pool = AtomicStackInit()
   private var lock = OS_SPINLOCK_INIT
@@ -27,11 +27,10 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
   deinit
   {
     // empty the queue
-    var h = UnsafeMutablePointer<LinkNode>(head)
-    while h != nil
+    while head != nil
     {
-      let node = h
-      h = node.memory.next
+      let node = head
+      head = node.memory.next
       UnsafeMutablePointer<T>(node.memory.elem).destroy()
       UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
@@ -84,14 +83,14 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 
     if head == nil
     {
-      head = COpaquePointer(node)
-      tail = COpaquePointer(node)
+      head = node
+      tail = node
       OSSpinLockUnlock(&lock)
       return
     }
 
-    UnsafeMutablePointer<LinkNode>(tail).memory.next = node
-    tail = COpaquePointer(node)
+    tail.memory.next = node
+    tail = node
     OSSpinLockUnlock(&lock)
   }
 
@@ -101,10 +100,10 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 
     if head != nil
     {
-      let node = UnsafeMutablePointer<LinkNode>(head)
+      let node = head
 
       // Promote the 2nd item to 1st
-      head = COpaquePointer(node.memory.next)
+      head = node.memory.next
 
       // Logical housekeeping
       if head == nil { tail = nil }

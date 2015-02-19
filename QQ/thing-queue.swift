@@ -11,8 +11,8 @@ import Dispatch
 
 final public class ThingQueue: QueueType
 {
-  private var head: COpaquePointer = nil
-  private var tail: COpaquePointer = nil
+  private var head: UnsafeMutablePointer<ThingNode> = nil
+  private var tail: UnsafeMutablePointer<ThingNode> = nil
 
   private let pool = AtomicStackInit()
   private var lock = OS_SPINLOCK_INIT
@@ -77,14 +77,14 @@ final public class ThingQueue: QueueType
 
     if head == nil
     {
-      head = COpaquePointer(node)
-      tail = COpaquePointer(node)
+      head = node
+      tail = node
       OSSpinLockUnlock(&lock)
       return
     }
 
-    UnsafeMutablePointer<ThingNode>(tail).memory.next = node
-    tail = COpaquePointer(node)
+    tail.memory.next = node
+    tail = node
     OSSpinLockUnlock(&lock)
   }
 
@@ -94,10 +94,10 @@ final public class ThingQueue: QueueType
 
     if head != nil
     {
-      let node = UnsafeMutablePointer<ThingNode>(head)
+      let node = head
 
       // Promote the 2nd item to 1st
-      head = COpaquePointer(node.memory.next)
+      head = node.memory.next
 
       // Logical housekeeping
       if head == nil { tail = nil }

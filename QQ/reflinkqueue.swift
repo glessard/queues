@@ -10,8 +10,8 @@ import Darwin
 
 final public class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
 {
-  private var head: COpaquePointer = nil
-  private var tail: COpaquePointer = nil
+  private var head: UnsafeMutablePointer<ObjLinkNode> = nil
+  private var tail: UnsafeMutablePointer<ObjLinkNode> = nil
 
   private var lock = OS_SPINLOCK_INIT
 
@@ -25,11 +25,10 @@ final public class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, Generato
 
   deinit
   {
-    var h = UnsafeMutablePointer<ObjLinkNode>(head)
-    while h != nil
+    while head != nil
     {
-      let node = h
-      h = node.memory.next
+      let node = head
+      head = node.memory.next
       node.destroy()
       node.dealloc(1)
     }
@@ -65,14 +64,14 @@ final public class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, Generato
 
     if head == nil
     {
-      head = COpaquePointer(node)
-      tail = COpaquePointer(node)
+      head = node
+      tail = node
       OSSpinLockUnlock(&lock)
       return
     }
 
-    UnsafeMutablePointer<ObjLinkNode>(tail).memory.next = node
-    tail = COpaquePointer(node)
+    tail.memory.next = node
+    tail = node
     OSSpinLockUnlock(&lock)
   }
 
@@ -82,10 +81,10 @@ final public class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, Generato
 
     if head != nil
     {
-      let node = UnsafeMutablePointer<ObjLinkNode>(head)
+      let node = head
 
       // Promote the 2nd item to 1st
-      head = COpaquePointer(node.memory.next)
+      head = head.memory.next
 
       // Logical housekeeping
       if head == nil { tail = nil }
