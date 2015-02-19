@@ -94,7 +94,7 @@ final public class IntOSQueue: QueueType
 private struct Node
 {
   var next: UnsafeMutablePointer<Node> = nil
-  var elem: UInt64
+  let elem: UInt64
 
   init(_ i: UInt64)
   {

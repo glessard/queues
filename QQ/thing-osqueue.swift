@@ -96,7 +96,7 @@ final public class ThingOSQueue: QueueType
 private struct Node
 {
   var next: UnsafeMutablePointer<Node> = nil
-  var elem: Thing
+  let elem: Thing
 
   init(_ s: Thing)
   {

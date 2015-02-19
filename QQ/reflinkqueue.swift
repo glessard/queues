@@ -45,7 +45,7 @@ final public class RefLinkQueue<T: AnyObject>: QueueType, SequenceType, Generato
     // Not thread safe.
 
     var i = 0
-    var node = UnsafeMutablePointer<ObjLinkNode>(head)
+    var node = head
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
