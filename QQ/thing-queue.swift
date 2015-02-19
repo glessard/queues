@@ -11,8 +11,8 @@ import Dispatch
 
 final public class ThingQueue: QueueType
 {
-  private var head: UnsafeMutablePointer<ThingNode> = nil
-  private var tail: UnsafeMutablePointer<ThingNode> = nil
+  private var head: UnsafeMutablePointer<Node> = nil
+  private var tail: UnsafeMutablePointer<Node> = nil
 
   private let pool = AtomicStackInit()
   private var lock = OS_SPINLOCK_INIT
@@ -27,7 +27,7 @@ final public class ThingQueue: QueueType
 
   deinit
   {
-    var h = UnsafeMutablePointer<ThingNode>(head)
+    var h = UnsafeMutablePointer<Node>(head)
     while h != nil
     {
       let node = h
@@ -38,7 +38,7 @@ final public class ThingQueue: QueueType
 
     while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
     {
-      UnsafeMutablePointer<ThingNode>(OSAtomicDequeue(pool, 0)).dealloc(1)
+      UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0)).dealloc(1)
     }
     AtomicStackRelease(pool)
   }
@@ -54,7 +54,7 @@ final public class ThingQueue: QueueType
     // Not thread safe.
 
     var i = 0
-    var node = UnsafeMutablePointer<ThingNode>(head)
+    var node = UnsafeMutablePointer<Node>(head)
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
@@ -66,12 +66,12 @@ final public class ThingQueue: QueueType
 
   public func enqueue(newElement: Thing)
   {
-    var node = UnsafeMutablePointer<ThingNode>(OSAtomicDequeue(pool, 0))
+    var node = UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0))
     if node == nil
     {
-      node = UnsafeMutablePointer<ThingNode>.alloc(1)
+      node = UnsafeMutablePointer<Node>.alloc(1)
     }
-    node.initialize(ThingNode(newElement))
+    node.initialize(Node(newElement))
 
     OSSpinLockLock(&lock)
 
@@ -117,9 +117,9 @@ final public class ThingQueue: QueueType
 }
 
 
-private struct ThingNode
+private struct Node
 {
-  var next: UnsafeMutablePointer<ThingNode> = nil
+  var next: UnsafeMutablePointer<Node> = nil
   var elem: Thing
 
   init(_ s: Thing)

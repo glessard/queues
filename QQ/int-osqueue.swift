@@ -26,7 +26,7 @@ final public class IntOSQueue: QueueType
     // empty the queue
     while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
     {
-      let node = UnsafeMutablePointer<IntNode>(OSAtomicFifoDequeue(head, 0))
+      let node = UnsafeMutablePointer<Node>(OSAtomicFifoDequeue(head, 0))
       node.dealloc(1)
     }
     // release the queue head structure
@@ -35,7 +35,7 @@ final public class IntOSQueue: QueueType
     // drain the pool
     while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
     {
-      let node = UnsafeMutablePointer<IntNode>(OSAtomicDequeue(pool, 0))
+      let node = UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0))
       node.dealloc(1)
     }
     // release the pool stack structure
@@ -55,7 +55,7 @@ final public class IntOSQueue: QueueType
     // Not thread safe.
 
     var i = 0
-    var node = UnsafeMutablePointer<UnsafeMutablePointer<IntNode>>(head).memory
+    var node = UnsafeMutablePointer<UnsafeMutablePointer<Node>>(head).memory
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
@@ -67,22 +67,22 @@ final public class IntOSQueue: QueueType
 
   public func enqueue(newElement: UInt64)
   {
-    var node = UnsafeMutablePointer<IntNode>(OSAtomicDequeue(pool, 0))
+    var node = UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0))
     if node == nil
     {
-      node = UnsafeMutablePointer<IntNode>.alloc(1)
+      node = UnsafeMutablePointer<Node>.alloc(1)
     }
-    node.memory = IntNode(newElement)
+    node.memory = Node(newElement)
 
     OSAtomicFifoEnqueue(head, node, 0)
   }
 
   public func dequeue() -> UInt64?
   {
-    let node = UnsafeMutablePointer<IntNode>(OSAtomicFifoDequeue(head, 0))
+    let node = UnsafeMutablePointer<Node>(OSAtomicFifoDequeue(head, 0))
     if node != nil
     {
-      let element = UnsafeMutablePointer<IntNode>(node).memory.elem
+      let element = UnsafeMutablePointer<Node>(node).memory.elem
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
@@ -91,9 +91,9 @@ final public class IntOSQueue: QueueType
   }
 }
 
-private struct IntNode
+private struct Node
 {
-  var next: UnsafeMutablePointer<IntNode> = nil
+  var next: UnsafeMutablePointer<Node> = nil
   var elem: UInt64
 
   init(_ i: UInt64)
