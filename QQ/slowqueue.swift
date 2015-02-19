@@ -46,19 +46,19 @@ final public class SlowQueue<T>: QueueType, SequenceType, GeneratorType
 
   public func enqueue(newElement: T)
   {
-    let newNode = Node(newElement)
+    let node = Node(newElement)
 
     OSSpinLockLock(&lock)
     if head == nil
     {
-      head = newNode
-      tail = newNode
+      head = node
+      tail = node
       OSSpinLockUnlock(&lock)
       return
     }
 
-    tail.next = newNode
-    tail = newNode
+    tail.next = node
+    tail = node
     OSSpinLockUnlock(&lock)
   }
 

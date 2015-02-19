@@ -46,19 +46,19 @@ final public class IntARCQueue: QueueType
 
   public func enqueue(newElement: UInt64)
   {
-    let newNode = Node(newElement)
+    let node = Node(newElement)
 
     OSSpinLockLock(&lock)
     if head == nil
     {
-      head = newNode
-      tail = newNode
+      head = node
+      tail = node
       OSSpinLockUnlock(&lock)
       return
     }
 
-    tail.next = newNode
-    tail = newNode
+    tail.next = node
+    tail = node
     OSSpinLockUnlock(&lock)
   }
 
