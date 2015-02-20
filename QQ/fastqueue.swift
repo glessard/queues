@@ -74,7 +74,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
     if node == nil
     {
       node = UnsafeMutablePointer<Node<T>>.alloc(1)
-      node.memory.elem = UnsafeMutablePointer<T>.alloc(1)
+      node.memory = Node(UnsafeMutablePointer<T>.alloc(1))
     }
     node.memory.next = nil
     node.memory.elem.initialize(newElement)
@@ -134,10 +134,14 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 private struct Node<T>
 {
   var next: COpaquePointer = nil
-  var elem: UnsafeMutablePointer<T>
+  var p: COpaquePointer
 
   init(_ p: UnsafeMutablePointer<T>)
   {
-    elem = p
+    self.p = COpaquePointer(p)
+  }
+
+  var elem: UnsafeMutablePointer<T> {
+    get { return UnsafeMutablePointer<T>(p) }
   }
 }
