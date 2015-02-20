@@ -11,7 +11,7 @@ import Darwin
 final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 {
   private var head: UnsafeMutablePointer<Node> = nil
-  private var tail: UnsafeMutablePointer<Node>  = nil
+  private var tail: UnsafeMutablePointer<Node> = nil
 
   private let pool = AtomicStackInit()
   private var lock = OS_SPINLOCK_INIT
@@ -30,7 +30,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
     while head != nil
     {
       let node = head
-      head = UnsafeMutablePointer<Node>(node.memory.next)
+      head = node.memory.next
       let elem = node.memory.elem() as UnsafeMutablePointer<T>
       elem.destroy()
       elem.dealloc(1)
@@ -38,7 +38,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
     }
 
     // drain the pool
-    while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
+    while UnsafePointer<COpaquePointer>(pool).memory != nil
     {
       let node = UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0))
       let elem = node.memory.elem() as UnsafeMutablePointer<T>
@@ -63,7 +63,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
     var node = head
     while node != nil
     { // Iterate along the linked nodes while counting
-      node = UnsafeMutablePointer<Node>(node.memory.next)
+      node = node.memory.next
       i++
     }
 
@@ -82,43 +82,35 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
     node.memory.elem().initialize(newElement)
 
     OSSpinLockLock(&lock)
-
     if head == nil
     {
       head = node
       tail = node
-      OSSpinLockUnlock(&lock)
-      return
     }
-
-    tail.memory.next = node
-    tail = node
+    else
+    {
+      tail.memory.next = node
+      tail = node
+    }
     OSSpinLockUnlock(&lock)
   }
 
   public func dequeue() -> T?
   {
     OSSpinLockLock(&lock)
-
-    if head != nil
-    {
-      let node = head
-
-      // Promote the 2nd item to 1st
+    let node = head
+    if node != nil
+    { // Promote the 2nd item to 1st
       head = node.memory.next
+    }
+    OSSpinLockUnlock(&lock)
 
-      // Logical housekeeping
-      if head == nil { tail = nil }
-
-      OSSpinLockUnlock(&lock)
-
+    if node != nil
+    {
       let element: T = node.memory.elem().move()
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
-
-    // queue is empty
-    OSSpinLockUnlock(&lock)
     return nil
   }
 
