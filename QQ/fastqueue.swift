@@ -10,8 +10,8 @@ import Darwin
 
 final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 {
-  private var head: UnsafeMutablePointer<LinkNode> = nil
-  private var tail: UnsafeMutablePointer<LinkNode>  = nil
+  private var head: UnsafeMutablePointer<Node<T>> = nil
+  private var tail: UnsafeMutablePointer<Node<T>>  = nil
 
   private let pool = AtomicStackInit()
   private var lock = OS_SPINLOCK_INIT
@@ -30,7 +30,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
     while head != nil
     {
       let node = head
-      head = node.memory.next
+      head = UnsafeMutablePointer<Node<T>>(node.memory.next)
       UnsafeMutablePointer<T>(node.memory.elem).destroy()
       UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
@@ -39,7 +39,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
     // drain the pool
     while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
     {
-      let node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
+      let node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
       UnsafeMutablePointer<T>(node.memory.elem).dealloc(1)
       node.dealloc(1)
     }
@@ -58,10 +58,10 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
     // Not thread safe.
 
     var i = 0
-    var node = UnsafeMutablePointer<LinkNode>(head)
+    var node = head
     while node != nil
     { // Iterate along the linked nodes while counting
-      node = node.memory.next
+      node = UnsafeMutablePointer<Node<T>>(node.memory.next)
       i++
     }
 
@@ -70,14 +70,14 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 
   public func enqueue(newElement: T)
   {
-    var node = UnsafeMutablePointer<LinkNode>(OSAtomicDequeue(pool, 0))
+    var node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
     if node == nil
     {
-      node = UnsafeMutablePointer<LinkNode>.alloc(1)
-      node.memory.elem = COpaquePointer(UnsafeMutablePointer<T>.alloc(1))
+      node = UnsafeMutablePointer<Node<T>>.alloc(1)
+      node.memory.elem = UnsafeMutablePointer<T>.alloc(1)
     }
     node.memory.next = nil
-    UnsafeMutablePointer<T>(node.memory.elem).initialize(newElement)
+    node.memory.elem.initialize(newElement)
 
     OSSpinLockLock(&lock)
 
@@ -89,7 +89,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
       return
     }
 
-    tail.memory.next = node
+    tail.memory.next = COpaquePointer(node)
     tail = node
     OSSpinLockUnlock(&lock)
   }
@@ -103,14 +103,14 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
       let node = head
 
       // Promote the 2nd item to 1st
-      head = node.memory.next
+      head = UnsafeMutablePointer<Node<T>>(node.memory.next)
 
       // Logical housekeeping
       if head == nil { tail = nil }
 
       OSSpinLockUnlock(&lock)
 
-      let element = UnsafeMutablePointer<T>(node.memory.elem).move()
+      let element = node.memory.elem.move()
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
@@ -128,5 +128,16 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
   public func generate() -> Self
   {
     return self
+  }
+}
+
+private struct Node<T>
+{
+  var next: COpaquePointer = nil
+  var elem: UnsafeMutablePointer<T>
+
+  init(_ p: UnsafeMutablePointer<T>)
+  {
+    elem = p
   }
 }
