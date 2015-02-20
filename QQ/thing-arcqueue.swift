@@ -54,12 +54,12 @@ final public class ThingARCQueue: QueueType
     {
       head = node
       tail = node
-      OSSpinLockUnlock(&lock)
-      return
     }
-
-    tail.next = node
-    tail = node
+    else
+    {
+      tail.next = node
+      tail = node
+    }
     OSSpinLockUnlock(&lock)
   }
 

@@ -25,7 +25,7 @@ final public class ThingOSQueue: QueueType
   deinit
   {
     // first, empty the queue
-    while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
+    while UnsafePointer<COpaquePointer>(head).memory != nil
     {
       let node = UnsafeMutablePointer<Node>(OSAtomicFifoDequeue(head, 0))
       node.destroy()
@@ -35,7 +35,7 @@ final public class ThingOSQueue: QueueType
     AtomicQueueRelease(head)
 
     // drain the pool
-    while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
+    while UnsafePointer<COpaquePointer>(pool).memory != nil
     {
       UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0)).dealloc(1)
     }
@@ -56,7 +56,7 @@ final public class ThingOSQueue: QueueType
     // Not thread safe.
 
     var i = 0
-    var node = UnsafeMutablePointer<UnsafeMutablePointer<Node>>(head).memory
+    var node = UnsafePointer<UnsafeMutablePointer<Node>>(head).memory
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
@@ -81,6 +81,7 @@ final public class ThingOSQueue: QueueType
   public func dequeue() -> Thing?
   {
     let node = UnsafeMutablePointer<Node>(OSAtomicFifoDequeue(head, 0))
+
     if node != nil
     {
       let element = node.memory.elem
@@ -88,7 +89,6 @@ final public class ThingOSQueue: QueueType
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
-
     return nil
   }
 }

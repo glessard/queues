@@ -35,7 +35,7 @@ final public class ThingUnsafeQueue: QueueType
     }
 
     // drain the pool
-    while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
+    while UnsafePointer<COpaquePointer>(pool).memory != nil
     {
       UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0)).dealloc(1)
     }
@@ -76,31 +76,26 @@ final public class ThingUnsafeQueue: QueueType
     {
       head = node
       tail = node
-      return
     }
-
-    tail.memory.next = node
-    tail = node
+    else
+    {
+      tail.memory.next = node
+      tail = node
+    }
   }
 
   public func dequeue() -> Thing?
   {
-    if head != nil
-    {
-      let node = head
-
-      // Promote the 2nd item to 1st
+    let node = head
+    if node != nil
+    { // Promote the 2nd item to 1st
       head = node.memory.next
-
-      // Logical housekeeping
-      if head == nil { tail = nil }
 
       let element = node.memory.elem
       node.destroy()
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
-
     // queue is empty
     return nil
   }

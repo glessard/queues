@@ -27,16 +27,15 @@ final public class ThingQueue: QueueType
 
   deinit
   {
-    var h = UnsafeMutablePointer<Node>(head)
-    while h != nil
+    while head != nil
     {
-      let node = h
-      h = node.memory.next
+      let node = head
+      head = node.memory.next
       node.destroy()
       node.dealloc(1)
     }
 
-    while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
+    while UnsafePointer<COpaquePointer>(pool).memory != nil
     {
       UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0)).dealloc(1)
     }
@@ -74,44 +73,36 @@ final public class ThingQueue: QueueType
     node.initialize(Node(newElement))
 
     OSSpinLockLock(&lock)
-
     if head == nil
     {
       head = node
       tail = node
-      OSSpinLockUnlock(&lock)
-      return
     }
-
-    tail.memory.next = node
-    tail = node
+    else
+    {
+      tail.memory.next = node
+      tail = node
+    }
     OSSpinLockUnlock(&lock)
   }
 
   public func dequeue() -> Thing?
   {
     OSSpinLockLock(&lock)
-
-    if head != nil
-    {
-      let node = head
-
-      // Promote the 2nd item to 1st
+    let node = head
+    if node != nil
+    { // Promote the 2nd item to 1st
       head = node.memory.next
+    }
+    OSSpinLockUnlock(&lock)
 
-      // Logical housekeeping
-      if head == nil { tail = nil }
-
-      OSSpinLockUnlock(&lock)
-
+    if node != nil
+    {
       let element = node.memory.elem
       node.destroy()
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
-
-    // queue is empty
-    OSSpinLockUnlock(&lock)
     return nil
   }
 }
