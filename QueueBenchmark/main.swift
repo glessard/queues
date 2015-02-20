@@ -257,6 +257,18 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
+println("IntUnsafeQueue:" )
+var intunsafequeue = IntUnsafeQueue(iterations)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  intunsafequeue.dequeue()
+  intunsafequeue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration")
+
 println("ThingQueue:" )
 var semqueue = ThingQueue(ref)
 
@@ -280,3 +292,15 @@ for i in 1...iterations
 }
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration with Thing references")
+
+println("ThingUnsafeQueue:" )
+var unsafequeue = ThingUnsafeQueue(ref)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  unsafequeue.dequeue()
+  unsafequeue.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per thread-unsafe iteration with Thing references")
