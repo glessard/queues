@@ -111,7 +111,7 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
 private struct Node
 {
   var next: UnsafeMutablePointer<Node> = nil
-  var p: COpaquePointer
+  let p: COpaquePointer
 
   init<T>(_ p: UnsafeMutablePointer<T>)
   {

@@ -11,7 +11,7 @@ import Darwin
 struct LinkNode
 {
   var next: UnsafeMutablePointer<LinkNode> = nil
-  var elem: COpaquePointer = nil
+  let elem: COpaquePointer
 
   init(_ p: COpaquePointer)
   {
@@ -36,7 +36,7 @@ struct LinkNodeQueueData
 struct ObjLinkNode
 {
   var next: UnsafeMutablePointer<ObjLinkNode> = nil
-  var elem: AnyObject
+  let elem: AnyObject
 
   init(_ e: AnyObject)
   {
