@@ -53,12 +53,12 @@ final public class IntARCQueue: QueueType
     {
       head = node
       tail = node
-      OSSpinLockUnlock(&lock)
-      return
     }
-
-    tail.next = node
-    tail = node
+    else
+    {
+      tail.next = node
+      tail = node
+    }
     OSSpinLockUnlock(&lock)
   }
 
