@@ -68,6 +68,7 @@ final public class RefLinkOSQueue<T: AnyObject>: QueueType, SequenceType, Genera
   public func dequeue() -> T?
   {
     let node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicFifoDequeue(head, 0))
+
     if node != nil
     {
       let element = node.memory.elem as! T
@@ -75,7 +76,6 @@ final public class RefLinkOSQueue<T: AnyObject>: QueueType, SequenceType, Genera
       node.dealloc(1)
       return element
     }
-
     return nil
   }
 

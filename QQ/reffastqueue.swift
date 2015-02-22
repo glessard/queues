@@ -72,44 +72,36 @@ final public class RefFastQueue<T: AnyObject>: QueueType, SequenceType, Generato
     node.initialize(ObjLinkNode(newElement))
 
     OSSpinLockLock(&lock)
-
     if head == nil
     {
       head = node
       tail = node
-      OSSpinLockUnlock(&lock)
-      return
     }
-
-    tail.memory.next = node
-    tail = node
+    else
+    {
+      tail.memory.next = node
+      tail = node
+    }
     OSSpinLockUnlock(&lock)
   }
 
   public func dequeue() -> T?
   {
     OSSpinLockLock(&lock)
-
+    let node = head
     if head != nil
-    {
-      let node = head
-
-      // Promote the 2nd item to 1st
+    { // Promote the 2nd item to 1st
       head = head.memory.next
+    }
+    OSSpinLockUnlock(&lock)
 
-      // Logical housekeeping
-      if head == nil { tail = nil }
-
-      OSSpinLockUnlock(&lock)
-
+    if node != nil
+    {
       let element = node.memory.elem as! T
       node.destroy()
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
-
-    // queue is empty
-    OSSpinLockUnlock(&lock)
     return nil
   }
 

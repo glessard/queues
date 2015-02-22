@@ -53,12 +53,12 @@ final public class RefARCQueue<T: AnyObject>: QueueType, SequenceType, Generator
     {
       head = node
       tail = node
-      OSSpinLockUnlock(&lock)
-      return
     }
-
-    tail.next = node
-    tail = node
+    else
+    {
+      tail.next = node
+      tail = node
+    }
     OSSpinLockUnlock(&lock)
   }
 

@@ -61,44 +61,36 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
     node.initialize(Node(newElement))
 
     OSSpinLockLock(&lock)
-
     if head == nil
     {
       head = node
       tail = node
-      OSSpinLockUnlock(&lock)
-      return
     }
-
-    tail.memory.next = COpaquePointer(node)
-    tail = node
+    else
+    {
+      tail.memory.next = COpaquePointer(node)
+      tail = node
+    }
     OSSpinLockUnlock(&lock)
   }
 
   public func dequeue() -> T?
   {
     OSSpinLockLock(&lock)
-
+    let node = head
     if head != nil
+    { // Promote the 2nd item to 1st
+      head = UnsafeMutablePointer<Node<T>>(head.memory.next)
+    }
+    OSSpinLockUnlock(&lock)
+
+    if node != nil
     {
-      let node = head
-
-      // Promote the 2nd item to 1st
-      head = UnsafeMutablePointer<Node<T>>(node.memory.next)
-
-      // Logical housekeeping
-      if head == nil { tail = nil }
-
-      OSSpinLockUnlock(&lock)
-
       let element = node.memory.elem
       node.destroy()
       node.dealloc(1)
       return element
     }
-
-    // queue is empty
-    OSSpinLockUnlock(&lock)
     return nil
   }
 

@@ -80,13 +80,13 @@ final public class IntOSQueue: QueueType
   public func dequeue() -> UInt64?
   {
     let node = UnsafeMutablePointer<Node>(OSAtomicFifoDequeue(head, 0))
+
     if node != nil
     {
       let element = UnsafeMutablePointer<Node>(node).memory.elem
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
-
     return nil
   }
 }

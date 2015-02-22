@@ -76,11 +76,12 @@ final public class IntUnsafeQueue: QueueType
     {
       head = node
       tail = node
-      return
     }
-
-    tail.memory.next = node
-    tail = node
+    else
+    {
+      tail.memory.next = node
+      tail = node
+    }
   }
 
   public func dequeue() -> UInt64?
@@ -92,15 +93,10 @@ final public class IntUnsafeQueue: QueueType
       // Promote the 2nd item to 1st
       head = head.memory.next
 
-      // Logical housekeeping
-      if head == nil { tail = nil }
-
       let element = node.memory.elem
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
-
-    // queue is empty
     return nil
   }
 }
