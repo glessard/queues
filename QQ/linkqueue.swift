@@ -78,7 +78,7 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
   {
     OSSpinLockLock(&lock)
     let node = head
-    if head != nil
+    if node != nil
     { // Promote the 2nd item to 1st
       head = UnsafeMutablePointer<Node<T>>(head.memory.next)
     }

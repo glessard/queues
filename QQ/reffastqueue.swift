@@ -89,7 +89,7 @@ final public class RefFastQueue<T: AnyObject>: QueueType, SequenceType, Generato
   {
     OSSpinLockLock(&lock)
     let node = head
-    if head != nil
+    if node != nil
     { // Promote the 2nd item to 1st
       head = head.memory.next
     }
