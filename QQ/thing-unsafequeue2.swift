@@ -1,5 +1,5 @@
 //
-//  reffastqueue.swift
+//  Thing-queue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
@@ -7,18 +7,18 @@
 //
 
 import Darwin
+import Dispatch
 
-final public class RefFastQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
+final public class ThingUnsafeQueue2: QueueType
 {
-  private var head: UnsafeMutablePointer<ObjLinkNode> = nil
-  private var tail: UnsafeMutablePointer<ObjLinkNode> = nil
+  private var head: UnsafeMutablePointer<Node> = nil
+  private var tail: UnsafeMutablePointer<Node> = nil
 
   private let pool = AtomicStackInit()
-  private var lock = OS_SPINLOCK_INIT
 
   public init() { }
 
-  public convenience init(_ newElement: T)
+  public convenience init(_ newElement: Thing)
   {
     self.init()
     enqueue(newElement)
@@ -34,9 +34,10 @@ final public class RefFastQueue<T: AnyObject>: QueueType, SequenceType, Generato
       node.dealloc(1)
     }
 
-    while UnsafeMutablePointer<COpaquePointer>(pool).memory != nil
+    // drain the pool
+    while UnsafePointer<COpaquePointer>(pool).memory != nil
     {
-      UnsafeMutablePointer<ObjLinkNode>(OSAtomicDequeue(pool, 0)).dealloc(1)
+      UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0)).dealloc(1)
     }
     AtomicStackRelease(pool)
   }
@@ -52,7 +53,7 @@ final public class RefFastQueue<T: AnyObject>: QueueType, SequenceType, Generato
     // Not thread safe.
 
     var i = 0
-    var node = head
+    var node = UnsafeMutablePointer<Node>(head)
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
@@ -62,16 +63,17 @@ final public class RefFastQueue<T: AnyObject>: QueueType, SequenceType, Generato
     return i
   }
 
-  public func enqueue(newElement: T)
+  public func enqueue(newElement: Thing)
   {
-    var node = UnsafeMutablePointer<ObjLinkNode>(OSAtomicDequeue(pool, 0))
+    var node = UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0))
     if node == nil
     {
-      node = UnsafeMutablePointer<ObjLinkNode>.alloc(1)
+      node = UnsafeMutablePointer<Node>.alloc(1)
+      node.memory = Node(UnsafeMutablePointer<Thing>.alloc(1))
     }
-    node.initialize(ObjLinkNode(newElement))
+    node.memory.next = nil
+    node.memory.elem.initialize(newElement)
 
-    OSSpinLockLock(&lock)
     if head == nil
     {
       head = node
@@ -82,40 +84,31 @@ final public class RefFastQueue<T: AnyObject>: QueueType, SequenceType, Generato
       tail.memory.next = node
       tail = node
     }
-    OSSpinLockUnlock(&lock)
   }
 
-  public func dequeue() -> T?
+  public func dequeue() -> Thing?
   {
-    OSSpinLockLock(&lock)
     let node = head
     if node != nil
     { // Promote the 2nd item to 1st
-      head = head.memory.next
-    }
-    OSSpinLockUnlock(&lock)
+      head = node.memory.next
 
-    if node != nil
-    {
-      let element = node.memory.elem as! T
-      node.destroy()
+      let element = node.memory.elem.move()
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
+    // queue is empty
     return nil
   }
+}
 
-  // Implementation of GeneratorType
+private struct Node
+{
+  var next: UnsafeMutablePointer<Node> = nil
+  let elem: UnsafeMutablePointer<Thing>
 
-  public func next() -> T?
+  init(_ p: UnsafeMutablePointer<Thing>)
   {
-    return dequeue()
-  }
-
-  // Implementation of SequenceType
-
-  public func generate() -> Self
-  {
-    return self
+    elem = p
   }
 }

@@ -101,7 +101,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
     let node = head
     if node != nil
     { // Promote the 2nd item to 1st
-      head = node.memory.next
+      head = head.memory.next
     }
     OSSpinLockUnlock(&lock)
 
