@@ -1,32 +1,32 @@
 Swift-Only solutions
 Slow Queue:
-310 ns per iteration
-386 ns per iteration with AnyObject references
+311 ns per iteration
+390 ns per iteration with AnyObject references
 ARCQueue:
-334 ns per iteration
+333 ns per iteration
 418 ns per iteration with AnyObject references
 LinkQueue:
-175 ns per iteration
-202 ns per iteration with AnyObject references
+176 ns per iteration
+201 ns per iteration with AnyObject references
 FastQueue:
 123 ns per iteration
 148 ns per iteration with AnyObject references
 
 AnyObject queues
 RefARCQueue
-384 ns per iteration with AnyObject references
+386 ns per iteration with AnyObject references
 RefLinkQueue
-276 ns per iteration with AnyObject references
+231 ns per iteration with AnyObject references
 RefFastQueue
-177 ns per iteration with AnyObject references
+178 ns per iteration with AnyObject references
 
 Swift with OSAtomicFifoQueue:
 LinkOSQueue:
 177 ns per iteration
 202 ns per iteration with AnyObject references
 FastOSQueue:
-124 ns per iteration
-150 ns per iteration with AnyObject references
+125 ns per iteration
+152 ns per iteration with AnyObject references
 
 RefLinkOSQueue:
 233 ns per iteration with AnyObject references
@@ -35,14 +35,14 @@ RefFastOSQueue:
 
 nongeneric queues
 IntQueue:
-123 ns per iteration
+122 ns per iteration
 IntOSQueue:
 123 ns per iteration
 IntUnsafeQueue:
-91 ns per iteration
+92 ns per iteration
 ThingQueue:
-172 ns per iteration with Thing references
+173 ns per iteration with Thing references
 ThingOSQueue:
-177 ns per iteration with Thing references
+176 ns per iteration with Thing references
 ThingUnsafeQueue:
-119 ns per thread-unsafe iteration with Thing references
+117 ns per thread-unsafe iteration with Thing references
