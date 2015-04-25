@@ -122,7 +122,7 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
 
 private struct Node<T>
 {
-  var nptr: UnsafeMutablePointer<Void> = nil
+  var nptr: COpaquePointer = nil
   let elem: T
 
   init(_ e: T)
@@ -132,6 +132,6 @@ private struct Node<T>
 
   var next: UnsafeMutablePointer<Node<T>> {
     get { return UnsafeMutablePointer<Node<T>>(nptr) }
-    set { nptr = UnsafeMutablePointer<Void>(newValue) }
+    set { nptr = COpaquePointer(newValue) }
   }
 }
