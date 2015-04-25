@@ -114,7 +114,7 @@ print(dt/iterations); println(" ns per iteration with AnyObject references")
 
 println("Lock-Free FastQueue:")
 var lffqueue = LockFreeFastQueue(iterations)
-lffqueue.enqueue(42)
+//lffqueue.enqueue(42)
 
 then = mach_absolute_time()
 for i in 1...iterations

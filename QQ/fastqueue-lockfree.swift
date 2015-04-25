@@ -71,7 +71,7 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
     }
     node.initialize(Node(newElement))
 
-    if AtomicCompareAndSwapPointer(nil, node, &head)
+    if head == nil && AtomicCompareAndSwapPointer(nil, node, &head)
     {
       tail = node
       OSMemoryBarrier()
