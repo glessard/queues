@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin
+import Darwin.libkern.OSAtomic
 
 final public class ARCQueue<T>: QueueType, SequenceType, GeneratorType
 {

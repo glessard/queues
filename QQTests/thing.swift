@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin
+import Darwin.C.stdlib
 
 public class Thing
 {
