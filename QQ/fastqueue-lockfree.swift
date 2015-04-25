@@ -81,11 +81,13 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
       while tail == nil
       { OSMemoryBarrier() }
 
-      while AtomicCompareAndSwapPointer(nil, node, &tail.memory.next) == false
-      { OSMemoryBarrier() }
+      var previous: UnsafeMutablePointer<Node<T>>
+      do {
+        previous = tail
+      } while AtomicCompareAndSwapPointer(previous, node, &tail) == false
 
-      tail = node
-      OSMemoryBarrier()
+      previous.memory.next = node
+      if head == nil { AtomicCompareAndSwapPointer(nil, previous, &head) }
     }
   }
 
@@ -94,9 +96,18 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
     while head != nil
     { // Promote the 2nd item to 1st
       let node = head
-      if AtomicCompareAndSwapPointer(node, head.memory.next, &head)
+      if AtomicCompareAndSwapPointer(node, node.memory.next, &head)
       {
-        // MUST SET TAIL TO nil IF APPROPRIATE, BUT RACE CONDITION.
+        if node.memory.next == nil
+        { // node was also the tail; try to nil the tail.
+          if AtomicCompareAndSwapPointer(node, nil, &tail) == false
+          {
+            // tail is a valid pointer, but head is nil.
+            // is there a reliable solution to this race condition?
+            preconditionFailure("unresolved race condition in \(__FUNCTION__)")
+          }
+        }
+
         let element = node.memory.elem
         node.destroy()
         OSAtomicEnqueue(pool, node, 0)
@@ -136,6 +147,5 @@ private struct Node<T>
 private func AtomicCompareAndSwapPointer<T>(old: UnsafeMutablePointer<T>, new: UnsafeMutablePointer<T>,
                                             pointer: UnsafeMutablePointer<UnsafeMutablePointer<T>>) -> Bool
 {
-  return OSAtomicCompareAndSwapLongBarrier(unsafeBitCast(old, Int.self), unsafeBitCast(new, Int.self),
-                                           UnsafeMutablePointer<Int>(pointer))
+  return OSAtomicCompareAndSwapPtrBarrier(old, new, UnsafeMutablePointer<UnsafeMutablePointer<Void>>(pointer))
 }
