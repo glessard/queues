@@ -92,21 +92,22 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
   public func dequeue() -> T?
   {
     OSSpinLockLock(&lock)
-    let node = head
-    if node != nil
+    if head != nil
     { // Promote the 2nd item to 1st
+      let node = head
       head = head.memory.next
-    }
-    OSSpinLockUnlock(&lock)
+      OSSpinLockUnlock(&lock)
 
-    if node != nil
-    {
       let element = node.memory.elem
       node.destroy()
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
-    return nil
+    else
+    {
+      OSSpinLockUnlock(&lock)
+      return nil
+    }
   }
 
   public func next() -> T?
