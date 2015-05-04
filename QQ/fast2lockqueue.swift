@@ -38,7 +38,8 @@ final public class Fast2LockQueue<T>: QueueType, SequenceType, GeneratorType
     {
       let node = head
       head = node.memory.next
-      node.destroy()
+      node.memory.elem.destroy()
+      node.memory.elem.dealloc(1)
       node.dealloc(1)
     }
 
@@ -46,6 +47,7 @@ final public class Fast2LockQueue<T>: QueueType, SequenceType, GeneratorType
     while UnsafePointer<COpaquePointer>(pool).memory != nil
     {
       let node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
+      node.memory.elem.dealloc(1)
       node.dealloc(1)
     }
     // release the pool stack structure
