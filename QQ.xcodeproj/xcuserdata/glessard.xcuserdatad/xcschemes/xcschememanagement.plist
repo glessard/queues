@@ -6,16 +6,22 @@
 	<dict>
 		<key>QQ.xcscheme</key>
 		<dict>
+			<key>isShown</key>
+			<true/>
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
 		<key>QueueBenchmark.xcscheme</key>
 		<dict>
+			<key>isShown</key>
+			<true/>
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
 		<key>ReferenceLifetime.xcscheme</key>
 		<dict>
+			<key>isShown</key>
+			<true/>
 			<key>orderHint</key>
 			<integer>2</integer>
 		</dict>
@@ -43,6 +49,11 @@
 			<true/>
 		</dict>
 		<key>037414021A5856E100F4B44B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>03E4CC221AF7DB9300F4B44B</key>
 		<dict>
 			<key>primary</key>
 			<true/>
