@@ -115,3 +115,38 @@ class FastDoubleLockQueueTests: QQTests
     QueuePerformanceTestEmpty(Fast2LockQueue<Thing>.self)
   }
 }
+
+class FastLockFreeQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTestCount(LockFreeFastQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(LockFreeFastQueue<UInt64>)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(LockFreeFastQueue<Thing>)
+  }
+
+  func testPerformanceFill()
+  {
+    var s = Thing()
+    QueuePerformanceTestFill(LockFreeFastQueue<Thing>.self, element: s)
+  }
+
+  func testPerformanceSpin()
+  {
+    var s = Thing()
+    QueuePerformanceTestSpin(LockFreeFastQueue<Thing>.self, element: s)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(LockFreeFastQueue<Thing>.self)
+  }
+}

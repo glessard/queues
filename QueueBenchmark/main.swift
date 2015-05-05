@@ -113,9 +113,31 @@ dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration with AnyObject references")
 
 println("Two-Lock FastQueue:")
-var lffqueue = Fast2LockQueue(iterations)
-//lffqueue.enqueue(42)
+var tlfqueue = Fast2LockQueue(iterations)
+//tlfqueue.enqueue(42)
 
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  tlfqueue.dequeue()
+  tlfqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration")
+
+var tlfqueueref = Fast2LockQueue(ref)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  tlfqueueref.dequeue()
+  tlfqueueref.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration with AnyObject references")
+
+println("Lock-Free FastQueue:")
+var lffqueue = LockFreeFastQueue(iterations)
 then = mach_absolute_time()
 for i in 1...iterations
 {
@@ -125,8 +147,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
-var lffqueueref = Fast2LockQueue(ref)
-
+var lffqueueref = LockFreeFastQueue(ref)
 then = mach_absolute_time()
 for i in 1...iterations
 {
