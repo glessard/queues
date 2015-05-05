@@ -96,12 +96,14 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
     while true
     {
       let oldtail = tail
-      let oldnext = UnsafeMutablePointer<Node<T>>(oldtail.pointer).memory.next
+      let oldpntr = UnsafeMutablePointer<Node<T>>(oldtail.pointer)
+      let oldnext = oldpntr.memory.next
+
       if oldtail == tail
       { // was tail pointing to the last node?
         if oldnext.pointer == nil
         { // try to link the new node to the end of the list
-          if UnsafeMutablePointer<Node<T>>(oldtail.pointer).memory.next.atomicSet(old: oldnext, new: node)
+          if oldpntr.memory.next.atomicSet(old: oldnext, new: node)
           { // success. try to have tail point to the inserted node.
             tail.atomicSet(old: oldtail, new: node)
             break
@@ -120,26 +122,28 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
     while true
     {
       let oldhead = head
+      let oldpntr = UnsafeMutablePointer<Node<T>>(oldhead.pointer)
+
       let oldtail = tail
-      let newhead = UnsafePointer<Node<T>>(oldhead.pointer).memory.next
+      let newhead = oldpntr.memory.next
 
       if oldhead == head
       {
-        if oldhead.pointer != oldtail.pointer
+        if oldpntr != oldtail.pointer
         { // no need to deal with tail
-          let element = UnsafePointer<Node<T>>(newhead.pointer).memory.elem.memory
-          if head.atomicSet(old: oldhead, new: newhead.pointer)
+          let newpntr = UnsafePointer<Node<T>>(newhead.pointer)
+          let element = newpntr.memory.elem.memory
+          if head.atomicSet(old: oldhead, new: newpntr)
           {
-            let optr = UnsafeMutablePointer<Node<T>>(oldhead.pointer)
-            let eptr = optr.memory.elem
+            let eptr = oldpntr.memory.elem
             if eptr != nil
             {
               eptr.destroy()
-              OSAtomicEnqueue(pool, optr, 0)
+              OSAtomicEnqueue(pool, oldpntr, 0)
             }
             else
             {
-              optr.dealloc(1)
+              oldpntr.dealloc(1)
             }
             return element
           }
@@ -195,12 +199,12 @@ private extension Int64
     self = 0
   }
 
-  mutating func set(pointer: UnsafeMutablePointer<Void>)
-  {
-    set(pointer, tag: self.tag+1)
-  }
+//  mutating func set(pointer: UnsafePointer<Void>)
+//  {
+//    set(pointer, tag: self.tag+1)
+//  }
 
-  mutating func set(pointer: UnsafeMutablePointer<Void>, tag: Int64)
+  mutating func set(pointer: UnsafePointer<Void>, tag: Int64)
   {
     #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
       let newtag = UInt64(bitPattern: tag) << 56
@@ -211,7 +215,7 @@ private extension Int64
     #endif
   }
   
-  mutating func atomicSet(#old: Int64, new: UnsafeMutablePointer<Void>) -> Bool
+  mutating func atomicSet(#old: Int64, new: UnsafePointer<Void>) -> Bool
   {
     if old != self { return false }
     
