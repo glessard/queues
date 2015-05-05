@@ -34,6 +34,11 @@ final public class Fast2LockQueue<T>: QueueType, SequenceType, GeneratorType
   deinit
   {
     // empty the queue
+    let emptyhead = head
+    head = head.memory.next
+    emptyhead.memory.elem.dealloc(1)
+    emptyhead.dealloc(1)
+
     while head != nil
     {
       let node = head
@@ -65,7 +70,7 @@ final public class Fast2LockQueue<T>: QueueType, SequenceType, GeneratorType
     // Not thread safe.
 
     var i = 0
-    var node = head
+    var node = head.memory.next
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
