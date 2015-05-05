@@ -12,6 +12,7 @@ import Darwin.libkern.OSAtomic
   Lock-free queue algorithm adapted from Maged M. Michael and Michael L. Scott.,
   "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms",
   in Principles of Distributed Computing '96 (PODC96)
+  See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 */
 
 final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
@@ -24,9 +25,9 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
   public init()
   {
     let node = UnsafeMutablePointer<Node<T>>.alloc(1)
-    node.memory = Node(UnsafeMutablePointer<T>.alloc(1))
-    head.reset(node)
-    tail.reset(node)
+    node.memory = Node(nil)
+    head.set(node, tag: 0)
+    tail.set(node, tag: 0)
   }
 
   public convenience init(_ newElement: T)
@@ -38,17 +39,15 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
   deinit
   {
     // empty the queue
-    let emptyhead = UnsafeMutablePointer<Node<T>>(head.pointer)
-    head = emptyhead.memory.next
-    emptyhead.memory.elem.dealloc(1)
-    emptyhead.dealloc(1)
-
     while head.pointer != nil
     {
       let node = UnsafeMutablePointer<Node<T>>(head.pointer)
       head = node.memory.next
-      node.memory.elem.destroy()
-      node.memory.elem.dealloc(1)
+      if node.memory.elem != nil
+      {
+        node.memory.elem.destroy()
+        node.memory.elem.dealloc(1)
+      }
       node.dealloc(1)
     }
 
@@ -102,8 +101,9 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
       { // was tail pointing to the last node?
         if oldnext.pointer == nil
         { // try to link the new node to the end of the list
-          if UnsafeMutablePointer<Node<T>>(tail.pointer).memory.next.atomicSet(old: oldnext, new: node)
-          { // success
+          if UnsafeMutablePointer<Node<T>>(oldtail.pointer).memory.next.atomicSet(old: oldnext, new: node)
+          { // success. try to have tail point to the inserted node.
+            tail.atomicSet(old: oldtail, new: node)
             break
           }
         }
@@ -113,46 +113,48 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
         }
       }
     }
-    // enqueued. try to have tail point to the inserted node.
-    tail.atomicSet(old: tail, new: node)
   }
 
   public func dequeue() -> T?
   {
-    var oldhead = head
-    var pointer = UnsafeMutablePointer<T>()
     while true
     {
+      let oldhead = head
       let oldtail = tail
-      let next = UnsafePointer<Node<T>>(head.pointer).memory.next
+      let newhead = UnsafePointer<Node<T>>(oldhead.pointer).memory.next
 
       if oldhead == head
       {
-        if oldhead.pointer == oldtail.pointer
+        if oldhead.pointer != oldtail.pointer
+        { // no need to deal with tail
+          let element = UnsafePointer<Node<T>>(newhead.pointer).memory.elem.memory
+          if head.atomicSet(old: oldhead, new: newhead.pointer)
+          {
+            let optr = UnsafeMutablePointer<Node<T>>(oldhead.pointer)
+            let eptr = optr.memory.elem
+            if eptr != nil
+            {
+              eptr.destroy()
+              OSAtomicEnqueue(pool, optr, 0)
+            }
+            else
+            {
+              optr.dealloc(1)
+            }
+            return element
+          }
+        }
+        else
         {
-          if next.pointer == nil
+          if newhead.pointer == nil
           { // queue is empty
             return nil
           }
-          // tail is not pointing to the right node
-          tail.atomicSet(old: tail, new: next.pointer)
-        }
-        else
-        { // no need to deal with tail
-          pointer = UnsafePointer<Node<T>>(next.pointer).memory.elem
-          if head.atomicSet(old: oldhead, new: next.pointer)
-          {
-            break
-          }
+          // tail is not pointing to the correct last node; try to fix it.
+          tail.atomicSet(old: oldtail, new: newhead.pointer)
         }
       }
-
-      oldhead = head
     }
-
-    let element = pointer.move()
-    OSAtomicEnqueue(pool, oldhead.pointer, 0)
-    return element
   }
 
   public func next() -> T?
@@ -178,6 +180,14 @@ private struct Node<T>
   }
 }
 
+/**
+  Int64 as tagged pointer, as a strategy to overcome the ABA problem in
+  synchronization algorithms based on atomic compare-and-swap operations.
+
+  The implementation uses Int64 as the base type in order to easily
+  work with OSAtomicCompareAndSwap in Swift.
+*/
+
 private extension Int64
 {
   mutating func reset()
@@ -185,40 +195,59 @@ private extension Int64
     self = 0
   }
 
-  mutating func reset<T>(pointer: UnsafeMutablePointer<Node<T>>)
+  mutating func set(pointer: UnsafeMutablePointer<Void>)
   {
-    self = unsafeBitCast(pointer, Int64.self)
+    set(pointer, tag: self.tag+1)
   }
 
+  mutating func set(pointer: UnsafeMutablePointer<Void>, tag: Int64)
+  {
+    #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
+      let newtag = UInt64(bitPattern: tag) << 56
+      self = Int64(bitPattern: unsafeBitCast(pointer, UInt64.self) & 0x00ff_ffff_ffff_ffff + newtag)
+      #else
+      let newtag = UInt64(bitPattern: tag) << 32
+      self = Int64(bitPattern: UInt64(unsafeBitCast(pointer, UInt32.self)) + newtag)
+    #endif
+  }
+  
   mutating func atomicSet(#old: Int64, new: UnsafeMutablePointer<Void>) -> Bool
   {
-    let optr = self
+    if old != self { return false }
+    
+    #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
+      let oldtag = UInt64(bitPattern: old) >> 56  & 0xff
+      let newtag = ((oldtag+1) & 0xff) << 56
 
-    #if arch(x86_64) || arch(arm64)
-      let oldtag = optr >> 56 & 0xff
-      let newtag = (oldtag+1) & 0xff
-
-      let nptr = unsafeBitCast(new, Int64.self) & 0x00ff_ffff_ffff_ffff + (newtag << 56)
+      let nptr = Int64(bitPattern: (unsafeBitCast(new, UInt64.self) & 0x00ff_ffff_ffff_ffff) + newtag)
 
       return OSAtomicCompareAndSwap64Barrier(old, nptr, &self)
     #else // 32-bit architecture
-      let oldtag = optr >> 32 & 0xffffffff
-      let newtag = (oldtag+1) & 0xffffffff
+      let oldtag = UInt64(bitPattern: old) >> 32 & 0xffffffff
+      let newtag = ((oldtag+1) & 0xffffffff) << 32
 
-      let nptr = Int64(unsafeBitCast(new, UInt32.self)) + (newtag << 32)
+      let nptr = Int64(bitPattern: UInt64(unsafeBitCast(new, UInt32.self)) + newtag)
 
       return OSAtomicCompareAndSwap64Barrier(old, nptr, &self)
     #endif
   }
 
   var pointer: UnsafeMutablePointer<Void> {
-    #if arch(x86_64) || arch(arm64)
+    #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
       if self & 0x80_0000_0000_0000 == 0
       { return UnsafeMutablePointer(bitPattern: UWord(self & 0x00ff_ffff_ffff_ffff)) }
-      else
+      else // an upper-half pointer
       { return UnsafeMutablePointer(bitPattern: UWord(self & 0x00ff_ffff_ffff_ffff) + 0xff00_0000_0000_0000) }
     #else // 32-bit architecture
       return UnsafeMutablePointer(bitPattern: UWord(self && 0xffff_ffff))
+    #endif
+  }
+
+  var tag: Int64 {
+    #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
+      return Int64(bitPattern: UInt64(bitPattern: self) >> 56)
+    #else // 32-bit architecture
+      return Int64(bitPattern: UInt64(bitPattern: self) >> 32)
     #endif
   }
 }
