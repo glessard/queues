@@ -64,24 +64,24 @@ final public class OptimisticFastQueue<T>: QueueType, SequenceType, GeneratorTyp
     AtomicStackRelease(pool)
   }
 
-  public var isEmpty: Bool { return head.pointer == nil }
+  public var isEmpty: Bool { return head == tail }
 
   public var count: Int {
-    return head.pointer == nil ? 0 : countElements()
+    return (head == tail) ? 0 : countElements()
   }
 
   public func countElements() -> Int
   {
-    // Not thread safe.
+    // make sure the `next` pointers are in order
+    fixlist(tail: tail, head: head)
 
     var i = 0
-    var node = UnsafeMutablePointer<Node<T>>(head.pointer).memory.next
-    while node.pointer != nil
+    var nodepointer = UnsafePointer<Node<T>>(head.pointer).memory.next.pointer
+    while nodepointer != nil
     { // Iterate along the linked nodes while counting
-      node = UnsafeMutablePointer<Node<T>>(node.pointer).memory.next
+      nodepointer = UnsafePointer<Node<T>>(nodepointer).memory.next.pointer
       i++
     }
-
     return i
   }
 
@@ -127,11 +127,11 @@ final public class OptimisticFastQueue<T>: QueueType, SequenceType, GeneratorTyp
         {
           if newhead.tag != oldhead.tag
           {
-            fixlist(oldtail, oldhead)
+            fixlist(tail: oldtail, head: oldhead)
           }
           else
           {
-            let newpntr = UnsafePointer<Node<T>>(newhead.pointer)
+            let newpntr = UnsafeMutablePointer<Node<T>>(newhead.pointer)
             let element = newpntr.memory.elem.memory
             if head.atomicSet(old: oldhead, new: newpntr)
             {
@@ -157,14 +157,14 @@ final public class OptimisticFastQueue<T>: QueueType, SequenceType, GeneratorTyp
     }
   }
 
-  private func fixlist(oldtail: Int64, _ oldhead: Int64)
+  private func fixlist(tail oldtail: Int64, head oldhead: Int64)
   {
     var current = oldtail
     while oldhead == head && current != oldhead
     {
-      let prev = UnsafePointer<Node<T>>(current.pointer).memory.prev
-      UnsafeMutablePointer<Node<T>>(prev.pointer).memory.next.set(current.pointer, tag: current.tag-1)
-      current.set(prev.pointer, tag: current.tag-1)
+      let pptr = UnsafePointer<Node<T>>(current.pointer).memory.prev.pointer
+      UnsafeMutablePointer<Node<T>>(pptr).memory.next.set(current.pointer, tag: current.tag-1)
+      current.set(pptr, tag: current.tag-1)
     }
   }
 
@@ -181,14 +181,13 @@ final public class OptimisticFastQueue<T>: QueueType, SequenceType, GeneratorTyp
 
 private struct Node<T>
 {
-  var next: Int64
-  var prev: Int64
+  var sptr: Int   = 0
+  var next: Int64 = 0
+  var prev: Int64 = 0
   var elem: UnsafeMutablePointer<T>
 
   init(_ p: UnsafeMutablePointer<T>)
   {
-    next = 0
-    prev = 0
     elem = p
   }
 }

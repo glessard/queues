@@ -59,16 +59,14 @@ final public class Fast2LockQueue<T>: QueueType, SequenceType, GeneratorType
     AtomicStackRelease(pool)
   }
 
-  public var isEmpty: Bool { return head == nil }
+  public var isEmpty: Bool { return head == tail }
 
   public var count: Int {
-    return (head == nil) ? 0 : countElements()
+    return (head == tail) ? 0 : countElements()
   }
 
   public func countElements() -> Int
   {
-    // Not thread safe.
-
     var i = 0
     var node = head.memory.next
     while node != nil
@@ -76,7 +74,6 @@ final public class Fast2LockQueue<T>: QueueType, SequenceType, GeneratorType
       node = node.memory.next
       i++
     }
-
     return i
   }
 

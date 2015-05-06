@@ -61,16 +61,14 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
     AtomicStackRelease(pool)
   }
 
-  public var isEmpty: Bool { return head.pointer == nil }
+  public var isEmpty: Bool { return head.pointer == tail.pointer }
 
   public var count: Int {
-    return head.pointer == nil ? 0 : countElements()
+    return head.pointer == tail.pointer ? 0 : countElements()
   }
 
   public func countElements() -> Int
   {
-    // Not thread safe.
-
     var i = 0
     var node = UnsafeMutablePointer<Node<T>>(head.pointer).memory.next
     while node.pointer != nil
@@ -78,7 +76,6 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
       node = UnsafeMutablePointer<Node<T>>(node.pointer).memory.next
       i++
     }
-
     return i
   }
 
@@ -129,9 +126,10 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
 
       if oldhead == head
       {
+        let newpntr = UnsafePointer<Node<T>>(newhead.pointer)
+
         if oldpntr != oldtail.pointer
         { // no need to deal with tail
-          let newpntr = UnsafePointer<Node<T>>(newhead.pointer)
           let element = newpntr.memory.elem.memory
           if head.atomicSet(old: oldhead, new: newpntr)
           {
@@ -150,12 +148,12 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
         }
         else
         {
-          if newhead.pointer == nil
+          if newpntr == nil
           { // queue is empty
             return nil
           }
           // tail is not pointing to the correct last node; try to fix it.
-          tail.atomicSet(old: oldtail, new: newhead.pointer)
+          tail.atomicSet(old: oldtail, new: newpntr)
         }
       }
     }
@@ -174,12 +172,12 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
 
 private struct Node<T>
 {
-  var next: Int64
+  var sptr: Int   = 0
+  var next: Int64 = 0
   var elem: UnsafeMutablePointer<T>
 
   init(_ p: UnsafeMutablePointer<T>)
   {
-    next = 0
     elem = p
   }
 }
