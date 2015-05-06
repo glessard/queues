@@ -26,10 +26,8 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
     // empty the queue
     while UnsafePointer<COpaquePointer>(head).memory != nil
     {
-      let node = UnsafeMutablePointer<Node>(OSAtomicFifoDequeue(head, 0))
-      let elem = node.memory.elem() as UnsafeMutablePointer<T>
-      elem.destroy()
-      elem.dealloc(1)
+      let node = UnsafeMutablePointer<Node<T>>(OSAtomicFifoDequeue(head, 0))
+      node.destroy()
       node.dealloc(1)
     }
     // release the queue head structure
@@ -38,9 +36,7 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
     // drain the pool
     while UnsafePointer<COpaquePointer>(pool).memory != nil
     {
-      let node = UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0))
-      let elem = node.memory.elem() as UnsafeMutablePointer<T>
-      elem.dealloc(1)
+      let node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
       node.dealloc(1)
     }
     // release the pool stack structure
@@ -60,7 +56,7 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
     // Not thread safe.
 
     var i = 0
-    var node = UnsafePointer<UnsafeMutablePointer<Node>>(head).memory
+    var node = UnsafePointer<UnsafeMutablePointer<Node<T>>>(head).memory
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
@@ -72,25 +68,24 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
 
   public func enqueue(newElement: T)
   {
-    var node = UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0))
+    var node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
     if node == nil
     {
-      node = UnsafeMutablePointer<Node>.alloc(1)
-      node.memory = Node(UnsafeMutablePointer<T>.alloc(1))
+      node = UnsafeMutablePointer<Node<T>>.alloc(1)
     }
-    node.memory.next = nil
-    node.memory.elem().initialize(newElement)
+    node.initialize(Node(newElement))
 
     OSAtomicFifoEnqueue(head, node, 0)
   }
 
   public func dequeue() -> T?
   {
-    let node = UnsafeMutablePointer<Node>(OSAtomicFifoDequeue(head, 0))
+    let node = UnsafeMutablePointer<Node<T>>(OSAtomicFifoDequeue(head, 0))
 
     if node != nil
     {
-      let element: T = node.memory.elem().move()
+      let element = node.memory.elem
+      node.destroy()
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
@@ -108,18 +103,18 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
   }
 }
 
-private struct Node
+private struct Node<T>
 {
-  var next: UnsafeMutablePointer<Node> = nil
-  let p: COpaquePointer
+  var nptr: COpaquePointer = nil
+  let elem: T
 
-  init<T>(_ p: UnsafeMutablePointer<T>)
+  init(_ e: T)
   {
-    self.p = COpaquePointer(p)
+    elem = e
   }
 
-  func elem<T>() -> UnsafeMutablePointer<T>
-  {
-    return UnsafeMutablePointer<T>(p)
+  var next: UnsafeMutablePointer<Node<T>> {
+    get { return UnsafeMutablePointer<Node<T>>(nptr) }
+    set { nptr = COpaquePointer(newValue) }
   }
 }
