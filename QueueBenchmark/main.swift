@@ -150,31 +150,6 @@ dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration with AnyObject references")
 
 
-println("RefLinkQueue")
-var rlqueue = RefLinkQueue(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  rlqueue.dequeue()
-  rlqueue.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration with AnyObject references")
-
-println("RefFastQueue")
-var rfqueue = RefFastQueue(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  rfqueue.dequeue()
-  rfqueue.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration with AnyObject references")
-
-
 println()
 println("Swift with OSAtomicFifoQueue:")
 
@@ -220,33 +195,6 @@ for i in 1...iterations
 {
   fosqueueref.dequeue()
   fosqueueref.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration with AnyObject references")
-
-
-println()
-println("RefLinkOSQueue:" )
-var squeue2 = RefLinkOSQueue(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  squeue2.dequeue()
-  squeue2.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration with AnyObject references")
-
-
-println("RefFastOSQueue:" )
-var squeue2p = RefFastOSQueue(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  squeue2p.dequeue()
-  squeue2p.enqueue(ref)
 }
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration with AnyObject references")

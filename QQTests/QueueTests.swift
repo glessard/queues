@@ -46,41 +46,6 @@ class GenericNodeQueueTests: QQTests
   }
 }
 
-class ARCQueueTests: QQTests
-{
-  func testQueueConut()
-  {
-    QueueTestCount(ARCQueue<Int>.self, element: 0)
-  }
-
-  func testQueueInt()
-  {
-    QueueIntTest(ARCQueue<UInt64>)
-  }
-
-  func testQueueRef()
-  {
-    QueueRefTest(ARCQueue<Thing>)
-  }
-  
-  func testPerformanceFill()
-  {
-    var s = Thing()
-    QueuePerformanceTestFill(ARCQueue<Thing>.self, element: s)
-  }
-
-  func testPerformanceSpin()
-  {
-    var s = Thing()
-    QueuePerformanceTestSpin(ARCQueue<Thing>.self, element: s)
-  }
-
-  func testPerformanceEmpty()
-  {
-    QueuePerformanceTestEmpty(ARCQueue<Thing>.self)
-  }
-}
-
 class RefARCQueueTests: QQTests
 {
   func testQueueCount()
