@@ -112,8 +112,8 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration with AnyObject references")
 
-println("Lock-Free FastQueue:")
-var lffqueue = OptimisticFastQueue(iterations)
+println("Michael&Scott Lock-Free FastQueue:")
+var lffqueue = LockFreeFastQueue(iterations)
 then = mach_absolute_time()
 for i in 1...iterations
 {
@@ -123,12 +123,34 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration")
 
-var lffqueueref = OptimisticFastQueue(ref)
+var lffqueueref = LockFreeFastQueue(ref)
 then = mach_absolute_time()
 for i in 1...iterations
 {
   lffqueueref.dequeue()
   lffqueueref.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration with AnyObject references")
+
+
+println("Optimistic Lock-Free FastQueue:")
+var ofqueue = OptimisticFastQueue(iterations)
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  ofqueue.dequeue()
+  ofqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print(dt/iterations); println(" ns per iteration")
+
+var ofqueueref = OptimisticFastQueue(ref)
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  ofqueueref.dequeue()
+  ofqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration with AnyObject references")
