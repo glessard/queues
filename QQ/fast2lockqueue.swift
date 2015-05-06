@@ -8,6 +8,13 @@
 
 import Darwin.libkern.OSAtomic
 
+/**
+  Two-lock queue algorithm adapted from Maged M. Michael and Michael L. Scott.,
+  "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms",
+  in Principles of Distributed Computing '96 (PODC96)
+  See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
+*/
+
 final public class Fast2LockQueue<T>: QueueType, SequenceType, GeneratorType
 {
   private var head: UnsafeMutablePointer<Node<T>> = nil
