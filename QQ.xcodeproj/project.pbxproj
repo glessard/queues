@@ -28,14 +28,12 @@
 		034456651A5CAB1800F4B44B /* linknodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034456631A5CAB1800F4B44B /* linknodes.swift */; };
 		0344567A1A5CAB2D00F4B44B /* reflinkosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0344566C1A5CAB2D00F4B44B /* reflinkosqueue.swift */; };
 		0344567B1A5CAB2D00F4B44B /* reflinkosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0344566C1A5CAB2D00F4B44B /* reflinkosqueue.swift */; };
-		035A98441A539D4A00F4B44B /* arcqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98431A539D4A00F4B44B /* arcqueue.swift */; };
 		035A98471A539D7300F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
 		035A984A1A53A04300F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
 		035A984D1A53A49000F4B44B /* QueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A984C1A53A49000F4B44B /* QueueTests.swift */; };
 		035A984F1A53AC2A00F4B44B /* FastQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A984E1A53AC2A00F4B44B /* FastQueueTests.swift */; };
 		035A98571A53B0A500F4B44B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98561A53B0A500F4B44B /* main.swift */; };
 		035A985B1A53B0B000F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
-		035A985C1A53B0B000F4B44B /* arcqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98431A539D4A00F4B44B /* arcqueue.swift */; };
 		035A985D1A53B0B000F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
 		035A996A1A5777DE00F4B44B /* QQTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98391A539CF600F4B44B /* QQTests.swift */; };
 		03678C111A60963700F4B44B /* atomicqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C101A60963700F4B44B /* atomicqueue.swift */; };
@@ -66,7 +64,6 @@
 		03E8617E1A648C9300F4B44B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E8617D1A648C9300F4B44B /* main.swift */; };
 		03E861831A648D9600F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
 		03E861841A648D9D00F4B44B /* slowqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036939B81A5EFB3500F4B44B /* slowqueue.swift */; };
-		03E861851A648D9D00F4B44B /* arcqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98431A539D4A00F4B44B /* arcqueue.swift */; };
 		03E861861A648D9D00F4B44B /* refarcqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D1E8771A5F70C700F4B44B /* refarcqueue.swift */; };
 		03E861871A648DA100F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
 		03E861881A648DA100F4B44B /* fastqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030F58D61A5B5EA500F4B44B /* fastqueue.swift */; };
@@ -139,7 +136,6 @@
 		035A98321A539CF600F4B44B /* QQTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QQTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		035A98381A539CF600F4B44B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		035A98391A539CF600F4B44B /* QQTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = QQTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		035A98431A539D4A00F4B44B /* arcqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = arcqueue.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		035A98461A539D7300F4B44B /* queuetype.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = queuetype.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		035A98491A53A04300F4B44B /* linkqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = linkqueue.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		035A984C1A53A49000F4B44B /* QueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QueueTests.swift; sourceTree = "<group>"; };
@@ -227,7 +223,6 @@
 				035A982A1A539CF600F4B44B /* Supporting Files */,
 				03678C141A60A3AC00F4B44B /* Definitions */,
 				036939B81A5EFB3500F4B44B /* slowqueue.swift */,
-				035A98431A539D4A00F4B44B /* arcqueue.swift */,
 				03D1E8771A5F70C700F4B44B /* refarcqueue.swift */,
 				035A98601A53B53100F4B44B /* OSAtomic Helpers */,
 				03E861761A64696D00F4B44B /* Pointer Queues */,
@@ -497,7 +492,6 @@
 				03E4CC2F1AF8A38300F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */,
 				03223F1C1A645AC500F4B44B /* thing-arcqueue.swift in Sources */,
 				030F58D71A5B5EA500F4B44B /* fastqueue.swift in Sources */,
-				035A98441A539D4A00F4B44B /* arcqueue.swift in Sources */,
 				03678C1F1A61205500F4B44B /* linkosqueue.swift in Sources */,
 				0344567A1A5CAB2D00F4B44B /* reflinkosqueue.swift in Sources */,
 				03223F211A645BFD00F4B44B /* thing.swift in Sources */,
@@ -554,7 +548,6 @@
 				03FFF9DB1A63AC6200F4B44B /* thing-queue.swift in Sources */,
 				035A985B1A53B0B000F4B44B /* queuetype.swift in Sources */,
 				03B14A0E1AEB60E000F4B44B /* fastqueue-lockfree.swift in Sources */,
-				035A985C1A53B0B000F4B44B /* arcqueue.swift in Sources */,
 				03223F1D1A645AC500F4B44B /* thing-arcqueue.swift in Sources */,
 				03678C2B1A61239C00F4B44B /* fastosqueue.swift in Sources */,
 				036939AD1A5E1FFA00F4B44B /* reffastosqueue.swift in Sources */,
@@ -575,7 +568,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03E861851A648D9D00F4B44B /* arcqueue.swift in Sources */,
 				03E861861A648D9D00F4B44B /* refarcqueue.swift in Sources */,
 				03E861901A648DC100F4B44B /* linknodes.swift in Sources */,
 				03E8618C1A648DA600F4B44B /* fastosqueue.swift in Sources */,

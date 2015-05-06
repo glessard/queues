@@ -39,30 +39,6 @@ dt = mach_absolute_time() - then
 print(dt/iterations); println(" ns per iteration with AnyObject references")
 
 
-println("ARCQueue:")
-var queue2 = ARCQueue(iterations)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  queue2.dequeue()
-  queue2.enqueue(i)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration")
-
-var queue2ref = ARCQueue(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  queue2ref.dequeue()
-  queue2ref.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print(dt/iterations); println(" ns per iteration with AnyObject references")
-
-
 println("LinkQueue:")
 var lqueue = LinkQueue(iterations)
 
