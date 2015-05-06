@@ -49,7 +49,7 @@ final public class LinkOSQueue<T>: QueueType, SequenceType, GeneratorType
     var node = UnsafeMutablePointer<UnsafeMutablePointer<Node<T>>>(head).memory
     while node != nil
     { // Iterate along the linked nodes while counting
-      node = UnsafeMutablePointer<Node<T>>(node.memory.next)
+      node = node.memory.next
       i++
     }
 
@@ -96,11 +96,16 @@ final public class LinkOSQueue<T>: QueueType, SequenceType, GeneratorType
 
 private struct Node<T>
 {
-  var next: COpaquePointer = nil
+  var nptr: COpaquePointer = nil
   let elem: T
 
   init(_ e: T)
   {
     elem = e
+  }
+
+  var next: UnsafeMutablePointer<Node<T>> {
+    get { return UnsafeMutablePointer<Node<T>>(nptr) }
+    set { nptr = COpaquePointer(newValue) }
   }
 }

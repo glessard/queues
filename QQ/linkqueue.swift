@@ -28,7 +28,7 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
     while head != nil
     {
       let node = head
-      head = UnsafeMutablePointer<Node<T>>(node.memory.next)
+      head = node.memory.next
       node.destroy()
       node.dealloc(1)
     }
@@ -45,10 +45,10 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
     // Not thread safe.
 
     var i = 0
-    var node = UnsafeMutablePointer<Node<T>>(head)
+    var node = head
     while node != nil
     { // Iterate along the linked nodes while counting
-      node = UnsafeMutablePointer<Node<T>>(node.memory.next)
+      node = node.memory.next
       i++
     }
 
@@ -68,7 +68,7 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
     }
     else
     {
-      tail.memory.next = COpaquePointer(node)
+      tail.memory.next = node
       tail = node
     }
     OSSpinLockUnlock(&lock)
@@ -111,11 +111,16 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
 
 private struct Node<T>
 {
-  var next: COpaquePointer = nil
+  var nptr: COpaquePointer = nil
   let elem: T
 
   init(_ e: T)
   {
     elem = e
+  }
+
+  var next: UnsafeMutablePointer<Node<T>> {
+    get { return UnsafeMutablePointer<Node<T>>(nptr) }
+    set { nptr = COpaquePointer(newValue) }
   }
 }
