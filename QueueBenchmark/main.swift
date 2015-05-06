@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Foundation
+import Darwin.Mach
 
 var iterations: UInt64 = 1_000_000
 var then = mach_absolute_time()
@@ -114,6 +114,8 @@ print(dt/iterations); println(" ns per iteration with AnyObject references")
 
 println("Michael&Scott Lock-Free FastQueue:")
 var lffqueue = LockFreeFastQueue(iterations)
+//lffqueue.enqueue(42)
+
 then = mach_absolute_time()
 for i in 1...iterations
 {
@@ -136,6 +138,8 @@ print(dt/iterations); println(" ns per iteration with AnyObject references")
 
 println("Optimistic Lock-Free FastQueue:")
 var ofqueue = OptimisticFastQueue(iterations)
+//ofqueue.enqueue(42)
+
 then = mach_absolute_time()
 for i in 1...iterations
 {

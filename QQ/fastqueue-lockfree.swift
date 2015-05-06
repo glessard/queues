@@ -107,7 +107,7 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
           }
         }
         else
-        {  // tail wasn't pointing to the actual last node; try to fix it.
+        { // tail wasn't pointing to the actual last node; try to fix it.
           tail.atomicSet(old: oldtail, new: oldnext.pointer)
         }
       }
