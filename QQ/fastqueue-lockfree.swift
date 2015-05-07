@@ -87,7 +87,7 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
       node = UnsafeMutablePointer<Node<T>>.alloc(1)
       node.memory.elem = UnsafeMutablePointer<T>.alloc(1)
     }
-    node.memory.next.reset()
+    node.memory.next = 0
     node.memory.elem.initialize(newElement)
 
     while true
@@ -190,6 +190,15 @@ private struct Node<T>
   work with OSAtomicCompareAndSwap in Swift.
 */
 
+@inline(__always) private func TaggedPointer(pointer: UnsafePointer<Void>, tag: Int64) -> Int64
+{
+  #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
+    return Int64(bitPattern: unsafeBitCast(pointer, UInt64.self) & 0x00ff_ffff_ffff_ffff + UInt64(bitPattern: tag) << 56)
+  #else
+    return Int64(bitPattern: UInt64(unsafeBitCast(pointer, UInt32.self)) + UInt64(bitPattern: tag) << 32)
+  #endif
+}
+
 private extension Int64
 {
   mutating func reset()
@@ -204,13 +213,7 @@ private extension Int64
 
   mutating func set(pointer: UnsafePointer<Void>, tag: Int64)
   {
-    #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
-      let newtag = UInt64(bitPattern: tag) << 56
-      self = Int64(bitPattern: unsafeBitCast(pointer, UInt64.self) & 0x00ff_ffff_ffff_ffff + newtag)
-      #else
-      let newtag = UInt64(bitPattern: tag) << 32
-      self = Int64(bitPattern: UInt64(unsafeBitCast(pointer, UInt32.self)) + newtag)
-    #endif
+    self = TaggedPointer(pointer, tag)
   }
   
   mutating func atomicSet(#old: Int64, new: UnsafePointer<Void>) -> Bool
