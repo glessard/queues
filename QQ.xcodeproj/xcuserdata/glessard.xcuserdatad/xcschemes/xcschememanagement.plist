@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>MultithreadBenchmark.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
+		</dict>
 		<key>QQ.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -54,6 +59,11 @@
 			<true/>
 		</dict>
 		<key>03E4CC221AF7DB9300F4B44B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>03E4CC3E1AFA909D00F4B44B</key>
 		<dict>
 			<key>primary</key>
 			<true/>
