@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Guillaume Lessard. All rights reserved.
 //
 
-let iterations: Int32 = 10_000_000
+let iterations: Int32 = 1_000_000
 let workers = [1,2,4,7,11,19,31]
 let maximumRun = 100
 
