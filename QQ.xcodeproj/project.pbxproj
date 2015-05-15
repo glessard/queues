@@ -24,8 +24,6 @@
 		033350BC1AB805E000F4B44B /* thing-unsafelinkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033350BA1AB8056900F4B44B /* thing-unsafelinkqueue.swift */; };
 		033350BE1AB87ECB00F4B44B /* thing-unsafequeue2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033350BD1AB87ECB00F4B44B /* thing-unsafequeue2.swift */; };
 		033350BF1AB87F6400F4B44B /* thing-unsafequeue2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 033350BD1AB87ECB00F4B44B /* thing-unsafequeue2.swift */; };
-		034456641A5CAB1800F4B44B /* linknodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034456631A5CAB1800F4B44B /* linknodes.swift */; };
-		034456651A5CAB1800F4B44B /* linknodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034456631A5CAB1800F4B44B /* linknodes.swift */; };
 		035A98471A539D7300F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
 		035A984A1A53A04300F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
 		035A984D1A53A49000F4B44B /* QueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A984C1A53A49000F4B44B /* QueueTests.swift */; };
@@ -544,7 +542,6 @@
 				03E4CC1C1AF7563300F4B44B /* fast2lockqueue.swift in Sources */,
 				03223F191A6459C600F4B44B /* int-arcqueue.swift in Sources */,
 				036939B91A5EFB3500F4B44B /* slowqueue.swift in Sources */,
-				034456641A5CAB1800F4B44B /* linknodes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -565,7 +562,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				033350BF1AB87F6400F4B44B /* thing-unsafequeue2.swift in Sources */,
-				034456651A5CAB1800F4B44B /* linknodes.swift in Sources */,
 				03E4CC301AF8A39A00F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */,
 				03FFF9DE1A63B28300F4B44B /* int-osqueue.swift in Sources */,
 				03223F1A1A6459C600F4B44B /* int-arcqueue.swift in Sources */,
@@ -892,6 +888,7 @@
 				03E4CC451AFA909D00F4B44B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		03E861811A648C9300F4B44B /* Build configuration list for PBXNativeTarget "ReferenceLifetime" */ = {
 			isa = XCConfigurationList;
