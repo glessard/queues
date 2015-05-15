@@ -6,45 +6,38 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Foundation
+import Darwin
 
-public class Thing: Printable
+var start = mach_absolute_time()
+var dt = start
+dt = 10_000_000
+let iterations = dt
+
+var a = 1 as UInt
+var counter = 0 as UInt
+
+start = mach_absolute_time()
+for _ in 1...iterations
 {
-  let id: Int
-
-  init(_ i: Int)
-  {
-    id = i
-    println("Thing \(self.id) was created")
-  }
-
-  convenience init()
-  {
-    self.init(Int(arc4random()))
-  }
-
-  public var description: String { return "A Thing labeled \(id)" }
-
-  deinit
-  {
-    println("Thing \(self.id) has disappeared")
-  }
+  counter = counter + a
 }
+dt = mach_absolute_time() - start
+println(dt)
 
-var pq = ARCQueue<Thing>()
-
-for i in 0..<3
+counter = 0
+start = mach_absolute_time()
+for _ in 1...iterations
 {
-  pq.enqueue(Thing(i))
+  counter = counter &+ a
 }
+dt = mach_absolute_time() - start
+println(dt)
 
-for i in 3..<6
+counter = 0
+start = mach_absolute_time()
+for _ in 1...iterations
 {
-  pq.enqueue(Thing(i))
-  pq.dequeue()
+  counter = (counter + a) & 0x7fff_ffff_ffff_ffff
 }
-
-while let t = pq.dequeue()
-{
-  _ = t
-}
+dt = mach_absolute_time() - start
+println(dt)
