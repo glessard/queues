@@ -18,6 +18,9 @@
 		031DEDD81B175C2D00F4B44B /* fastosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C291A61239C00F4B44B /* fastosqueue.swift */; };
 		031DEDDE1B17816800F4B44B /* Atomics-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = 031DEDD91B17816800F4B44B /* Atomics-Bridging-Header.h */; };
 		031DEDE11B17816800F4B44B /* clang-atomics.h in Headers */ = {isa = PBXBuildFile; fileRef = 031DEDDB1B17816800F4B44B /* clang-atomics.h */; };
+		031DEDE61B17A4EB00F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
+		031DEDE81B17A53200F4B44B /* mtbench-linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDE71B17A53200F4B44B /* mtbench-linkqueue.swift */; };
+		031DEDE91B17A53200F4B44B /* mtbench-linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDE71B17A53200F4B44B /* mtbench-linkqueue.swift */; };
 		03223F171A64560600F4B44B /* LinkQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F161A64560600F4B44B /* LinkQueueTests.swift */; };
 		03223F191A6459C600F4B44B /* int-arcqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F181A6459C600F4B44B /* int-arcqueue.swift */; };
 		03223F1A1A6459C600F4B44B /* int-arcqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F181A6459C600F4B44B /* int-arcqueue.swift */; };
@@ -128,6 +131,7 @@
 		031DEDDB1B17816800F4B44B /* clang-atomics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "clang-atomics.h"; path = "Atomics/clang-atomics.h"; sourceTree = "<group>"; };
 		031DEDDC1B17816800F4B44B /* clang-atomics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "clang-atomics.m"; path = "Atomics/clang-atomics.m"; sourceTree = "<group>"; };
 		031DEDDD1B17816800F4B44B /* clang-atomics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "clang-atomics.swift"; path = "Atomics/clang-atomics.swift"; sourceTree = "<group>"; };
+		031DEDE71B17A53200F4B44B /* mtbench-linkqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-linkqueue.swift"; sourceTree = "<group>"; };
 		03223F161A64560600F4B44B /* LinkQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkQueueTests.swift; sourceTree = "<group>"; };
 		03223F181A6459C600F4B44B /* int-arcqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "int-arcqueue.swift"; sourceTree = "<group>"; };
 		03223F1B1A645AC500F4B44B /* thing-arcqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "thing-arcqueue.swift"; sourceTree = "<group>"; };
@@ -329,6 +333,7 @@
 			children = (
 				03E4CC411AFA909D00F4B44B /* main.swift */,
 				03E4CC461AFA90C000F4B44B /* mtbench-slowqueue.swift */,
+				031DEDE71B17A53200F4B44B /* mtbench-linkqueue.swift */,
 				03E4CC4A1AFABBC700F4B44B /* mtbench-fastqueue.swift */,
 				031DEDD51B175C1000F4B44B /* mtbench-fastosqueue.swift */,
 				03E4CC4E1AFABFF900F4B44B /* mtbench-doublelockfastqueue.swift */,
@@ -558,6 +563,7 @@
 				035A98471A539D7300F4B44B /* queuetype.swift in Sources */,
 				035A984A1A53A04300F4B44B /* linkqueue.swift in Sources */,
 				031048DE1A96D17C00F4B44B /* int-unsafequeue.swift in Sources */,
+				031DEDE81B17A53200F4B44B /* mtbench-linkqueue.swift in Sources */,
 				03B14A0D1AEB05FF00F4B44B /* fastqueue-lockfree.swift in Sources */,
 				03FFF9D71A63A9AF00F4B44B /* thing-osqueue.swift in Sources */,
 				031DEDD61B175C1000F4B44B /* mtbench-fastosqueue.swift in Sources */,
@@ -619,6 +625,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				031DEDE91B17A53200F4B44B /* mtbench-linkqueue.swift in Sources */,
 				031DEDD81B175C2D00F4B44B /* fastosqueue.swift in Sources */,
 				03E4CC421AFA909D00F4B44B /* main.swift in Sources */,
 				03E4CC4D1AFABC3A00F4B44B /* atomicqueue.swift in Sources */,
@@ -632,6 +639,7 @@
 				03E4CC4B1AFABBC700F4B44B /* mtbench-fastqueue.swift in Sources */,
 				03E4CC541AFAC0C300F4B44B /* mtbench-lockfreequeue.swift in Sources */,
 				03E4CC511AFAC07000F4B44B /* fastqueue-lockfree.swift in Sources */,
+				031DEDE61B17A4EB00F4B44B /* linkqueue.swift in Sources */,
 				03E4CC521AFAC07000F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */,
 				03E4CC4C1AFABC1B00F4B44B /* fastqueue.swift in Sources */,
 			);

@@ -11,13 +11,13 @@ let workers = [3,5,7,11,19]
 let maximumRun = 100
 var t = 0
 
-//println("SlowQueue:")
-//t = 0
-//for w in workers
-//{
-//  t += SlowQueueRunTest(w)
-//}
-//println("Mean:\t\(t/workers.count)\n")
+println("LinkQueue:")
+t = 0
+for w in workers
+{
+  t += LinkQueueRunTest(w)
+}
+println("Mean:\t\(t/workers.count)\n")
 
 println("FastQueue:")
 t = 0
