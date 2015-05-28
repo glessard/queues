@@ -13,9 +13,9 @@ private func getQueue<T>(initialValue: T) -> SlowQueue<T>
   return SlowQueue(initialValue)
 }
 
-func SlowQueueRunTest(workers: Int, run: Int = 1)
+func SlowQueueRunTest(workers: Int, run: Int = 0) -> Int
 {
-  if workers < 1 || run < 1 { return }
+  if workers < 1 { return Int.max}
 
   var i: Int32 = 0
 
@@ -28,14 +28,14 @@ func SlowQueueRunTest(workers: Int, run: Int = 1)
     {
       if (random() & 1) == 0
       {
-        for _ in 0...arc4random_uniform(numericCast(run+1))
+        for _ in 0...arc4random_uniform(numericCast(run))
         {
           queue.enqueue(arc4random())
         }
       }
       else
       {
-        for _ in 0...arc4random_uniform(numericCast(run+1))
+        for _ in 0...arc4random_uniform(numericCast(run))
         {
           if let v = queue.dequeue()
           {
@@ -47,4 +47,5 @@ func SlowQueueRunTest(workers: Int, run: Int = 1)
   }
   let dt = mach_absolute_time() - start
   println("\(workers):\t\(dt/numericCast(i))")
+  return numericCast(dt)/numericCast(i)
 }

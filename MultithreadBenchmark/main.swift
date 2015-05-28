@@ -6,32 +6,47 @@
 //  Copyright (c) 2015 Guillaume Lessard. All rights reserved.
 //
 
-let iterations: Int32 = 1_000_000
-let workers = [1,2,4,7,11,19,31]
+let iterations: Int32 = 5_000_000
+let workers = [3,5,7,11,19]
 let maximumRun = 100
+var t = 0
 
 //println("SlowQueue:")
+//t = 0
 //for w in workers
 //{
-//  SlowQueueRunTest(w)
+//  t += SlowQueueRunTest(w)
 //}
+//println("Mean:\t\(t/workers.count)\n")
 
-//println("FastQueue:")
-//for w in workers
-//{
-//  FastQueueRunTest(w)
-//}
+println("FastQueue:")
+t = 0
+for w in workers
+{
+  t += FastQueueRunTest(w)
+}
+println("Mean:\t\(t/workers.count)\n")
 //println("FastQueue with runs:")
 //for w in workers
 //{
 //  FastQueueRunTest(w, run: maximumRun)
 //}
 
-//println("Double-Lock FastQueue:")
-//for w in workers
-//{
-//  DoubleLockQueueRunTest(w)
-//}
+println("FastOSQueue:")
+t = 0
+for w in workers
+{
+  t += FastOSQueueRunTest(w)
+}
+println("Mean:\t\(t/workers.count)\n")
+
+println("Double-Lock FastQueue:")
+t = 0
+for w in workers
+{
+  t += DoubleLockQueueRunTest(w)
+}
+println("Mean:\t\(t/workers.count)\n")
 //println("Double-Lock FastQueue with runs:")
 //for w in workers
 //{
@@ -39,10 +54,12 @@ let maximumRun = 100
 //}
 
 println("Lock-Free FastQueue:")
+t = 0
 for w in workers
 {
-  LockFreeQueueRunTest(w)
+  t += LockFreeQueueRunTest(w)
 }
+println("Mean:\t\(t/workers.count)\n")
 //println("Lock-Free FastQueue with runs:")
 //for w in workers
 //{
@@ -50,10 +67,12 @@ for w in workers
 //}
 
 println("Optimistic FastQueue:")
+t = 0
 for w in workers
 {
-  OptimisticQueueRunTest(w)
+  t += OptimisticQueueRunTest(w)
 }
+println("Mean:\t\(t/workers.count)\n")
 //println("Optimistic FastQueue with runs:")
 //for w in workers
 //{
