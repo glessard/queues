@@ -90,7 +90,7 @@ final public class Fast2LockQueue<T>: QueueType, SequenceType, GeneratorType
     if node == nil
     {
       node = UnsafeMutablePointer<Node<T>>.alloc(1)
-      node.memory.elem = UnsafeMutablePointer<T>.alloc(1)
+      node.memory = Node(UnsafeMutablePointer<T>.alloc(1))
     }
     node.memory.next = nil
     node.memory.elem.initialize(newElement)
@@ -104,11 +104,12 @@ final public class Fast2LockQueue<T>: QueueType, SequenceType, GeneratorType
   public func dequeue() -> T?
   {
     OSSpinLockLock(&hlock)
-    if head.memory.next != nil
+    let next = head.memory.next
+    if next != nil
     {
       let oldhead = head
-      head = head.memory.next
-      let element = head.memory.elem.move()
+      head = next
+      let element = next.memory.elem.move()
       OSSpinLockUnlock(&hlock)
 
       OSAtomicEnqueue(pool, oldhead, 0)
@@ -134,8 +135,8 @@ final public class Fast2LockQueue<T>: QueueType, SequenceType, GeneratorType
 
 private struct Node<T>
 {
-  var nptr: COpaquePointer = nil
-  var elem: UnsafeMutablePointer<T>
+  var nptr: UnsafeMutablePointer<Void> = nil
+  let elem: UnsafeMutablePointer<T>
 
   init(_ p: UnsafeMutablePointer<T>)
   {
@@ -143,7 +144,7 @@ private struct Node<T>
   }
 
   var next: UnsafeMutablePointer<Node<T>> {
-    get { return UnsafeMutablePointer<Node<T>>(nptr) }
-    set { nptr = COpaquePointer(newValue) }
+    get { return UnsafeMutablePointer(nptr) }
+    set { nptr = UnsafeMutablePointer(newValue) }
   }
 }
