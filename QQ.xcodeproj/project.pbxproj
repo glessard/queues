@@ -13,6 +13,17 @@
 		031048DC1A96D0C200F4B44B /* thing-unsafequeue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031048DA1A96B16400F4B44B /* thing-unsafequeue.swift */; };
 		031048DE1A96D17C00F4B44B /* int-unsafequeue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031048DD1A96D17C00F4B44B /* int-unsafequeue.swift */; };
 		031048DF1A96D18A00F4B44B /* int-unsafequeue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031048DD1A96D17C00F4B44B /* int-unsafequeue.swift */; };
+		031DEDD61B175C1000F4B44B /* mtbench-fastosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDD51B175C1000F4B44B /* mtbench-fastosqueue.swift */; };
+		031DEDD71B175C1000F4B44B /* mtbench-fastosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDD51B175C1000F4B44B /* mtbench-fastosqueue.swift */; };
+		031DEDD81B175C2D00F4B44B /* fastosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C291A61239C00F4B44B /* fastosqueue.swift */; };
+		031DEDDE1B17816800F4B44B /* Atomics-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = 031DEDD91B17816800F4B44B /* Atomics-Bridging-Header.h */; };
+		031DEDDF1B17816800F4B44B /* better-cas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDDA1B17816800F4B44B /* better-cas.swift */; };
+		031DEDE01B17816800F4B44B /* better-cas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDDA1B17816800F4B44B /* better-cas.swift */; };
+		031DEDE11B17816800F4B44B /* clang-atomics.h in Headers */ = {isa = PBXBuildFile; fileRef = 031DEDDB1B17816800F4B44B /* clang-atomics.h */; };
+		031DEDE21B17816800F4B44B /* clang-atomics.m in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDDC1B17816800F4B44B /* clang-atomics.m */; };
+		031DEDE31B17816800F4B44B /* clang-atomics.m in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDDC1B17816800F4B44B /* clang-atomics.m */; };
+		031DEDE41B17816800F4B44B /* clang-atomics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDDD1B17816800F4B44B /* clang-atomics.swift */; };
+		031DEDE51B17816800F4B44B /* clang-atomics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDDD1B17816800F4B44B /* clang-atomics.swift */; };
 		03223F171A64560600F4B44B /* LinkQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F161A64560600F4B44B /* LinkQueueTests.swift */; };
 		03223F191A6459C600F4B44B /* int-arcqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F181A6459C600F4B44B /* int-arcqueue.swift */; };
 		03223F1A1A6459C600F4B44B /* int-arcqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F181A6459C600F4B44B /* int-arcqueue.swift */; };
@@ -117,6 +128,12 @@
 		030F58D61A5B5EA500F4B44B /* fastqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = fastqueue.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		031048DA1A96B16400F4B44B /* thing-unsafequeue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "thing-unsafequeue.swift"; sourceTree = "<group>"; };
 		031048DD1A96D17C00F4B44B /* int-unsafequeue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "int-unsafequeue.swift"; sourceTree = "<group>"; };
+		031DEDD51B175C1000F4B44B /* mtbench-fastosqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-fastosqueue.swift"; sourceTree = "<group>"; };
+		031DEDD91B17816800F4B44B /* Atomics-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "Atomics-Bridging-Header.h"; path = "Atomics/Atomics-Bridging-Header.h"; sourceTree = "<group>"; };
+		031DEDDA1B17816800F4B44B /* better-cas.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "better-cas.swift"; path = "Atomics/better-cas.swift"; sourceTree = "<group>"; };
+		031DEDDB1B17816800F4B44B /* clang-atomics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "clang-atomics.h"; path = "Atomics/clang-atomics.h"; sourceTree = "<group>"; };
+		031DEDDC1B17816800F4B44B /* clang-atomics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "clang-atomics.m"; path = "Atomics/clang-atomics.m"; sourceTree = "<group>"; };
+		031DEDDD1B17816800F4B44B /* clang-atomics.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "clang-atomics.swift"; path = "Atomics/clang-atomics.swift"; sourceTree = "<group>"; };
 		03223F161A64560600F4B44B /* LinkQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkQueueTests.swift; sourceTree = "<group>"; };
 		03223F181A6459C600F4B44B /* int-arcqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "int-arcqueue.swift"; sourceTree = "<group>"; };
 		03223F1B1A645AC500F4B44B /* thing-arcqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "thing-arcqueue.swift"; sourceTree = "<group>"; };
@@ -198,9 +215,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		031DEDC81B1634FC00F4B44B /* Atomics */ = {
+			isa = PBXGroup;
+			children = (
+				031DEDD91B17816800F4B44B /* Atomics-Bridging-Header.h */,
+				031DEDDA1B17816800F4B44B /* better-cas.swift */,
+				031DEDDB1B17816800F4B44B /* clang-atomics.h */,
+				031DEDDC1B17816800F4B44B /* clang-atomics.m */,
+				031DEDDD1B17816800F4B44B /* clang-atomics.swift */,
+			);
+			name = Atomics;
+			sourceTree = "<group>";
+		};
 		035A981D1A539CF600F4B44B = {
 			isa = PBXGroup;
 			children = (
+				031DEDC81B1634FC00F4B44B /* Atomics */,
 				035A98291A539CF600F4B44B /* QQ */,
 				035A98361A539CF600F4B44B /* QQTests */,
 				035A98551A53B0A500F4B44B /* QueueBenchmark */,
@@ -306,6 +336,7 @@
 				03E4CC411AFA909D00F4B44B /* main.swift */,
 				03E4CC461AFA90C000F4B44B /* mtbench-slowqueue.swift */,
 				03E4CC4A1AFABBC700F4B44B /* mtbench-fastqueue.swift */,
+				031DEDD51B175C1000F4B44B /* mtbench-fastosqueue.swift */,
 				03E4CC4E1AFABFF900F4B44B /* mtbench-doublelockfastqueue.swift */,
 				03E4CC531AFAC0C300F4B44B /* mtbench-lockfreequeue.swift */,
 				03E4CC551AFAC18400F4B44B /* mtbench-optimisticqueue.swift */,
@@ -358,6 +389,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				031DEDDE1B17816800F4B44B /* Atomics-Bridging-Header.h in Headers */,
+				031DEDE11B17816800F4B44B /* clang-atomics.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -533,13 +566,17 @@
 				031048DE1A96D17C00F4B44B /* int-unsafequeue.swift in Sources */,
 				03B14A0D1AEB05FF00F4B44B /* fastqueue-lockfree.swift in Sources */,
 				03FFF9D71A63A9AF00F4B44B /* thing-osqueue.swift in Sources */,
+				031DEDD61B175C1000F4B44B /* mtbench-fastosqueue.swift in Sources */,
 				033350BE1AB87ECB00F4B44B /* thing-unsafequeue2.swift in Sources */,
 				03FFF9E11A644B7300F4B44B /* int-queue.swift in Sources */,
 				03D1E8781A5F70C700F4B44B /* refarcqueue.swift in Sources */,
 				033350BB1AB8056900F4B44B /* thing-unsafelinkqueue.swift in Sources */,
 				03FFF9DA1A63AC6200F4B44B /* thing-queue.swift in Sources */,
 				03FFF9DD1A63B28300F4B44B /* int-osqueue.swift in Sources */,
+				031DEDE21B17816800F4B44B /* clang-atomics.m in Sources */,
 				03E4CC1C1AF7563300F4B44B /* fast2lockqueue.swift in Sources */,
+				031DEDE41B17816800F4B44B /* clang-atomics.swift in Sources */,
+				031DEDDF1B17816800F4B44B /* better-cas.swift in Sources */,
 				03223F191A6459C600F4B44B /* int-arcqueue.swift in Sources */,
 				036939B91A5EFB3500F4B44B /* slowqueue.swift in Sources */,
 			);
@@ -591,18 +628,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				031DEDD81B175C2D00F4B44B /* fastosqueue.swift in Sources */,
 				03E4CC421AFA909D00F4B44B /* main.swift in Sources */,
 				03E4CC4D1AFABC3A00F4B44B /* atomicqueue.swift in Sources */,
 				03E4CC561AFAC18400F4B44B /* mtbench-optimisticqueue.swift in Sources */,
 				03E4CC491AFAA13100F4B44B /* queuetype.swift in Sources */,
+				031DEDE01B17816800F4B44B /* better-cas.swift in Sources */,
+				031DEDE51B17816800F4B44B /* clang-atomics.swift in Sources */,
 				03E4CC4F1AFABFF900F4B44B /* mtbench-doublelockfastqueue.swift in Sources */,
 				03E4CC481AFAA12B00F4B44B /* slowqueue.swift in Sources */,
 				03E4CC501AFAC07000F4B44B /* fast2lockqueue.swift in Sources */,
+				031DEDD71B175C1000F4B44B /* mtbench-fastosqueue.swift in Sources */,
 				03E4CC471AFA90C000F4B44B /* mtbench-slowqueue.swift in Sources */,
 				03E4CC4B1AFABBC700F4B44B /* mtbench-fastqueue.swift in Sources */,
 				03E4CC541AFAC0C300F4B44B /* mtbench-lockfreequeue.swift in Sources */,
 				03E4CC511AFAC07000F4B44B /* fastqueue-lockfree.swift in Sources */,
 				03E4CC521AFAC07000F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */,
+				031DEDE31B17816800F4B44B /* clang-atomics.m in Sources */,
 				03E4CC4C1AFABC1B00F4B44B /* fastqueue.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -805,22 +847,29 @@
 		03E4CC441AFA909D00F4B44B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Atomics/Atomics-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		03E4CC451AFA909D00F4B44B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Atomics/Atomics-Bridging-Header.h";
 			};
 			name = Release;
 		};
