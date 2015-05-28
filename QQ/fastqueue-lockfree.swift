@@ -100,15 +100,15 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
       { // was tail pointing to the last node?
         if oldnext.pointer == nil
         { // try to link the new node to the end of the list
-          if oldpntr.memory.next.atomicSet(old: oldnext, new: node)
+          if oldpntr.memory.next.CAS(old: oldnext, new: node)
           { // success. try to have tail point to the inserted node.
-            tail.atomicSet(old: oldtail, new: node)
+            tail.CAS(old: oldtail, new: node)
             break
           }
         }
         else
         { // tail wasn't pointing to the actual last node; try to fix it.
-          tail.atomicSet(old: oldtail, new: oldnext.pointer)
+          tail.CAS(old: oldtail, new: oldnext.pointer)
         }
       }
     }
@@ -131,7 +131,7 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
         if oldpntr != oldtail.pointer
         { // no need to deal with tail
           let element = newpntr.memory.elem.memory
-          if head.atomicSet(old: oldhead, new: newpntr)
+          if head.CAS(old: oldhead, new: newpntr)
           {
             let eptr = oldpntr.memory.elem
             if eptr != nil
@@ -153,7 +153,7 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
             return nil
           }
           // tail is not pointing to the correct last node; try to fix it.
-          tail.atomicSet(old: oldtail, new: newpntr)
+          tail.CAS(old: oldtail, new: newpntr)
         }
       }
     }
@@ -201,50 +201,35 @@ private struct Node<T>
 
 private extension Int64
 {
-  mutating func reset()
+  @inline(__always) mutating func reset()
   {
     self = 0
   }
 
-//  mutating func set(pointer: UnsafePointer<Void>)
-//  {
-//    set(pointer, tag: self.tag+1)
-//  }
-
-  mutating func set(pointer: UnsafePointer<Void>, tag: Int64)
+  @inline(__always) mutating func set(pointer: UnsafePointer<Void>, tag: Int64)
   {
     self = TaggedPointer(pointer, tag)
   }
   
-  mutating func atomicSet(#old: Int64, new: UnsafePointer<Void>) -> Bool
+  @inline(__always) mutating func CAS(#old: Int64, new: UnsafePointer<Void>) -> Bool
   {
     if old != self { return false }
     
     #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
-      let oldtag = UInt64(bitPattern: old) >> 56  & 0xff
-      let newtag = ((oldtag+1) & 0xff) << 56
-
-      let nptr = Int64(bitPattern: (unsafeBitCast(new, UInt64.self) & 0x00ff_ffff_ffff_ffff) + newtag)
-
-      return OSAtomicCompareAndSwap64Barrier(old, nptr, &self)
+      let oldtag = old >> 56
     #else // 32-bit architecture
-      let oldtag = UInt64(bitPattern: old) >> 32 & 0xffffffff
-      let newtag = ((oldtag+1) & 0xffffffff) << 32
-
-      let nptr = Int64(bitPattern: UInt64(unsafeBitCast(new, UInt32.self)) + newtag)
-
-      return OSAtomicCompareAndSwap64Barrier(old, nptr, &self)
+      let oldtag = old >> 32
     #endif
+
+    let nptr = TaggedPointer(new, oldtag&+1)
+    return OSAtomicCompareAndSwap64Barrier(old, nptr, &self)
   }
 
   var pointer: UnsafeMutablePointer<Void> {
     #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
-      if self & 0x80_0000_0000_0000 == 0
-      { return UnsafeMutablePointer(bitPattern: UWord(self & 0x00ff_ffff_ffff_ffff)) }
-      else // an upper-half pointer
-      { return UnsafeMutablePointer(bitPattern: UWord(self & 0x00ff_ffff_ffff_ffff) + 0xff00_0000_0000_0000) }
+      return UnsafeMutablePointer(bitPattern: UWord(self & 0x00ff_ffff_ffff_ffff))
     #else // 32-bit architecture
-      return UnsafeMutablePointer(bitPattern: UWord(self && 0xffff_ffff))
+      return UnsafeMutablePointer(bitPattern: UWord(self & 0xffff_ffff))
     #endif
   }
 
