@@ -29,8 +29,8 @@ final public class OptimisticFastQueue<T>: QueueType, SequenceType, GeneratorTyp
   {
     let node = UnsafeMutablePointer<Node<T>>.alloc(1)
     node.memory = Node(nil)
-    head.set(node, tag: 0)
-    tail.set(node, tag: 0)
+    head.set(node, tag: 1)
+    tail.set(node, tag: 1)
   }
 
   public convenience init(_ newElement: T)
@@ -103,7 +103,7 @@ final public class OptimisticFastQueue<T>: QueueType, SequenceType, GeneratorTyp
       let oldtag  = oldtail.tag
 
       node.memory.prev.set(oldpntr, tag: oldtag+1)
-      if tail.atomicSet(old: oldtail, new: node)
+      if tail.CAS(old: oldtail, new: node)
       {
         oldpntr.memory.next.set(node, tag: oldtag)
         break
@@ -125,7 +125,7 @@ final public class OptimisticFastQueue<T>: QueueType, SequenceType, GeneratorTyp
       {
         if oldhead != oldtail
         {
-          if newhead.tag != oldhead.tag
+          if newhead == 0 || newhead.tag != oldhead.tag
           {
             fixlist(tail: oldtail, head: oldhead)
           }
@@ -133,7 +133,7 @@ final public class OptimisticFastQueue<T>: QueueType, SequenceType, GeneratorTyp
           {
             let newpntr = UnsafeMutablePointer<Node<T>>(newhead.pointer)
             let element = newpntr.memory.elem.memory
-            if head.atomicSet(old: oldhead, new: newpntr)
+            if head.CAS(old: oldhead, new: newpntr)
             {
               let eptr = oldpntr.memory.elem
               if eptr != nil
@@ -162,9 +162,9 @@ final public class OptimisticFastQueue<T>: QueueType, SequenceType, GeneratorTyp
     var current = oldtail
     while oldhead == head && current != oldhead
     {
-      let pptr = UnsafePointer<Node<T>>(current.pointer).memory.prev.pointer
-      UnsafeMutablePointer<Node<T>>(pptr).memory.next.set(current.pointer, tag: current.tag-1)
-      current.set(pptr, tag: current.tag-1)
+      let prevptr = UnsafeMutablePointer<Node<T>>(UnsafePointer<Node<T>>(current.pointer).memory.prev.pointer)
+      prevptr.memory.next.set(current.pointer, tag: current.tag-1)
+      current.set(prevptr, tag: current.tag-1)
     }
   }
 
@@ -200,58 +200,46 @@ private struct Node<T>
   work with OSAtomicCompareAndSwap in Swift.
 */
 
+@inline(__always) private func TaggedPointer(pointer: UnsafePointer<Void>, tag: Int64) -> Int64
+{
+  #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
+    return Int64(bitPattern: unsafeBitCast(pointer, UInt64.self) & 0x00ff_ffff_ffff_ffff + UInt64(bitPattern: tag) << 56)
+  #else
+    return Int64(bitPattern: UInt64(unsafeBitCast(pointer, UInt32.self)) + UInt64(bitPattern: tag) << 32)
+  #endif
+}
+
 private extension Int64
 {
-  mutating func reset()
+  @inline(__always) mutating func reset()
   {
     self = 0
   }
 
-//  mutating func set(pointer: UnsafePointer<Void>)
-//  {
-//    set(pointer, tag: self.tag+1)
-//  }
-
-  mutating func set(pointer: UnsafePointer<Void>, tag: Int64)
+  @inline(__always) mutating func set(pointer: UnsafePointer<Void>, tag: Int64)
   {
-    #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
-      let newtag = UInt64(bitPattern: tag) << 56
-      self = Int64(bitPattern: unsafeBitCast(pointer, UInt64.self) & 0x00ff_ffff_ffff_ffff + newtag)
-    #else
-      let newtag = UInt64(bitPattern: tag) << 32
-      self = Int64(bitPattern: UInt64(unsafeBitCast(pointer, UInt32.self)) + newtag)
-    #endif
+    self = TaggedPointer(pointer, tag)
   }
 
-  mutating func atomicSet(#old: Int64, new: UnsafePointer<Void>) -> Bool
+  @inline(__always) mutating func CAS(#old: Int64, new: UnsafePointer<Void>) -> Bool
   {
     if old != self { return false }
     
     #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
-      let oldtag = UInt64(bitPattern: old) >> 56
-      let newtag = (oldtag+1) << 56
-
-      let nptr = Int64(bitPattern: unsafeBitCast(new, UInt64.self) & 0x00ff_ffff_ffff_ffff + newtag)
-
-      return OSAtomicCompareAndSwap64Barrier(old, nptr, &self)
+      let oldtag = old >> 56
     #else // 32-bit architecture
-      let oldtag = UInt64(bitPattern: old) >> 32
-      let newtag = (oldtag+1) << 32
-
-      let nptr = Int64(bitPattern: UInt64(unsafeBitCast(new, UInt32.self)) + newtag)
-
-      return OSAtomicCompareAndSwap64Barrier(old, nptr, &self)
+      let oldtag = old >> 32
     #endif
+
+    let nptr = TaggedPointer(new, oldtag&+1)
+    return OSAtomicCompareAndSwap64Barrier(old, nptr, &self)
   }
 
   var pointer: UnsafeMutablePointer<Void> {
     #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
-      if self & 0x80_0000_0000_0000 == 0
-      { return UnsafeMutablePointer(bitPattern: UWord(self & 0x00ff_ffff_ffff_ffff)) }
-      else // an upper-half pointer
-      { return UnsafeMutablePointer(bitPattern: UWord(self & 0x00ff_ffff_ffff_ffff) + 0xff00_0000_0000_0000) }
+      return UnsafeMutablePointer(bitPattern: UWord(self & 0x00ff_ffff_ffff_ffff))
     #else // 32-bit architecture
-      return UnsafeMutablePointer(bitPattern: UWord(self && 0xffff_ffff))
+      return UnsafeMutablePointer(bitPattern: UWord(self & 0xffff_ffff))
     #endif
   }
 
