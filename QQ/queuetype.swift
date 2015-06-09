@@ -63,6 +63,9 @@ public protocol QueueType: SequenceType, GeneratorType
   func countElements() -> Int
 }
 
+/**
+  Implementation of SequenceType based on QueueType
+*/
 
 public extension QueueType
 {
@@ -71,36 +74,20 @@ public extension QueueType
     return self
   }
 
-  public func next() -> Element?
-  {
-    return dequeue()
-  }
-
   public func underestimateCount() -> Int
   {
     return isEmpty ? 0 : 1
   }
+}
 
-  public func map<U>(@noescape transform: (Element) -> U) -> [U]
-  {
-    var o = [U]()
-    while let t = dequeue()
-    {
-      o.append(transform(t))
-    }
-    return o
-  }
+/**
+  Implementation of GeneratorType based on QueueType
+*/
 
-  public func filter(@noescape includeElement: (Element) -> Bool) -> [Element]
+public extension QueueType
+{
+  public func next() -> Element?
   {
-    var o = Array<Element>()
-    while let t = dequeue()
-    {
-      if includeElement(t)
-      {
-        o.append(t)
-      }
-    }
-    return o
+    return dequeue()
   }
 }
