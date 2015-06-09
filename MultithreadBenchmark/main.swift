@@ -11,68 +11,68 @@ let workers = [3,5,7,11,19]
 let maximumRun = 100
 var t = 0
 
-println("LinkQueue:")
+print("LinkQueue:")
 t = 0
 for w in workers
 {
   t += LinkQueueRunTest(w)
 }
-println("Mean:\t\(t/workers.count)\n")
+print("Mean:\t\(t/workers.count)\n")
 
-println("FastQueue:")
+print("FastQueue:")
 t = 0
 for w in workers
 {
   t += FastQueueRunTest(w)
 }
-println("Mean:\t\(t/workers.count)\n")
+print("Mean:\t\(t/workers.count)\n")
 //println("FastQueue with runs:")
 //for w in workers
 //{
 //  FastQueueRunTest(w, run: maximumRun)
 //}
 
-println("FastOSQueue:")
+print("FastOSQueue:")
 t = 0
 for w in workers
 {
   t += FastOSQueueRunTest(w)
 }
-println("Mean:\t\(t/workers.count)\n")
+print("Mean:\t\(t/workers.count)\n")
 
-println("Double-Lock FastQueue:")
+print("Double-Lock FastQueue:")
 t = 0
 for w in workers
 {
   t += DoubleLockQueueRunTest(w)
 }
-println("Mean:\t\(t/workers.count)\n")
+print("Mean:\t\(t/workers.count)\n")
 //println("Double-Lock FastQueue with runs:")
 //for w in workers
 //{
 //  DoubleLockQueueRunTest(w, run: maximumRun)
 //}
 
-println("Lock-Free FastQueue:")
+print("Lock-Free FastQueue:")
 t = 0
 for w in workers
 {
   t += LockFreeQueueRunTest(w)
 }
-println("Mean:\t\(t/workers.count)\n")
+print("Mean:\t\(t/workers.count)\n")
 //println("Lock-Free FastQueue with runs:")
 //for w in workers
 //{
 //  LockFreeQueueRunTest(w, run: maximumRun)
 //}
 
-println("Optimistic FastQueue:")
+print("Optimistic FastQueue:")
 t = 0
 for w in workers
 {
   t += OptimisticQueueRunTest(w)
 }
-println("Mean:\t\(t/workers.count)\n")
+print("Mean:\t\(t/workers.count)\n")
 //println("Optimistic FastQueue with runs:")
 //for w in workers
 //{

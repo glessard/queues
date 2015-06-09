@@ -30,13 +30,13 @@ class GenericNodeQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestFill(SlowQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestSpin(SlowQueue<Thing>.self, element: s)
   }
 
@@ -60,13 +60,13 @@ class RefARCQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestFill(RefARCQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestSpin(RefARCQueue<Thing>.self, element: s)
   }
 

@@ -16,9 +16,9 @@ class QQTests: XCTestCase
 
   func QueueTestCount<E, Q: QueueType where Q.Element == E>(_: Q.Type, element: E)
   {
-    var q = Q()
+    let q = Q()
 
-    for i in 1...1_000
+    for _ in 1...1_000
     {
       let r = arc4random_uniform(2)
 
@@ -40,7 +40,7 @@ class QQTests: XCTestCase
         }
         else
         {
-          if let v = q.dequeue()
+          if let _ = q.dequeue()
           {
             XCTAssert(b-q.count == 1, "element count improperly decremented upon dequeuing")
           }
@@ -60,7 +60,7 @@ class QQTests: XCTestCase
 
   func QueueRefTest<Q: QueueType where Q.Element == Thing>(_: Q.Type)
   {
-    var q = Q()
+    let q = Q()
     let iterations = 100
     var a = Array<Thing>()
 
@@ -81,7 +81,7 @@ class QQTests: XCTestCase
 
   func QueueIntTest<Q: QueueType where Q.Element == UInt64>(_: Q.Type)
   {
-    var q = Q()
+    let q = Q()
     let iterations = 100
     var a = Array<UInt64>(count: iterations, repeatedValue: 0)
 
@@ -103,13 +103,13 @@ class QQTests: XCTestCase
   func QueuePerformanceTestFill<E, Q: QueueType where Q.Element == E>(_: Q.Type, element: E)
   {
     self.measureBlock() {
-      var q = Q()
-      for i in 1...self.performanceTestIterations
+      let q = Q()
+      for _ in 1...self.performanceTestIterations
       {
         q.enqueue(element)
       }
 
-      for i in 1...self.performanceTestIterations
+      for _ in 1...self.performanceTestIterations
       {
         q.dequeue()
       }
@@ -119,8 +119,8 @@ class QQTests: XCTestCase
   func QueuePerformanceTestSpin<E, Q: QueueType where Q.Element == E>(_: Q.Type, element: E)
   {
     self.measureBlock() {
-      var q = Q()
-      for i in 1...self.performanceTestIterations
+      let q = Q()
+      for _ in 1...self.performanceTestIterations
       {
         q.enqueue(element)
         _ = q.dequeue()
@@ -131,8 +131,8 @@ class QQTests: XCTestCase
   func QueuePerformanceTestEmpty<Q: QueueType>(_: Q.Type)
   {
     self.measureBlock() {
-      var q = Q()
-      for i in 1...self.performanceTestIterations
+      let q = Q()
+      for _ in 1...self.performanceTestIterations
       {
         q.dequeue()
       }

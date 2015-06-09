@@ -15,7 +15,7 @@ import Darwin.libkern.OSAtomic
   See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 */
 
-final public class Fast2LockQueue<T>: QueueType, SequenceType, GeneratorType
+final public class Fast2LockQueue<T>: QueueType
 {
   private var head: UnsafeMutablePointer<Node<T>> = nil
   private var tail: UnsafeMutablePointer<Node<T>> = nil
@@ -120,16 +120,6 @@ final public class Fast2LockQueue<T>: QueueType, SequenceType, GeneratorType
       OSSpinLockUnlock(&hlock)
       return nil
     }
-  }
-
-  public func next() -> T?
-  {
-    return dequeue()
-  }
-
-  public func generate() -> Self
-  {
-    return self
   }
 }
 

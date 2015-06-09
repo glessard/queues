@@ -8,7 +8,7 @@
 
 import Darwin.libkern.OSAtomic
 
-final public class SlowQueue<T>: QueueType, SequenceType, GeneratorType
+final public class SlowQueue<T>: QueueType
 {
   private var head: Node<T>? = nil
   private var tail: Node<T>! = nil
@@ -80,20 +80,6 @@ final public class SlowQueue<T>: QueueType, SequenceType, GeneratorType
     // queue is empty
     OSSpinLockUnlock(&lock)
     return nil
-  }
-
-  // Implementation of GeneratorType
-
-  public func next() -> T?
-  {
-    return dequeue()
-  }
-
-  // Implementation of SequenceType
-
-  public func generate() -> Self
-  {
-    return self
   }
 }
 

@@ -8,7 +8,7 @@
 
 import Darwin.libkern.OSAtomic
 
-final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
+final public class LinkQueue<T>: QueueType
 {
   private var head: UnsafeMutablePointer<Node<T>> = nil
   private var tail: UnsafeMutablePointer<Node<T>>  = nil
@@ -92,20 +92,6 @@ final public class LinkQueue<T>: QueueType, SequenceType, GeneratorType
       return element
     }
     return nil
-  }
-
-  // Implementation of GeneratorType
-
-  public func next() -> T?
-  {
-    return dequeue()
-  }
-
-  // Implementation of SequenceType
-
-  public func generate() -> Self
-  {
-    return self
   }
 }
 

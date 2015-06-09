@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-public protocol QueueType
+public protocol QueueType: SequenceType, GeneratorType
 {
   typealias Element
 
@@ -19,30 +19,24 @@ public protocol QueueType
   /**
     Initialize a queue with an initial element
   
-    :param: newElement the initial element of the new queue
+    - parameter newElement: the initial element of the new queue
   */
 
   init(_ newElement: Element)
 
   /**
     Return whether the queue is empty
+    For some implementations, it might be faster to check for queue emptiness
+    rather than attempting a dequeue on an empty queue. For those cases,
+    this would be the fast check.
   */
 
   var isEmpty: Bool { get }
 
   /**
-    Return the number of elements currently in the queue.
-    For some implementations, it might be faster to check for queue length
-    rather than attempting a dequeue on an empty queue. For those cases,
-    this would be the fast check.
-  */
-
-  var count: Int { get }
-
-  /**
     Add a new element to the queue.
   
-    :param: newElement a new element
+    - parameter newElement: a new element
   */
 
   func enqueue(newElement: Element)
@@ -57,8 +51,56 @@ public protocol QueueType
 
 
   /**
+    Return the number of elements currently in the queue.
+  */
+
+  var count: Int { get }
+
+  /**
     For testing, mostly. Walk the linked list while counting the nodes.
   */
 
   func countElements() -> Int
+}
+
+
+public extension QueueType
+{
+  public func generate() -> Self
+  {
+    return self
+  }
+
+  public func next() -> Element?
+  {
+    return dequeue()
+  }
+
+  public func underestimateCount() -> Int
+  {
+    return isEmpty ? 0 : 1
+  }
+
+  public func map<U>(@noescape transform: (Element) -> U) -> [U]
+  {
+    var o = [U]()
+    while let t = dequeue()
+    {
+      o.append(transform(t))
+    }
+    return o
+  }
+
+  public func filter(@noescape includeElement: (Element) -> Bool) -> [Element]
+  {
+    var o = Array<Element>()
+    while let t = dequeue()
+    {
+      if includeElement(t)
+      {
+        o.append(t)
+      }
+    }
+    return o
+  }
 }

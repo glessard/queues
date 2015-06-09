@@ -1,4 +1,4 @@
-//
+  //
 //  main.swift
 //  QQ
 //
@@ -22,7 +22,7 @@ for _ in 1...iterations
   counter = counter + a
 }
 dt = mach_absolute_time() - start
-println(dt)
+print(dt)
 
 counter = 0
 start = mach_absolute_time()
@@ -31,7 +31,7 @@ for _ in 1...iterations
   counter = counter &+ a
 }
 dt = mach_absolute_time() - start
-println(dt)
+print(dt)
 
 counter = 0
 start = mach_absolute_time()
@@ -40,4 +40,4 @@ for _ in 1...iterations
   counter = (counter + a) & 0x7fff_ffff_ffff_ffff
 }
 dt = mach_absolute_time() - start
-println(dt)
+print(dt)

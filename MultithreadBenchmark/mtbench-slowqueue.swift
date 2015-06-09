@@ -37,7 +37,7 @@ func SlowQueueRunTest(workers: Int, run: Int = 0) -> Int
       {
         for _ in 0...arc4random_uniform(numericCast(run))
         {
-          if let v = queue.dequeue()
+          if let _ = queue.dequeue()
           {
             OSAtomicIncrement32Barrier(&i)
           }
@@ -46,6 +46,6 @@ func SlowQueueRunTest(workers: Int, run: Int = 0) -> Int
     }
   }
   let dt = mach_absolute_time() - start
-  println("\(workers):\t\(dt/numericCast(i))")
+  print("\(workers):\t\(dt/numericCast(i))")
   return numericCast(dt)/numericCast(i)
 }

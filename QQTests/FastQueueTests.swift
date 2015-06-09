@@ -30,13 +30,13 @@ class FastQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestFill(FastQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestSpin(FastQueue<Thing>.self, element: s)
   }
 
@@ -65,13 +65,13 @@ class FastOSQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestFill(FastOSQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestSpin(FastOSQueue<Thing>.self, element: s)
   }
 
@@ -100,13 +100,13 @@ class DoubleLockFastQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestFill(Fast2LockQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestSpin(Fast2LockQueue<Thing>.self, element: s)
   }
 
@@ -135,13 +135,13 @@ class LockFreeFastQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestFill(LockFreeFastQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestSpin(LockFreeFastQueue<Thing>.self, element: s)
   }
 
@@ -171,13 +171,13 @@ class OptimisticFastQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestFill(OptimisticFastQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestSpin(OptimisticFastQueue<Thing>.self, element: s)
   }
 

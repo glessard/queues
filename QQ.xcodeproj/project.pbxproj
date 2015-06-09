@@ -13,13 +13,11 @@
 		031048DC1A96D0C200F4B44B /* thing-unsafequeue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031048DA1A96B16400F4B44B /* thing-unsafequeue.swift */; };
 		031048DE1A96D17C00F4B44B /* int-unsafequeue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031048DD1A96D17C00F4B44B /* int-unsafequeue.swift */; };
 		031048DF1A96D18A00F4B44B /* int-unsafequeue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031048DD1A96D17C00F4B44B /* int-unsafequeue.swift */; };
-		031DEDD61B175C1000F4B44B /* mtbench-fastosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDD51B175C1000F4B44B /* mtbench-fastosqueue.swift */; };
 		031DEDD71B175C1000F4B44B /* mtbench-fastosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDD51B175C1000F4B44B /* mtbench-fastosqueue.swift */; };
 		031DEDD81B175C2D00F4B44B /* fastosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C291A61239C00F4B44B /* fastosqueue.swift */; };
 		031DEDDE1B17816800F4B44B /* Atomics-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = 031DEDD91B17816800F4B44B /* Atomics-Bridging-Header.h */; };
 		031DEDE11B17816800F4B44B /* clang-atomics.h in Headers */ = {isa = PBXBuildFile; fileRef = 031DEDDB1B17816800F4B44B /* clang-atomics.h */; };
 		031DEDE61B17A4EB00F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
-		031DEDE81B17A53200F4B44B /* mtbench-linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDE71B17A53200F4B44B /* mtbench-linkqueue.swift */; };
 		031DEDE91B17A53200F4B44B /* mtbench-linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDE71B17A53200F4B44B /* mtbench-linkqueue.swift */; };
 		031DEDEB1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDEA1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift */; };
 		031DEDEC1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDEA1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift */; };
@@ -497,7 +495,8 @@
 		035A981E1A539CF600F4B44B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastSwiftUpdateCheck = 0700;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Guillaume Lessard";
 				TargetAttributes = {
 					035A98261A539CF600F4B44B = {
@@ -572,10 +571,8 @@
 				035A984A1A53A04300F4B44B /* linkqueue.swift in Sources */,
 				031048DE1A96D17C00F4B44B /* int-unsafequeue.swift in Sources */,
 				031DEDEB1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */,
-				031DEDE81B17A53200F4B44B /* mtbench-linkqueue.swift in Sources */,
 				03B14A0D1AEB05FF00F4B44B /* fastqueue-lockfree.swift in Sources */,
 				03FFF9D71A63A9AF00F4B44B /* thing-osqueue.swift in Sources */,
-				031DEDD61B175C1000F4B44B /* mtbench-fastosqueue.swift in Sources */,
 				033350BE1AB87ECB00F4B44B /* thing-unsafequeue2.swift in Sources */,
 				031DEDEE1B17ADFB00F4B44B /* link2lockqueue.swift in Sources */,
 				03FFF9E11A644B7300F4B44B /* int-queue.swift in Sources */,
@@ -696,6 +693,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -772,6 +770,7 @@
 				INFOPLIST_FILE = QQ/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tffenterprises.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -791,6 +790,7 @@
 				INFOPLIST_FILE = QQ/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tffenterprises.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -811,6 +811,7 @@
 				);
 				INFOPLIST_FILE = QQTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tffenterprises.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -826,6 +827,7 @@
 				GCC_OPTIMIZATION_LEVEL = fast;
 				INFOPLIST_FILE = QQTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tffenterprises.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

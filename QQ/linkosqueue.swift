@@ -8,7 +8,7 @@
 
 import Darwin.libkern.OSAtomic
 
-final public class LinkOSQueue<T>: QueueType, SequenceType, GeneratorType
+final public class LinkOSQueue<T>: QueueType
 {
   private let head = AtomicQueueInit()
 
@@ -77,20 +77,6 @@ final public class LinkOSQueue<T>: QueueType, SequenceType, GeneratorType
 
     // The queue is empty
     return nil
-  }
-
-  // Implementation of GeneratorType
-
-  public func next() -> T?
-  {
-    return dequeue()
-  }
-
-  // Implementation of SequenceType
-
-  public func generate() -> Self
-  {
-    return self
   }
 }
 

@@ -30,13 +30,13 @@ class LinkQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestFill(LinkQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestSpin(LinkQueue<Thing>.self, element: s)
   }
 
@@ -65,13 +65,13 @@ class LinkOSQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestFill(LinkOSQueue<Thing>.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestSpin(LinkOSQueue<Thing>.self, element: s)
   }
 

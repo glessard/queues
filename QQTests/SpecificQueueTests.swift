@@ -109,13 +109,13 @@ class ThingQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestFill(ThingQueue.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestSpin(ThingQueue.self, element: s)
   }
 
@@ -140,13 +140,13 @@ class ThingOSQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestFill(ThingOSQueue.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestSpin(ThingOSQueue.self, element: s)
   }
 
@@ -171,13 +171,13 @@ class ThingARCQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestFill(ThingARCQueue.self, element: s)
   }
 
   func testPerformanceSpin()
   {
-    var s = Thing()
+    let s = Thing()
     QueuePerformanceTestSpin(ThingARCQueue.self, element: s)
   }
 

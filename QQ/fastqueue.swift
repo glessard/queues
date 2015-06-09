@@ -8,7 +8,7 @@
 
 import Darwin.libkern.OSAtomic
 
-final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
+final public class FastQueue<T>: QueueType
 {
   private var head: UnsafeMutablePointer<Node<T>> = nil
   private var tail: UnsafeMutablePointer<Node<T>> = nil
@@ -108,16 +108,6 @@ final public class FastQueue<T>: QueueType, SequenceType, GeneratorType
       OSSpinLockUnlock(&lock)
       return nil
     }
-  }
-
-  public func next() -> T?
-  {
-    return dequeue()
-  }
-
-  public func generate() -> Self
-  {
-    return self
   }
 }
 

@@ -8,7 +8,7 @@
 
 import Darwin.libkern.OSAtomic
 
-final public class RefARCQueue<T: AnyObject>: QueueType, SequenceType, GeneratorType
+final public class RefARCQueue<T: AnyObject>: QueueType
 {
   private var head: Node? = nil
   private var tail: Node! = nil
@@ -80,20 +80,6 @@ final public class RefARCQueue<T: AnyObject>: QueueType, SequenceType, Generator
     // queue is empty
     OSSpinLockUnlock(&lock)
     return nil
-  }
-
-  // Implementation of GeneratorType
-
-  public func next() -> T?
-  {
-    return dequeue()
-  }
-
-  // Implementation of SequenceType
-
-  public func generate() -> Self
-  {
-    return self
   }
 }
 

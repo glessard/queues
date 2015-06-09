@@ -15,7 +15,7 @@ import Darwin.libkern.OSAtomic
   See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 */
 
-final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
+final public class LockFreeFastQueue<T>: QueueType
 {
   private var head = Int64()
   private var tail = Int64()
@@ -158,16 +158,6 @@ final public class LockFreeFastQueue<T>: QueueType, SequenceType, GeneratorType
       }
     }
   }
-
-  public func next() -> T?
-  {
-    return dequeue()
-  }
-
-  public func generate() -> Self
-  {
-    return self
-  }
 }
 
 private struct Node<T>
@@ -208,10 +198,10 @@ private extension Int64
 
   @inline(__always) mutating func set(pointer: UnsafePointer<Void>, tag: Int64)
   {
-    self = TaggedPointer(pointer, tag)
+    self = TaggedPointer(pointer, tag: tag)
   }
   
-  @inline(__always) mutating func CAS(#old: Int64, new: UnsafePointer<Void>) -> Bool
+  @inline(__always) mutating func CAS(old old: Int64, new: UnsafePointer<Void>) -> Bool
   {
     if old != self { return false }
     
@@ -221,7 +211,7 @@ private extension Int64
       let oldtag = old >> 32
     #endif
 
-    let nptr = TaggedPointer(new, oldtag&+1)
+    let nptr = TaggedPointer(new, tag: oldtag&+1)
     return OSAtomicCompareAndSwap64Barrier(old, nptr, &self)
   }
 

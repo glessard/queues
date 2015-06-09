@@ -8,7 +8,7 @@
 
 import Darwin.libkern.OSAtomic
 
-final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
+final public class FastOSQueue<T>: QueueType
 {
   private let head = AtomicQueueInit()
   private let pool = AtomicStackInit()
@@ -90,16 +90,6 @@ final public class FastOSQueue<T>: QueueType, SequenceType, GeneratorType
       return element
     }
     return nil
-  }
-
-  public func next() -> T?
-  {
-    return dequeue()
-  }
-
-  public func generate() -> Self
-  {
-    return self
   }
 }
 
