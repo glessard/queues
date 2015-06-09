@@ -160,7 +160,7 @@ dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with AnyObject references")
 
 
-print()
+print("")
 print("AnyObject queues")
 
 print("RefARCQueue")
@@ -176,7 +176,7 @@ dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with AnyObject references")
 
 
-print()
+print("")
 print("Swift with OSAtomicFifoQueue:")
 
 print("LinkOSQueue:" )
@@ -226,7 +226,7 @@ dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with AnyObject references")
 
 
-print()
+print("")
 print("nongeneric queues")
 
 print("IntQueue:" )
