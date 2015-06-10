@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin
 import Foundation
 import XCTest
-import QQ
+
+@testable import QQ
 
 class LinkQueueTests: QQTests
 {

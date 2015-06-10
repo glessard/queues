@@ -8,7 +8,8 @@
 
 import Cocoa
 import XCTest
-import QQ
+
+@testable import QQ
 
 class QQTests: XCTestCase
 {
@@ -21,8 +22,6 @@ class QQTests: XCTestCase
     for _ in 1...1_000
     {
       let r = arc4random_uniform(2)
-
-      XCTAssert(q.countElements() == q.count, "stored element count does not match actual element count")
 
       if r == 0
       {
