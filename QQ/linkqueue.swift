@@ -37,11 +37,8 @@ final public class LinkQueue<T>: QueueType
   public var isEmpty: Bool { return head == nil }
 
   public var count: Int {
-    return (head == nil) ? 0 : countElements()
-  }
+    if head == nil { return 0 }
 
-  public func countElements() -> Int
-  {
     // Not thread safe.
 
     var i = 0

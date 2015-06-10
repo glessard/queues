@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
+// MARK: QueueType
+
 public protocol QueueType: SequenceType, GeneratorType
 {
   typealias Element
@@ -49,23 +51,19 @@ public protocol QueueType: SequenceType, GeneratorType
 
   func dequeue() -> Element?
 
-
   /**
     Return the number of elements currently in the queue.
+    This is not at all likely to be thread-safe.
   */
 
   var count: Int { get }
-
-  /**
-    For testing, mostly. Walk the linked list while counting the nodes.
-  */
-
-  func countElements() -> Int
 }
 
 /**
   Implementation of SequenceType based on QueueType
 */
+
+// MARK: SequenceType for QueueType
 
 public extension QueueType
 {
@@ -83,6 +81,8 @@ public extension QueueType
 /**
   Implementation of GeneratorType based on QueueType
 */
+
+// MARK: GeneratorType for QueueType
 
 public extension QueueType
 {
