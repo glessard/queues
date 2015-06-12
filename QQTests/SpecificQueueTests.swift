@@ -37,6 +37,11 @@ class IntQueueTests: QQTests
   {
     QueuePerformanceTestEmpty(IntQueue.self)
   }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(IntQueue.self, newElement: 99)
+  }
 }
 
 class IntOSQueueTests: QQTests
@@ -65,6 +70,11 @@ class IntOSQueueTests: QQTests
   {
     QueuePerformanceTestEmpty(IntOSQueue.self)
   }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(IntOSQueue.self, newElement: 99)
+  }
 }
 
 class IntARCQueueTests: QQTests
@@ -92,6 +102,11 @@ class IntARCQueueTests: QQTests
   func testPerformanceEmpty()
   {
     QueuePerformanceTestEmpty(IntARCQueue.self)
+  }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(IntARCQueue.self, newElement: 99)
   }
 }
 
@@ -122,6 +137,11 @@ class ThingQueueTests: QQTests
   func testPerformanceEmpty()
   {
     QueuePerformanceTestEmpty(ThingQueue.self)
+  }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(ThingQueue.self, newElement: Thing())
   }
 }
 
@@ -154,6 +174,11 @@ class ThingOSQueueTests: QQTests
   {
     QueuePerformanceTestEmpty(ThingOSQueue.self)
   }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(ThingOSQueue.self, newElement: Thing())
+  }
 }
 
 
@@ -184,5 +209,10 @@ class ThingARCQueueTests: QQTests
   func testPerformanceEmpty()
   {
     QueuePerformanceTestEmpty(ThingARCQueue.self)
+  }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(ThingARCQueue.self, newElement: Thing())
   }
 }

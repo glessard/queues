@@ -50,11 +50,6 @@ class QQTests: XCTestCase
         }
       }
     }
-
-    while let e = q.dequeue()
-    {
-      _ = e
-    }
   }
 
   func QueueRefTest<Q: QueueType where Q.Element == Thing>(_: Q.Type)
@@ -136,5 +131,33 @@ class QQTests: XCTestCase
         q.dequeue()
       }
     }
+  }
+
+  func QueueInitEmptyTest<Q: QueueType, T where Q.Element == T>(_: Q.Type, newElement: T)
+  {
+    let q = Q(newElement)
+    XCTAssert(q.isEmpty == false)
+
+    _ = q.dequeue()
+
+    XCTAssert(q.isEmpty == true)
+
+    XCTAssert(q.underestimateCount() <= q.count)
+
+    let testenqueues = 10
+
+    for _ in 1...testenqueues
+    {
+      q.enqueue(newElement)
+    }
+
+    XCTAssert(q.underestimateCount() <= q.count)
+
+    var j = Int.min
+    for (i,_) in q.enumerate()
+    {
+      j = i+1
+    }
+    XCTAssert(j == testenqueues)
   }
 }

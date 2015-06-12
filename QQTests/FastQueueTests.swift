@@ -44,6 +44,11 @@ class FastQueueTests: QQTests
   {
     QueuePerformanceTestEmpty(FastQueue<Thing>.self)
   }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(FastQueue<Thing>.self, newElement: Thing())
+  }
 }
 
 class FastOSQueueTests: QQTests
@@ -78,6 +83,11 @@ class FastOSQueueTests: QQTests
   func testPerformanceEmpty()
   {
     QueuePerformanceTestEmpty(FastOSQueue<Thing>.self)
+  }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(FastOSQueue<Thing>.self, newElement: Thing())
   }
 }
 
@@ -114,6 +124,11 @@ class DoubleLockFastQueueTests: QQTests
   {
     QueuePerformanceTestEmpty(Fast2LockQueue<Thing>.self)
   }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(Fast2LockQueue<Thing>.self, newElement: Thing())
+  }
 }
 
 class LockFreeFastQueueTests: QQTests
@@ -148,6 +163,11 @@ class LockFreeFastQueueTests: QQTests
   func testPerformanceEmpty()
   {
     QueuePerformanceTestEmpty(LockFreeFastQueue<Thing>.self)
+  }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(LockFreeFastQueue<Thing>.self, newElement: Thing())
   }
 }
 
@@ -184,5 +204,10 @@ class OptimisticFastQueueTests: QQTests
   func testPerformanceEmpty()
   {
     QueuePerformanceTestEmpty(OptimisticFastQueue<Thing>.self)
+  }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(OptimisticFastQueue<Thing>.self, newElement: Thing())
   }
 }

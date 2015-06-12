@@ -44,6 +44,11 @@ class LinkQueueTests: QQTests
   {
     QueuePerformanceTestEmpty(LinkQueue<Thing>.self)
   }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(LinkQueue<Thing>.self, newElement: Thing())
+  }
 }
 
 class LinkOSQueueTests: QQTests
@@ -78,5 +83,50 @@ class LinkOSQueueTests: QQTests
   func testPerformanceEmpty()
   {
     QueuePerformanceTestEmpty(LinkOSQueue<Thing>.self)
+  }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(LinkOSQueue<Thing>.self, newElement: Thing())
+  }
+}
+
+class OptimisticLinkQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTestCount(OptimisticLinkQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(OptimisticLinkQueue<UInt64>)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(OptimisticLinkQueue<Thing>)
+  }
+
+  func testPerformanceFill()
+  {
+    let s = Thing()
+    QueuePerformanceTestFill(OptimisticLinkQueue<Thing>.self, element: s)
+  }
+
+  func testPerformanceSpin()
+  {
+    let s = Thing()
+    QueuePerformanceTestSpin(OptimisticLinkQueue<Thing>.self, element: s)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(OptimisticLinkQueue<Thing>.self)
+  }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(OptimisticLinkQueue<Thing>.self, newElement: Thing())
   }
 }
