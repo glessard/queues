@@ -93,7 +93,7 @@ final public class OptimisticFastQueue<T>: QueueType
       node = UnsafeMutablePointer<Node<T>>.alloc(1)
       node.memory.elem = UnsafeMutablePointer<T>.alloc(1)
     }
-    node.memory.next.reset()
+    node.memory.next = 0
     node.memory.elem.initialize(newElement)
 
     while true
@@ -201,11 +201,6 @@ private struct Node<T>
 
 private extension Int64
 {
-  @inline(__always) mutating func reset()
-  {
-    self = 0
-  }
-
   @inline(__always) mutating func set(pointer: UnsafePointer<Void>, tag: Int64)
   {
     self = TaggedPointer(pointer, tag: tag)

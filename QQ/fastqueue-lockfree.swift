@@ -152,7 +152,7 @@ final public class LockFreeFastQueue<T>: QueueType
           { // queue is empty
             return nil
           }
-          // tail is not pointing to the correct last node; try to fix it.
+          // tail wasn't pointing to the actual last node; try to fix it.
           tail.CAS(old: oldtail, new: newpntr)
         }
       }
@@ -191,11 +191,6 @@ private struct Node<T>
 
 private extension Int64
 {
-  @inline(__always) mutating func reset()
-  {
-    self = 0
-  }
-
   @inline(__always) mutating func set(pointer: UnsafePointer<Void>, tag: Int64)
   {
     self = TaggedPointer(pointer, tag: tag)
@@ -223,11 +218,11 @@ private extension Int64
     #endif
   }
 
-  var tag: Int64 {
-    #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
-      return Int64(bitPattern: UInt64(bitPattern: self) >> 56)
-    #else // 32-bit architecture
-      return Int64(bitPattern: UInt64(bitPattern: self) >> 32)
-    #endif
-  }
+//  var tag: Int64 {
+//    #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
+//      return Int64(bitPattern: UInt64(bitPattern: self) >> 56)
+//    #else // 32-bit architecture
+//      return Int64(bitPattern: UInt64(bitPattern: self) >> 32)
+//    #endif
+//  }
 }

@@ -18,7 +18,7 @@ import Darwin.libkern.OSAtomic
   http://people.csail.mit.edu/edya/publications/OptimisticFIFOQueue-DISC2004.pdf
 */
 
-final public class OptimisticLinkQueue<T>: QueueType, SequenceType, GeneratorType
+final public class OptimisticLinkQueue<T>: QueueType
 {
   private var head = Int64()
   private var tail = Int64()
@@ -77,8 +77,7 @@ final public class OptimisticLinkQueue<T>: QueueType, SequenceType, GeneratorTyp
   public func enqueue(newElement: T)
   {
     let node = UnsafeMutablePointer<Node<T>>.alloc(1)
-    node.memory.elem = UnsafeMutablePointer<T>.alloc(1)
-    node.memory.next.reset()
+    node.memory = Node(UnsafeMutablePointer<T>.alloc(1))
     node.memory.elem.initialize(newElement)
 
     while true
@@ -149,16 +148,6 @@ final public class OptimisticLinkQueue<T>: QueueType, SequenceType, GeneratorTyp
       current.set(prevptr, tag: current.tag-1)
     }
   }
-
-  public func next() -> T?
-  {
-    return dequeue()
-  }
-
-  public func generate() -> Self
-  {
-    return self
-  }
 }
 
 private struct Node<T>
@@ -193,11 +182,6 @@ private struct Node<T>
 
 private extension Int64
 {
-  @inline(__always) mutating func reset()
-  {
-    self = 0
-  }
-
   @inline(__always) mutating func set(pointer: UnsafePointer<Void>, tag: Int64)
   {
     self = TaggedPointer(pointer, tag: tag)

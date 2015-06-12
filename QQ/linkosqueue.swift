@@ -91,7 +91,6 @@ private struct Node<T>
   }
 
   var next: UnsafeMutablePointer<Node<T>> {
-    get { return UnsafeMutablePointer<Node<T>>(nptr) }
-    set { nptr = COpaquePointer(newValue) }
+    get { return UnsafeMutablePointer(nptr) }
   }
 }
