@@ -91,6 +91,46 @@ class LinkOSQueueTests: QQTests
   }
 }
 
+class DoubleLockLinkQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTestCount(Link2LockQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(Link2LockQueue<UInt64>)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(Link2LockQueue<Thing>)
+  }
+
+  func testPerformanceFill()
+  {
+    let s = Thing()
+    QueuePerformanceTestFill(Link2LockQueue<Thing>.self, element: s)
+  }
+
+  func testPerformanceSpin()
+  {
+    let s = Thing()
+    QueuePerformanceTestSpin(Link2LockQueue<Thing>.self, element: s)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(Link2LockQueue<Thing>.self)
+  }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(Link2LockQueue<Thing>.self, newElement: Thing())
+  }
+}
+
 class OptimisticLinkQueueTests: QQTests
 {
   func testQueue()
