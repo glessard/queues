@@ -71,11 +71,6 @@ public extension QueueType
   {
     return self
   }
-
-  public func underestimateCount() -> Int
-  {
-    return isEmpty ? 0 : 1
-  }
 }
 
 /**

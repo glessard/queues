@@ -148,16 +148,12 @@ class QQTests: XCTestCase
 
     XCTAssert(q.isEmpty == true)
 
-    XCTAssert(q.underestimateCount() <= q.count)
-
     let testenqueues = 10
 
     for _ in 1...testenqueues
     {
       q.enqueue(newElement)
     }
-
-    XCTAssert(q.underestimateCount() <= q.count)
 
     var j = Int.min
     for (i,_) in q.enumerate()
