@@ -48,11 +48,8 @@ final public class FastOSQueue<T>: QueueType
   }
 
   public var count: Int {
-    return (UnsafePointer<COpaquePointer>(head).memory == nil) ? 0 : countElements()
-  }
+    if UnsafePointer<COpaquePointer>(head).memory == nil { return 0 }
 
-  public func countElements() -> Int
-  {
     // Not thread safe.
 
     var i = 0
@@ -104,7 +101,6 @@ private struct Node<T>
   }
 
   var next: UnsafeMutablePointer<Node<T>> {
-    get { return UnsafeMutablePointer<Node<T>>(nptr) }
-    set { nptr = COpaquePointer(newValue) }
+    get { return UnsafeMutablePointer(nptr) }
   }
 }
