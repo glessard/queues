@@ -56,11 +56,8 @@ final public class OptimisticLinkQueue<T>: QueueType
   public var isEmpty: Bool { return head == tail }
 
   public var count: Int {
-    return (head == tail) ? 0 : countElements()
-  }
+    if head == tail { return 0 }
 
-  public func countElements() -> Int
-  {
     // make sure the `next` pointers are in order
     fixlist(tail: tail, head: head)
 

@@ -38,13 +38,7 @@ final public class LinkOSQueue<T>: QueueType
   }
 
   public var count: Int {
-    return (UnsafeMutablePointer<COpaquePointer>(head).memory == nil) ? 0 : countElements()
-  }
-
-  public func countElements() -> Int
-  {
     // Not thread safe.
-
     var i = 0
     var node = UnsafeMutablePointer<UnsafeMutablePointer<Node<T>>>(head).memory
     while node != nil
@@ -52,7 +46,6 @@ final public class LinkOSQueue<T>: QueueType
       node = node.memory.next
       i++
     }
-
     return i
   }
 

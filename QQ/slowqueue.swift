@@ -26,13 +26,7 @@ final public class SlowQueue<T>: QueueType
   public var isEmpty: Bool { return head == nil }
 
   public var count: Int {
-    return (head == nil) ? 0 : countElements()
-  }
-
-  public func countElements() -> Int
-  {
     // Not thread safe.
-
     var i = 0
     var node = head
     while let n = node
@@ -40,7 +34,6 @@ final public class SlowQueue<T>: QueueType
       node = n.next
       i++
     }
-
     return i
   }
 

@@ -69,11 +69,6 @@ final public class Fast2LockQueue<T>: QueueType
   public var isEmpty: Bool { return head == tail }
 
   public var count: Int {
-    return (head == tail) ? 0 : countElements()
-  }
-
-  public func countElements() -> Int
-  {
     var i = 0
     var node = head.memory.next
     while node != nil

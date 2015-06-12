@@ -44,13 +44,7 @@ final public class ThingQueue: QueueType
   public var isEmpty: Bool { return head == nil }
 
   public var count: Int {
-    return (head == nil) ? 0 : countElements()
-  }
-
-  public func countElements() -> Int
-  {
     // Not thread safe.
-
     var i = 0
     var node = UnsafeMutablePointer<Node>(head)
     while node != nil
@@ -58,7 +52,6 @@ final public class ThingQueue: QueueType
       node = node.memory.next
       i++
     }
-
     return i
   }
 

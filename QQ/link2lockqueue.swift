@@ -57,11 +57,6 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
   public var isEmpty: Bool { return head == tail }
 
   public var count: Int {
-    return (head == tail) ? 0 : countElements()
-  }
-
-  public func countElements() -> Int
-  {
     var i = 0
     var node = head.memory.next
     while node != nil

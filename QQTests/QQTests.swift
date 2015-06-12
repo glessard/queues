@@ -18,6 +18,7 @@ class QQTests: XCTestCase
   func QueueTestCount<E, Q: QueueType where Q.Element == E>(_: Q.Type, element: E)
   {
     let q = Q()
+    var c = 0
 
     for _ in 1...1_000
     {
@@ -25,23 +26,28 @@ class QQTests: XCTestCase
 
       if r == 0
       {
-        let b = q.count
-        q.enqueue(element)
         let a = q.count
-        XCTAssert(a-b == 1, "element count improperly incremented upon enqueuing")
+        q.enqueue(element)
+        c += 1
+        let b = q.count
+        XCTAssert(b-a == 1, "element count improperly incremented upon enqueuing")
+        XCTAssert(c == b)
       }
       else
       {
-        let b = q.count
-        if b == 0
+        if c == 0
         {
           XCTAssert(q.dequeue() == nil, "non-nil result from an empty queue")
         }
         else
         {
+          let a = q.count
           if let _ = q.dequeue()
           {
-            XCTAssert(b-q.count == 1, "element count improperly decremented upon dequeuing")
+            c -= 1
+            let b = q.count
+            XCTAssert(a-b == 1, "element count improperly decremented upon dequeuing")
+            XCTAssert(c == b)
           }
           else
           {

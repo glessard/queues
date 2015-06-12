@@ -64,11 +64,6 @@ final public class LockFreeFastQueue<T>: QueueType
   public var isEmpty: Bool { return head.pointer == tail.pointer }
 
   public var count: Int {
-    return head.pointer == tail.pointer ? 0 : countElements()
-  }
-
-  public func countElements() -> Int
-  {
     var i = 0
     var node = UnsafeMutablePointer<Node<T>>(head.pointer).memory.next
     while node.pointer != nil
