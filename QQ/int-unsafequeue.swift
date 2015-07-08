@@ -17,12 +17,6 @@ final public class IntUnsafeQueue: QueueType
 
   public init() { }
 
-  public convenience init(_ newElement: UInt64)
-  {
-    self.init()
-    enqueue(newElement)
-  }
-
   deinit
   {
     // empty the queue

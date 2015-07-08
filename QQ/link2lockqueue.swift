@@ -30,12 +30,6 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
     tail = head
   }
 
-  public convenience init(_ newElement: T)
-  {
-    self.init()
-    enqueue(newElement)
-  }
-
   deinit
   {
     // empty the queue
@@ -99,16 +93,6 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
       OSSpinLockUnlock(&hlock)
       return nil
     }
-  }
-
-  public func next() -> T?
-  {
-    return dequeue()
-  }
-
-  public func generate() -> Self
-  {
-    return self
   }
 }
 

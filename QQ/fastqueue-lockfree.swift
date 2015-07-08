@@ -30,12 +30,6 @@ final public class LockFreeFastQueue<T>: QueueType
     tail.set(node, tag: 0)
   }
 
-  public convenience init(_ newElement: T)
-  {
-    self.init()
-    enqueue(newElement)
-  }
-
   deinit
   {
     // empty the queue

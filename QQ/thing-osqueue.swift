@@ -15,12 +15,6 @@ final public class ThingOSQueue: QueueType
 
   public init() { }
 
-  convenience public init(_ newElement: Thing)
-  {
-    self.init()
-    enqueue(newElement)
-  }
-
   deinit
   {
     // first, empty the queue

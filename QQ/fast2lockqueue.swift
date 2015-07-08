@@ -32,12 +32,6 @@ final public class Fast2LockQueue<T>: QueueType
     tail = head
   }
 
-  public convenience init(_ newElement: T)
-  {
-    self.init()
-    enqueue(newElement)
-  }
-
   deinit
   {
     // empty the queue

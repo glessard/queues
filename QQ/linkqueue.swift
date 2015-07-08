@@ -17,12 +17,6 @@ final public class LinkQueue<T>: QueueType
 
   public init() { }
 
-  public convenience init(_ newElement: T)
-  {
-    self.init()
-    enqueue(newElement)
-  }
-
   deinit
   {
     while head != nil

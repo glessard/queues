@@ -15,12 +15,6 @@ final public class FastOSQueue<T>: QueueType
 
   public init() { }
 
-  public convenience init(_ newElement: T)
-  {
-    self.init()
-    enqueue(newElement)
-  }
-
   deinit
   {
     // empty the queue
@@ -78,7 +72,6 @@ final public class FastOSQueue<T>: QueueType
   public func dequeue() -> T?
   {
     let node = UnsafeMutablePointer<Node<T>>(OSAtomicFifoDequeue(head, 0))
-
     if node != nil
     {
       let element = node.memory.elem
@@ -86,6 +79,8 @@ final public class FastOSQueue<T>: QueueType
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
+
+    // The queue is empty
     return nil
   }
 }

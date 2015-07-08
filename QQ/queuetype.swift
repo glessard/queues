@@ -8,7 +8,7 @@
 
 // MARK: QueueType
 
-public protocol QueueType: SequenceType, GeneratorType
+public protocol QueueType: SequenceType, GeneratorType, ArrayLiteralConvertible
 {
   typealias Element
 
@@ -25,6 +25,14 @@ public protocol QueueType: SequenceType, GeneratorType
   */
 
   init(_ newElement: Element)
+
+  /**
+    Initialize a queue from a collection
+
+    - parameter elements: a collection of initial elements
+  */
+
+  init<C: CollectionType where C.Generator.Element == Element>(collection: C)
 
   /**
     Return whether the queue is empty
@@ -84,5 +92,53 @@ public extension QueueType
   public func next() -> Element?
   {
     return dequeue()
+  }
+}
+
+/**
+  Convenience initializers
+*/
+
+// MARK: Convenience Initializers
+
+public extension QueueType
+{
+  /**
+    Initialize a queue with an initial element
+
+    - parameter newElement: the initial element of the new queue
+  */
+
+  public init(_ newElement: Element)
+  {
+    self.init()
+    self.enqueue(newElement)
+  }
+
+  /**
+    Initialize a queue from an array
+
+    - parameter elements: a collection of initial elements
+  */
+
+  public init<C: CollectionType where C.Generator.Element == Element>(collection: C)
+  {
+    self.init()
+    for element in collection
+    {
+      self.enqueue(element)
+    }
+  }
+
+  /**
+    Initialize a queue with initial elements
+    (implements ArrayLiteralConvertible)
+
+    - parameter arrayLiteral: the initial elements of the new queue
+  */
+
+  public init(arrayLiteral elements: Element...)
+  {
+    self.init(collection: elements)
   }
 }

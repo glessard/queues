@@ -18,12 +18,6 @@ final public class ThingQueue: QueueType
 
   public init() { }
 
-  public convenience init(_ newElement: Thing)
-  {
-    self.init()
-    enqueue(newElement)
-  }
-
   deinit
   {
     while head != nil

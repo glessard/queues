@@ -17,12 +17,6 @@ final public class SlowQueue<T>: QueueType
 
   public init() { }
 
-  public convenience init(_ newElement: T)
-  {
-    self.init()
-    enqueue(newElement)
-  }
-
   public var isEmpty: Bool { return head == nil }
 
   public var count: Int {

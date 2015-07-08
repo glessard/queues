@@ -33,12 +33,6 @@ final public class OptimisticFastQueue<T>: QueueType
     tail.set(node, tag: 1)
   }
 
-  public convenience init(_ newElement: T)
-  {
-    self.init()
-    enqueue(newElement)
-  }
-
   deinit
   {
     // empty the queue

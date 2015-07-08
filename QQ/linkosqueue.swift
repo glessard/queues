@@ -14,12 +14,6 @@ final public class LinkOSQueue<T>: QueueType
 
   public init() { }
 
-  public convenience init(_ newElement: T)
-  {
-    self.init()
-    enqueue(newElement)
-  }
-
   deinit
   {
     // empty the queue
