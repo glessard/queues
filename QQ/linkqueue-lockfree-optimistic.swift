@@ -107,9 +107,10 @@ final public class OptimisticLinkQueue<T>: QueueType
           else
           {
             let newpntr = UnsafeMutablePointer<Node<T>>(newhead.pointer)
+            // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
+            let element = newpntr.memory.elem.memory
             if head.CAS(old: oldhead, new: newpntr)
             {
-              let element = newpntr.memory.elem.memory
               let oldelem = oldpntr.memory.elem
               if oldelem != nil
               {
