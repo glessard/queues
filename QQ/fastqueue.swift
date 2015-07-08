@@ -91,7 +91,7 @@ final public class FastQueue<T>: QueueType
       return element
     }
     else
-    {
+    { // queue is empty
       OSSpinLockUnlock(&lock)
       return nil
     }

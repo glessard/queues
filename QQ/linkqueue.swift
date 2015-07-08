@@ -68,21 +68,22 @@ final public class LinkQueue<T>: QueueType
   public func dequeue() -> T?
   {
     OSSpinLockLock(&lock)
-    let node = head
-    if node != nil
+    if head != nil
     { // Promote the 2nd item to 1st
-      head = UnsafeMutablePointer<Node<T>>(head.memory.next)
-    }
-    OSSpinLockUnlock(&lock)
+      let node = head
+      head = node.memory.next
+      OSSpinLockUnlock(&lock)
 
-    if node != nil
-    {
       let element = node.memory.elem
       node.destroy()
       node.dealloc(1)
       return element
     }
-    return nil
+    else
+    { // queue is empty
+      OSSpinLockUnlock(&lock)
+      return nil
+    }
   }
 }
 
