@@ -119,6 +119,7 @@ final public class LockFreeFastQueue<T>: QueueType
 
         if oldpntr != oldtail.pointer
         { // no need to deal with tail
+          // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
           let element = newpntr.memory.elem.memory
           if head.CAS(old: oldhead, new: newpntr)
           {

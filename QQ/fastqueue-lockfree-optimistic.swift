@@ -123,6 +123,7 @@ final public class OptimisticFastQueue<T>: QueueType
           else
           {
             let newpntr = UnsafeMutablePointer<Node<T>>(newhead.pointer)
+            // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
             let element = newpntr.memory.elem.memory
             if head.CAS(old: oldhead, new: newpntr)
             {
