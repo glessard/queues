@@ -8,12 +8,12 @@
 
 import Dispatch
 
-private func getQueue<T>(initialValue: T) -> OptimisticFastQueue<T>
+private func getQueue<T>(initialValue: T) -> OptimisticLinkQueue<T>
 {
-  return OptimisticFastQueue(initialValue)
+  return OptimisticLinkQueue(initialValue)
 }
 
-func OptimisticFastQueueRunTest(workers: Int, run: Int = 0) -> Int
+func OptimisticLinkQueueRunTest(workers: Int, run: Int = 0) -> Int
 {
   if workers < 1 { return Int.max }
 

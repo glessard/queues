@@ -53,28 +53,54 @@ print("Mean:\t\(t/workers.count)\n")
 //  DoubleLockQueueRunTest(w, run: maximumRun)
 //}
 
+//print("Lock-Free LinkQueue:")
+//t = 0
+//for w in workers
+//{
+//  t += LockFreeLinkQueueRunTest(w)
+//}
+//print("Mean:\t\(t/workers.count)\n")
+//println("Lock-Free FastQueue with runs:")
+//for w in workers
+//{
+//  LockFreeLinkQueueRunTest(w, run: maximumRun)
+//}
+
 print("Lock-Free FastQueue:")
 t = 0
 for w in workers
 {
-  t += LockFreeQueueRunTest(w)
+  t += LockFreeFastQueueRunTest(w)
 }
 print("Mean:\t\(t/workers.count)\n")
 //println("Lock-Free FastQueue with runs:")
 //for w in workers
 //{
-//  LockFreeQueueRunTest(w, run: maximumRun)
+//  LockFreeFastQueueRunTest(w, run: maximumRun)
+//}
+
+//print("Optimistic LinkQueue:")
+//t = 0
+//for w in workers
+//{
+//  t += OptimisticLinkQueueRunTest(w)
+//}
+//print("Mean:\t\(t/workers.count)\n")
+//println("Optimistic FastQueue with runs:")
+//for w in workers
+//{
+//  OptimisticLinkQueueRunTest(w, run: maximumRun)
 //}
 
 print("Optimistic FastQueue:")
 t = 0
 for w in workers
 {
-  t += OptimisticQueueRunTest(w)
+  t += OptimisticFastQueueRunTest(w)
 }
 print("Mean:\t\(t/workers.count)\n")
 //println("Optimistic FastQueue with runs:")
 //for w in workers
 //{
-//  OptimisticQueueRunTest(w, run: maximumRun)
+//  OptimisticFastQueueRunTest(w, run: maximumRun)
 //}

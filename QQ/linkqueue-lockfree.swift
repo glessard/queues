@@ -1,5 +1,5 @@
 //
-//  fastqueue.swift
+//  linkqueue-lockfree.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
@@ -9,16 +9,13 @@
 import Darwin.libkern.OSAtomic
 
 /**
-  Lock-free queue algorithm adapted from Edya Ladan-Mozes and Nir Shavit,
-  "An optimistic approach to lock-free FIFO queues",
-  Distributed Computing (2008) 20:323-341; DOI 10.1007/s00446-007-0050-0
-
-  See also:
-  Proceedings of the 18th International Conference on Distributed Computing (DISC) 2004
-  http://people.csail.mit.edu/edya/publications/OptimisticFIFOQueue-DISC2004.pdf
+  Lock-free queue algorithm adapted from Maged M. Michael and Michael L. Scott.,
+  "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms",
+  in Principles of Distributed Computing '96 (PODC96)
+  See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 */
 
-final public class OptimisticLinkQueue<T>: QueueType
+final public class LockFreeLinkQueue<T>: QueueType
 {
   private var head = Int64()
   private var tail = Int64()
@@ -27,8 +24,8 @@ final public class OptimisticLinkQueue<T>: QueueType
   {
     let node = UnsafeMutablePointer<Node<T>>.alloc(1)
     node.memory = Node(nil)
-    head.set(node, tag: 1)
-    tail.set(node, tag: 1)
+    head.set(node, tag: 0)
+    tail.set(node, tag: 0)
   }
 
   deinit
@@ -47,19 +44,14 @@ final public class OptimisticLinkQueue<T>: QueueType
     }
   }
 
-  public var isEmpty: Bool { return head == tail }
+  public var isEmpty: Bool { return head.pointer == tail.pointer }
 
   public var count: Int {
-    if head == tail { return 0 }
-
-    // make sure the `next` pointers are in order
-    fixlist(tail: tail, head: head)
-
     var i = 0
-    var nodepointer = UnsafePointer<Node<T>>(head.pointer).memory.next.pointer
-    while nodepointer != nil
+    var node = UnsafeMutablePointer<Node<T>>(head.pointer).memory.next
+    while node.pointer != nil
     { // Iterate along the linked nodes while counting
-      nodepointer = UnsafePointer<Node<T>>(nodepointer).memory.next.pointer
+      node = UnsafeMutablePointer<Node<T>>(node.pointer).memory.next
       i++
     }
     return i
@@ -69,19 +61,27 @@ final public class OptimisticLinkQueue<T>: QueueType
   {
     let node = UnsafeMutablePointer<Node<T>>.alloc(1)
     node.memory = Node(UnsafeMutablePointer<T>.alloc(1))
-    node.memory.elem.initialize(newElement)
 
     while true
     {
       let oldtail = tail
       let oldpntr = UnsafeMutablePointer<Node<T>>(oldtail.pointer)
-      let oldtag  = oldtail.tag
+      let oldnext = oldpntr.memory.next
 
-      node.memory.prev.set(oldpntr, tag: oldtag+1)
-      if tail.CAS(old: oldtail, new: node)
-      {
-        oldpntr.memory.next.set(node, tag: oldtag)
-        break
+      if oldtail == tail
+      { // was tail pointing to the last node?
+        if oldnext.pointer == nil
+        { // try to link the new node to the end of the list
+          if oldpntr.memory.next.CAS(old: oldnext, new: node)
+          { // success. try to have tail point to the inserted node.
+            tail.CAS(old: oldtail, new: node)
+            break
+          }
+        }
+        else
+        { // tail wasn't pointing to the actual last node; try to fix it.
+          tail.CAS(old: oldtail, new: oldnext.pointer)
+        }
       }
     }
   }
@@ -98,45 +98,33 @@ final public class OptimisticLinkQueue<T>: QueueType
 
       if oldhead == head
       {
-        if oldhead != oldtail
-        {
-          if newhead == 0 || newhead.tag != oldhead.tag
+        let newpntr = UnsafePointer<Node<T>>(newhead.pointer)
+
+        if oldpntr != oldtail.pointer
+        { // no need to deal with tail
+          if head.CAS(old: oldhead, new: newpntr)
           {
-            fixlist(tail: oldtail, head: oldhead)
-          }
-          else
-          {
-            let newpntr = UnsafeMutablePointer<Node<T>>(newhead.pointer)
-            if head.CAS(old: oldhead, new: newpntr)
+            let element = newpntr.memory.elem.memory
+            let oldelem = oldpntr.memory.elem
+            if oldelem != nil
             {
-              let element = newpntr.memory.elem.memory
-              let oldelem = oldpntr.memory.elem
-              if oldelem != nil
-              {
-                oldelem.destroy(1)
-                oldelem.dealloc(1)
-              }
-              oldpntr.dealloc(1)
-              return element
+              oldelem.destroy(1)
+              oldelem.dealloc(1)
             }
+            oldpntr.dealloc(1)
+            return element
           }
         }
         else
         {
-          return nil
+          if newpntr == nil
+          { // queue is empty
+            return nil
+          }
+          // tail wasn't pointing to the actual last node; try to fix it.
+          tail.CAS(old: oldtail, new: newpntr)
         }
       }
-    }
-  }
-
-  private func fixlist(tail oldtail: Int64, head oldhead: Int64)
-  {
-    var current = oldtail
-    while oldhead == head && current != oldhead
-    {
-      let prevptr = UnsafeMutablePointer<Node<T>>(UnsafePointer<Node<T>>(current.pointer).memory.prev.pointer)
-      prevptr.memory.next.set(current.pointer, tag: current.tag-1)
-      current.set(prevptr, tag: current.tag-1)
     }
   }
 }
@@ -144,7 +132,6 @@ final public class OptimisticLinkQueue<T>: QueueType
 private struct Node<T>
 {
   var next: Int64 = 0
-  var prev: Int64 = 0
   var elem: UnsafeMutablePointer<T>
 
   init(_ p: UnsafeMutablePointer<T>)
@@ -176,7 +163,7 @@ private extension Int64
   {
     self = TaggedPointer(pointer, tag: tag)
   }
-
+  
   @inline(__always) mutating func CAS(old old: Int64, new: UnsafePointer<Void>) -> Bool
   {
     if old != self { return false }
@@ -199,11 +186,11 @@ private extension Int64
     #endif
   }
 
-  var tag: Int64 {
-    #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
-      return Int64(bitPattern: UInt64(bitPattern: self) >> 56)
-    #else // 32-bit architecture
-      return Int64(bitPattern: UInt64(bitPattern: self) >> 32)
-    #endif
-  }
+//  var tag: Int64 {
+//    #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
+//      return Int64(bitPattern: UInt64(bitPattern: self) >> 56)
+//    #else // 32-bit architecture
+//      return Int64(bitPattern: UInt64(bitPattern: self) >> 32)
+//    #endif
+//  }
 }

@@ -13,7 +13,7 @@ private func getQueue<T>(initialValue: T) -> LockFreeFastQueue<T>
   return LockFreeFastQueue(initialValue)
 }
 
-func LockFreeQueueRunTest(workers: Int, run: Int = 0) -> Int
+func LockFreeFastQueueRunTest(workers: Int, run: Int = 0) -> Int
 {
   if workers < 1 { return Int.max }
 

@@ -122,16 +122,15 @@ final public class LockFreeFastQueue<T>: QueueType
           let element = newpntr.memory.elem.memory
           if head.CAS(old: oldhead, new: newpntr)
           {
-            let eptr = oldpntr.memory.elem
-            if eptr != nil
+            if oldpntr.memory.elem == nil
             {
-              eptr.destroy()
-              OSAtomicEnqueue(pool, oldpntr, 0)
+              oldpntr.memory = Node(UnsafeMutablePointer<T>.alloc(1))
             }
             else
             {
-              oldpntr.dealloc(1)
+              oldpntr.memory.elem.destroy()
             }
+            OSAtomicEnqueue(pool, oldpntr, 0)
             return element
           }
         }
