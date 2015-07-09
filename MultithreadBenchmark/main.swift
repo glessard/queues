@@ -32,6 +32,14 @@ print("Mean:\t\(t/workers.count)\n")
 //  FastQueueRunTest(w, run: maximumRun)
 //}
 
+print("LinkOSQueue:")
+t = 0
+for w in workers
+{
+  t += LinkOSQueueRunTest(w)
+}
+print("Mean:\t\(t/workers.count)\n")
+
 print("FastOSQueue:")
 t = 0
 for w in workers
@@ -40,11 +48,19 @@ for w in workers
 }
 print("Mean:\t\(t/workers.count)\n")
 
+print("Double-Lock LinkQueue:")
+t = 0
+for w in workers
+{
+  t += DoubleLockLinkQueueRunTest(w)
+}
+print("Mean:\t\(t/workers.count)\n")
+
 print("Double-Lock FastQueue:")
 t = 0
 for w in workers
 {
-  t += DoubleLockQueueRunTest(w)
+  t += DoubleLockFastQueueRunTest(w)
 }
 print("Mean:\t\(t/workers.count)\n")
 //println("Double-Lock FastQueue with runs:")

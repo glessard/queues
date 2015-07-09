@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0305F26F1B4DF90A00F4B44B /* mtbench-linkosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0305F26E1B4DF90A00F4B44B /* mtbench-linkosqueue.swift */; };
+		0305F2701B4DF93400F4B44B /* linkosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C1D1A61205500F4B44B /* linkosqueue.swift */; };
+		0305F2721B4DF95300F4B44B /* mtbench-doublelocklinkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0305F2711B4DF95300F4B44B /* mtbench-doublelocklinkqueue.swift */; };
 		030F58D71A5B5EA500F4B44B /* fastqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030F58D61A5B5EA500F4B44B /* fastqueue.swift */; };
 		030F58D81A5B62CF00F4B44B /* fastqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030F58D61A5B5EA500F4B44B /* fastqueue.swift */; };
 		031048DB1A96B16400F4B44B /* thing-unsafequeue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031048DA1A96B16400F4B44B /* thing-unsafequeue.swift */; };
@@ -129,6 +132,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0305F26E1B4DF90A00F4B44B /* mtbench-linkosqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-linkosqueue.swift"; sourceTree = "<group>"; };
+		0305F2711B4DF95300F4B44B /* mtbench-doublelocklinkqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-doublelocklinkqueue.swift"; sourceTree = "<group>"; };
 		030F58D61A5B5EA500F4B44B /* fastqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = fastqueue.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		031048DA1A96B16400F4B44B /* thing-unsafequeue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "thing-unsafequeue.swift"; sourceTree = "<group>"; };
 		031048DD1A96D17C00F4B44B /* int-unsafequeue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "int-unsafequeue.swift"; sourceTree = "<group>"; };
@@ -347,7 +352,9 @@
 				03E4CC461AFA90C000F4B44B /* mtbench-slowqueue.swift */,
 				031DEDE71B17A53200F4B44B /* mtbench-linkqueue.swift */,
 				03E4CC4A1AFABBC700F4B44B /* mtbench-fastqueue.swift */,
+				0305F26E1B4DF90A00F4B44B /* mtbench-linkosqueue.swift */,
 				031DEDD51B175C1000F4B44B /* mtbench-fastosqueue.swift */,
+				0305F2711B4DF95300F4B44B /* mtbench-doublelocklinkqueue.swift */,
 				03E4CC4E1AFABFF900F4B44B /* mtbench-doublelockfastqueue.swift */,
 				03E4CC531AFAC0C300F4B44B /* mtbench-lockfreequeue.swift */,
 				03DB47321B4D951000F4B44B /* mtbench-lockfreelinkqueue.swift */,
@@ -645,7 +652,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0305F2721B4DF95300F4B44B /* mtbench-doublelocklinkqueue.swift in Sources */,
 				031DEDE91B17A53200F4B44B /* mtbench-linkqueue.swift in Sources */,
+				0305F2701B4DF93400F4B44B /* linkosqueue.swift in Sources */,
 				031DEDEC1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */,
 				031DEDD81B175C2D00F4B44B /* fastosqueue.swift in Sources */,
 				03E4CC421AFA909D00F4B44B /* main.swift in Sources */,
@@ -658,6 +667,7 @@
 				031DEDEF1B17ADFB00F4B44B /* link2lockqueue.swift in Sources */,
 				03E4CC501AFAC07000F4B44B /* fast2lockqueue.swift in Sources */,
 				031DEDD71B175C1000F4B44B /* mtbench-fastosqueue.swift in Sources */,
+				0305F26F1B4DF90A00F4B44B /* mtbench-linkosqueue.swift in Sources */,
 				03E4CC471AFA90C000F4B44B /* mtbench-slowqueue.swift in Sources */,
 				03E4CC4B1AFABBC700F4B44B /* mtbench-fastqueue.swift in Sources */,
 				03DB47301B4D8D6F00F4B44B /* linkqueue-lockfree.swift in Sources */,

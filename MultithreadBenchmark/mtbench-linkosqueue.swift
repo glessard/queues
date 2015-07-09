@@ -8,12 +8,12 @@
 
 import Dispatch
 
-private func getQueue<T>(initialValue: T) -> Fast2LockQueue<T>
+private func getQueue<T>(initialValue: T) -> LinkOSQueue<T>
 {
-  return Fast2LockQueue(initialValue)
+  return LinkOSQueue(initialValue)
 }
 
-func DoubleLockFastQueueRunTest(workers: Int, run: Int = 0) -> Int
+func LinkOSQueueRunTest(workers: Int, run: Int = 0) -> Int
 {
   if workers < 1 { return Int.max }
 
