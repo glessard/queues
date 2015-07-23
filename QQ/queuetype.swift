@@ -68,20 +68,6 @@ public protocol QueueType: SequenceType, GeneratorType, ArrayLiteralConvertible
 }
 
 /**
-  Implementation of SequenceType based on QueueType
-*/
-
-// MARK: SequenceType for QueueType
-
-public extension QueueType
-{
-  public func generate() -> Self
-  {
-    return self
-  }
-}
-
-/**
   Implementation of GeneratorType based on QueueType
 */
 
