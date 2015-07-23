@@ -32,6 +32,9 @@ func AtomicQueueInit() -> QueueHead
     h.advancedBy(i).initialize(0)
   }
 
+  // Check pointer alignment
+  // assert(unsafeBitCast(h, Word.self) & 0x7 == 0)
+
   return COpaquePointer(h)
 }
 
@@ -60,6 +63,9 @@ func AtomicStackInit() -> StackHead
   {
     h.advancedBy(i).initialize(0)
   }
+
+  // Check pointer alignment
+  // assert(unsafeBitCast(h, Word.self) & 0x7 == 0)
 
   return COpaquePointer(h)
 }
