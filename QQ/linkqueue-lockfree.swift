@@ -100,7 +100,7 @@ final public class LockFreeLinkQueue<T>: QueueType
       {
         let newpntr = UnsafePointer<Node<T>>(newhead.pointer)
 
-        if oldpntr != oldtail.pointer
+        if oldpntr != UnsafeMutablePointer<Node<T>>(oldtail.pointer)
         { // no need to deal with tail
           // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
           let element = newpntr.memory.elem.memory
@@ -181,9 +181,9 @@ private extension Int64
 
   var pointer: UnsafeMutablePointer<Void> {
     #if arch(x86_64) || arch(arm64) // speculatively in the case of arm64
-      return UnsafeMutablePointer(bitPattern: UWord(self & 0x00ff_ffff_ffff_ffff))
+      return UnsafeMutablePointer(bitPattern: UInt(self & 0x00ff_ffff_ffff_ffff))
     #else // 32-bit architecture
-      return UnsafeMutablePointer(bitPattern: UWord(self & 0xffff_ffff))
+      return UnsafeMutablePointer(bitPattern: UInt(self & 0xffff_ffff))
     #endif
   }
 
