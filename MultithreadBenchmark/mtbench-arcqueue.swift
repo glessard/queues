@@ -8,12 +8,12 @@
 
 import Dispatch
 
-private func getQueue<T>(initialValue: T) -> SlowQueue<T>
+private func getQueue<T>(initialValue: T) -> Queue<T>
 {
-  return SlowQueue(initialValue)
+  return Queue(initialValue)
 }
 
-func SlowQueueRunTest(workers: Int, run: Int = 0) -> Int
+func QueueRunTest(workers: Int, run: Int = 0) -> Int
 {
   if workers < 1 { return Int.max}
 

@@ -8,7 +8,9 @@
 
 import Darwin.libkern.OSAtomic
 
-final public class SlowQueue<T>: QueueType
+/// An ARC-based queue with a spin-lock for thread safety.
+
+final public class Queue<T>: QueueType
 {
   private var head: Node<T>? = nil
   private var tail: Node<T>! = nil

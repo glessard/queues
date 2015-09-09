@@ -15,36 +15,36 @@ class GenericNodeQueueTests: QQTests
 {
   func testQueueCount()
   {
-    QueueTestCount(SlowQueue<Int>.self, element: 0)
+    QueueTestCount(Queue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(SlowQueue<UInt64>)
+    QueueIntTest(Queue<UInt64>)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(SlowQueue<Thing>)
+    QueueRefTest(Queue<Thing>)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(SlowQueue<Thing>.self, element: Thing())
+    QueuePerformanceTestFill(Queue<Thing>.self, element: Thing())
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(SlowQueue<Thing>.self, element: Thing())
+    QueuePerformanceTestSpin(Queue<Thing>.self, element: Thing())
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(SlowQueue<Thing>.self)
+    QueuePerformanceTestEmpty(Queue<Thing>.self)
   }
 
   func testExtra()
   {
-    QueueInitEmptyTest(SlowQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(Queue<Thing>.self, newElement: Thing())
   }
 }

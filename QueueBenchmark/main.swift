@@ -16,7 +16,7 @@ let ref = Thing()
 print("Swift-Only solutions")
 
 print("Slow Queue:")
-var queue1 = SlowQueue(iterations)
+var queue1 = Queue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -27,7 +27,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
-var queue1ref = SlowQueue(ref)
+var queue1ref = Queue(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations
