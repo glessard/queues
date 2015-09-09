@@ -161,22 +161,6 @@ print("\(dt/iterations) ns per iteration with AnyObject references")
 
 
 print("")
-print("AnyObject queues")
-
-print("RefARCQueue")
-var srqueue = RefARCQueue(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  srqueue.dequeue()
-  srqueue.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with AnyObject references")
-
-
-print("")
 print("Swift with OSAtomicFifoQueue:")
 
 print("LinkOSQueue:" )

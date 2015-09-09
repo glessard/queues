@@ -48,36 +48,3 @@ class GenericNodeQueueTests: QQTests
     QueueInitEmptyTest(SlowQueue<Thing>.self, newElement: Thing())
   }
 }
-
-class RefARCQueueTests: QQTests
-{
-  func testQueueCount()
-  {
-    QueueTestCount(RefARCQueue<Thing>.self, element: Thing())
-  }
-
-  func testQueueRef()
-  {
-    QueueRefTest(RefARCQueue<Thing>)
-  }
-
-  func testPerformanceFill()
-  {
-    QueuePerformanceTestFill(RefARCQueue<Thing>.self, element: Thing())
-  }
-
-  func testPerformanceSpin()
-  {
-    QueuePerformanceTestSpin(RefARCQueue<Thing>.self, element: Thing())
-  }
-
-  func testPerformanceEmpty()
-  {
-    QueuePerformanceTestEmpty(RefARCQueue<Thing>.self)
-  }
-
-  func testExtra()
-  {
-    QueueInitEmptyTest(RefARCQueue<Thing>.self, newElement: Thing())
-  }
-}
