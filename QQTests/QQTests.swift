@@ -15,7 +15,7 @@ class QQTests: XCTestCase
 {
   let performanceTestIterations=900_000
 
-  func QueueTestCount<E, Q: QueueType where Q.Element == E>(_: Q.Type, element: E)
+  func QueueTestCount<Q: QueueType>(_: Q.Type, element: Q.Element)
   {
     let q: Q = [element, element]
     var c = 2
@@ -100,7 +100,7 @@ class QQTests: XCTestCase
     }
   }
 
-  func QueuePerformanceTestFill<E, Q: QueueType where Q.Element == E>(_: Q.Type, element: E)
+  func QueuePerformanceTestFill<Q: QueueType>(_: Q.Type, element: Q.Element)
   {
     self.measureBlock() {
       let q = Q()
@@ -116,7 +116,7 @@ class QQTests: XCTestCase
     }
   }
 
-  func QueuePerformanceTestSpin<E, Q: QueueType where Q.Element == E>(_: Q.Type, element: E)
+  func QueuePerformanceTestSpin<Q: QueueType>(_: Q.Type, element: Q.Element)
   {
     self.measureBlock() {
       let q = Q()
@@ -139,7 +139,7 @@ class QQTests: XCTestCase
     }
   }
 
-  func QueueInitEmptyTest<Q: QueueType, T where Q.Element == T>(_: Q.Type, newElement: T)
+  func QueueInitEmptyTest<Q: QueueType>(_: Q.Type, newElement: Q.Element)
   {
     let q = Q(newElement)
     XCTAssert(q.isEmpty == false)
