@@ -108,9 +108,9 @@ final public class LockFreeFastQueue<T>: QueueType
     while true
     {
       let oldhead = head
-      let oldpntr = UnsafeMutablePointer<Node<T>>(oldhead.pointer)
-
       let oldtail = tail
+
+      let oldpntr = UnsafeMutablePointer<Node<T>>(oldhead.pointer)
       let newhead = oldpntr.memory.next
 
       if oldhead == head

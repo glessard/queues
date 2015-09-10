@@ -61,6 +61,7 @@ final public class LockFreeLinkQueue<T>: QueueType
   {
     let node = UnsafeMutablePointer<Node<T>>.alloc(1)
     node.memory = Node(UnsafeMutablePointer<T>.alloc(1))
+    node.memory.elem.initialize(newElement)
 
     while true
     {
@@ -91,9 +92,9 @@ final public class LockFreeLinkQueue<T>: QueueType
     while true
     {
       let oldhead = head
-      let oldpntr = UnsafeMutablePointer<Node<T>>(oldhead.pointer)
-
       let oldtail = tail
+
+      let oldpntr = UnsafeMutablePointer<Node<T>>(oldhead.pointer)
       let newhead = oldpntr.memory.next
 
       if oldhead == head
