@@ -151,7 +151,7 @@ final public class LockFreeFastQueue<T>: QueueType
 
 private struct Node<T>
 {
-  var sptr: Int   = 0
+  let sptr: Int64 = 0
   var next: Int64 = 0
   var elem: UnsafeMutablePointer<T>
 
