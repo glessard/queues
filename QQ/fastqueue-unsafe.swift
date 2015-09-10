@@ -1,5 +1,5 @@
 //
-//  Thing-queue.swift
+//  fastqueue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
@@ -8,10 +8,10 @@
 
 import Darwin.libkern.OSAtomic
 
-final public class ThingUnsafeQueue: QueueType
+final public class UnsafeFastQueue<T>: QueueType
 {
-  private var head: UnsafeMutablePointer<Node> = nil
-  private var tail: UnsafeMutablePointer<Node> = nil
+  private var head: UnsafeMutablePointer<Node<T>> = nil
+  private var tail: UnsafeMutablePointer<Node<T>> = nil
 
   private let pool = AtomicStackInit()
 
@@ -19,6 +19,7 @@ final public class ThingUnsafeQueue: QueueType
 
   deinit
   {
+    // empty the queue
     while head != nil
     {
       let node = head
@@ -30,8 +31,10 @@ final public class ThingUnsafeQueue: QueueType
     // drain the pool
     while UnsafePointer<COpaquePointer>(pool).memory != nil
     {
-      UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0)).dealloc(1)
+      let node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
+      node.dealloc(1)
     }
+    // release the pool stack structure
     AtomicStackRelease(pool)
   }
 
@@ -40,7 +43,7 @@ final public class ThingUnsafeQueue: QueueType
   public var count: Int {
     // Not thread safe.
     var i = 0
-    var node = UnsafeMutablePointer<Node>(head)
+    var node = head
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
@@ -49,12 +52,12 @@ final public class ThingUnsafeQueue: QueueType
     return i
   }
 
-  public func enqueue(newElement: Thing)
+  public func enqueue(newElement: T)
   {
-    var node = UnsafeMutablePointer<Node>(OSAtomicDequeue(pool, 0))
+    var node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
     if node == nil
     {
-      node = UnsafeMutablePointer<Node>.alloc(1)
+      node = UnsafeMutablePointer<Node<T>>.alloc(1)
     }
     node.initialize(Node(newElement))
 
@@ -70,30 +73,36 @@ final public class ThingUnsafeQueue: QueueType
     }
   }
 
-  public func dequeue() -> Thing?
+  public func dequeue() -> T?
   {
-    let node = head
-    if node != nil
+    if head != nil
     { // Promote the 2nd item to 1st
-      head = node.memory.next
+      let node = head
+      head = head.memory.next
 
       let element = node.memory.elem
       node.destroy()
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
+
     // queue is empty
     return nil
   }
 }
 
-private struct Node
+private struct Node<T>
 {
-  var next: UnsafeMutablePointer<Node> = nil
-  let elem: Thing
+  var nptr: COpaquePointer = nil
+  let elem: T
 
-  init(_ s: Thing)
+  init(_ e: T)
   {
-    elem = s
+    elem = e
+  }
+
+  var next: UnsafeMutablePointer<Node<T>> {
+    get { return UnsafeMutablePointer<Node<T>>(nptr) }
+    set { nptr = COpaquePointer(newValue) }
   }
 }

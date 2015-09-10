@@ -211,3 +211,44 @@ class OptimisticFastQueueTests: QQTests
     QueueInitEmptyTest(OptimisticFastQueue<Thing>.self, newElement: Thing())
   }
 }
+
+
+class UnsafeFastQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTestCount(UnsafeFastQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(UnsafeFastQueue<UInt64>)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(UnsafeFastQueue<Thing>)
+  }
+
+  func testPerformanceFill()
+  {
+    let s = Thing()
+    QueuePerformanceTestFill(UnsafeFastQueue<Thing>.self, element: s)
+  }
+
+  func testPerformanceSpin()
+  {
+    let s = Thing()
+    QueuePerformanceTestSpin(UnsafeFastQueue<Thing>.self, element: s)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(UnsafeFastQueue<Thing>.self)
+  }
+
+  func testExtra()
+  {
+    QueueInitEmptyTest(UnsafeFastQueue<Thing>.self, newElement: Thing())
+  }
+}

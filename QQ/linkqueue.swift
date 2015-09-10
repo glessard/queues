@@ -79,11 +79,10 @@ final public class LinkQueue<T>: QueueType
       node.dealloc(1)
       return element
     }
-    else
-    { // queue is empty
-      OSSpinLockUnlock(&lock)
-      return nil
-    }
+
+    // queue is empty
+    OSSpinLockUnlock(&lock)
+    return nil
   }
 }
 

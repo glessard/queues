@@ -88,11 +88,10 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
       oldhead.dealloc(1)
       return element
     }
-    else
-    {
-      OSSpinLockUnlock(&hlock)
-      return nil
-    }
+
+    // queue is empty
+    OSSpinLockUnlock(&hlock)
+    return nil
   }
 }
 

@@ -17,8 +17,8 @@ class QQTests: XCTestCase
 
   func QueueTestCount<E, Q: QueueType where Q.Element == E>(_: Q.Type, element: E)
   {
-    let q = Q()
-    var c = 0
+    let q: Q = [element, element]
+    var c = 2
 
     for _ in 1...1_000
     {

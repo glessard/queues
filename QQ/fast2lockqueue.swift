@@ -104,11 +104,10 @@ final public class Fast2LockQueue<T>: QueueType
       OSAtomicEnqueue(pool, oldhead, 0)
       return element
     }
-    else
-    {
-      OSSpinLockUnlock(&hlock)
-      return nil
-    }
+
+    // queue is empty
+    OSSpinLockUnlock(&hlock)
+    return nil
   }
 }
 

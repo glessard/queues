@@ -211,76 +211,27 @@ print("\(dt/iterations) ns per iteration with AnyObject references")
 
 
 print("")
-print("nongeneric queues")
+print("Queues which are not thread-safe")
 
-print("IntQueue:" )
-var intqueue = IntQueue(iterations)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  intqueue.dequeue()
-  intqueue.enqueue(i)
-}
-dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration")
-
-print("IntOSQueue:" )
-var intosqueue = IntOSQueue(iterations)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  intosqueue.dequeue()
-  intosqueue.enqueue(i)
-}
-dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration")
-
-print("IntUnsafeQueue:" )
-var intunsafequeue = IntUnsafeQueue(iterations)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  intunsafequeue.dequeue()
-  intunsafequeue.enqueue(i)
-}
-dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration")
-
-print("ThingQueue:" )
-var semqueue = ThingQueue(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  semqueue.dequeue()
-  semqueue.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with Thing references")
-
-print("ThingOSQueue:" )
-var semosqueue = ThingOSQueue(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  semosqueue.dequeue()
-  semosqueue.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with Thing references")
-
-print("ThingUnsafeQueue:" )
-var unsafequeue = ThingUnsafeQueue(ref)
+print("UnsafeFastQueue:" )
+var unsafequeue = UnsafeFastQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
 {
   unsafequeue.dequeue()
-  unsafequeue.enqueue(ref)
+  unsafequeue.enqueue(i)
 }
 dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per thread-unsafe iteration with Thing references")
+print("\(dt/iterations) ns per iteration")
+
+var unsaferefqueue = UnsafeFastQueue(ref)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  unsaferefqueue.dequeue()
+  unsaferefqueue.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration with AnyObject references")
