@@ -33,6 +33,8 @@
 		035A985B1A53B0B000F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
 		035A985D1A53B0B000F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
 		035A996A1A5777DE00F4B44B /* QQTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98391A539CF600F4B44B /* QQTests.swift */; };
+		035DB9631BA1F33400F4B44B /* link2lockqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDED1B17ADFB00F4B44B /* link2lockqueue.swift */; settings = {ASSET_TAGS = (); }; };
+		035DB9641BA1F3FB00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDEA1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift */; settings = {ASSET_TAGS = (); }; };
 		03678C111A60963700F4B44B /* osatomicqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C101A60963700F4B44B /* osatomicqueue.swift */; };
 		03678C121A60963700F4B44B /* osatomicqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C101A60963700F4B44B /* osatomicqueue.swift */; };
 		03678C1F1A61205500F4B44B /* linkosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C1D1A61205500F4B44B /* linkosqueue.swift */; };
@@ -528,12 +530,14 @@
 				035A985D1A53B0B000F4B44B /* linkqueue.swift in Sources */,
 				035A985B1A53B0B000F4B44B /* queuetype.swift in Sources */,
 				03B14A0E1AEB60E000F4B44B /* fastqueue-lockfree.swift in Sources */,
+				035DB9641BA1F3FB00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */,
 				03678C2B1A61239C00F4B44B /* fastosqueue.swift in Sources */,
 				036939BA1A5EFB3500F4B44B /* queue.swift in Sources */,
 				03678C121A60963700F4B44B /* osatomicqueue.swift in Sources */,
 				038ACC7E1BA0ED4A00F4B44B /* fastqueue-unsafe.swift in Sources */,
 				03E4CC1D1AF75B9800F4B44B /* fast2lockqueue.swift in Sources */,
 				03223F201A645BA900F4B44B /* thing.swift in Sources */,
+				035DB9631BA1F33400F4B44B /* link2lockqueue.swift in Sources */,
 				038ACC7A1BA0E5A300F4B44B /* taggedpointer.swift in Sources */,
 				030F58D81A5B62CF00F4B44B /* fastqueue.swift in Sources */,
 			);

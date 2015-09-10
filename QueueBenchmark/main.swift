@@ -13,9 +13,9 @@ var then = mach_absolute_time()
 var dt = mach_absolute_time() - then
 let ref = Thing()
 
-print("Swift-Only solutions")
+print("Lock-based queues")
 
-print("Slow Queue:")
+print("ARC Queue:")
 var queue1 = Queue(iterations)
 
 then = mach_absolute_time()
@@ -36,8 +36,8 @@ for i in 1...iterations
   queue1ref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with AnyObject references")
-
+print("\(dt/iterations) ns per iteration with references")
+print("")
 
 print("LinkQueue:")
 var lqueue = LinkQueue(iterations)
@@ -61,7 +61,7 @@ for i in 1...iterations
   lqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with AnyObject references")
+print("\(dt/iterations) ns per iteration with references")
 
 
 print("FastQueue:")
@@ -86,11 +86,33 @@ for i in 1...iterations
   fqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with AnyObject references")
+print("\(dt/iterations) ns per iteration with references")
+
+print("Two-Lock LinkQueue:")
+var tllqueue = Link2LockQueue(iterations)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  tllqueue.dequeue()
+  tllqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration")
+
+var tllqueueref = Link2LockQueue(ref)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  tllqueueref.dequeue()
+  tllqueueref.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration with references")
 
 print("Two-Lock FastQueue:")
 var tlfqueue = Fast2LockQueue(iterations)
-//tlfqueue.enqueue(42)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -110,11 +132,36 @@ for i in 1...iterations
   tlfqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with AnyObject references")
+print("\(dt/iterations) ns per iteration with references")
+
+
+print("\nLock-free Queues:")
+
+print("Michael&Scott Lock-Free LinkQueue:")
+var lflqueue = LockFreeLinkQueue(iterations)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  lflqueue.dequeue()
+  lflqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration")
+
+var lflqueueref = LockFreeLinkQueue(ref)
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  lflqueueref.dequeue()
+  lflqueueref.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration with references")
+
 
 print("Michael&Scott Lock-Free FastQueue:")
 var lffqueue = LockFreeFastQueue(iterations)
-//lffqueue.enqueue(42)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -133,12 +180,34 @@ for i in 1...iterations
   lffqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with AnyObject references")
+print("\(dt/iterations) ns per iteration with references")
+
+
+print("Optimistic Lock-Free LinkQueue:")
+var olqueue = OptimisticLinkQueue(iterations)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  olqueue.dequeue()
+  olqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration")
+
+var olqueueref = OptimisticLinkQueue(ref)
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  olqueueref.dequeue()
+  olqueueref.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration with references")
 
 
 print("Optimistic Lock-Free FastQueue:")
 var ofqueue = OptimisticFastQueue(iterations)
-//ofqueue.enqueue(42)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -157,11 +226,10 @@ for i in 1...iterations
   ofqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with AnyObject references")
+print("\(dt/iterations) ns per iteration with references")
 
 
-print("")
-print("Swift with OSAtomicFifoQueue:")
+print("\nSwift with OSAtomicFifoQueue:")
 
 print("LinkOSQueue:" )
 var losqueue = LinkOSQueue(iterations)
@@ -183,7 +251,7 @@ for i in 1...iterations
   losqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with AnyObject references")
+print("\(dt/iterations) ns per iteration with references")
 
 
 print("FastOSQueue:" )
@@ -207,11 +275,10 @@ for i in 1...iterations
   fosqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with AnyObject references")
+print("\(dt/iterations) ns per iteration with references")
 
 
-print("")
-print("Queues which are not thread-safe")
+print("\nQueues which are not thread-safe")
 
 print("UnsafeFastQueue:" )
 var unsafequeue = UnsafeFastQueue(iterations)
@@ -234,4 +301,4 @@ for i in 1...iterations
   unsaferefqueue.enqueue(ref)
 }
 dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with AnyObject references")
+print("\(dt/iterations) ns per iteration with references")
