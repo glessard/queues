@@ -8,15 +8,19 @@
 
 import Darwin.libkern.OSAtomic
 
-/**
-  Lock-free queue algorithm adapted from Edya Ladan-Mozes and Nir Shavit,
-  "An optimistic approach to lock-free FIFO queues",
-  Distributed Computing (2008) 20:323-341; DOI 10.1007/s00446-007-0050-0
-
-  See also:
-  Proceedings of the 18th International Conference on Distributed Computing (DISC) 2004
-  http://people.csail.mit.edu/edya/publications/OptimisticFIFOQueue-DISC2004.pdf
-*/
+/// Lock-free queue
+///
+/// Note that this algorithm is not designed for tri-state memory as used in Swift.
+/// This means that it does not work correctly in multi-threaded situations (as in, accesses memory in an incorrect state.)
+/// It was an interesting experiment.
+///
+/// Lock-free queue algorithm adapted from Edya Ladan-Mozes and Nir Shavit,
+/// "An optimistic approach to lock-free FIFO queues",
+/// Distributed Computing (2008) 20:323-341; DOI 10.1007/s00446-007-0050-0
+///
+/// See also:
+/// Proceedings of the 18th International Conference on Distributed Computing (DISC) 2004
+/// http://people.csail.mit.edu/edya/publications/OptimisticFIFOQueue-DISC2004.pdf
 
 final public class OptimisticLinkQueue<T>: QueueType
 {

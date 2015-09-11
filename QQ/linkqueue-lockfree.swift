@@ -8,12 +8,16 @@
 
 import Darwin.libkern.OSAtomic
 
-/**
-  Lock-free queue algorithm adapted from Maged M. Michael and Michael L. Scott.,
-  "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms",
-  in Principles of Distributed Computing '96 (PODC96)
-  See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
-*/
+/// Lock-free queue
+///
+/// Note that this algorithm is not designed for tri-state memory as used in Swift.
+/// This means that it does not work correctly in multi-threaded situations (as in, accesses memory in an incorrect state.)
+/// It was an interesting experiment.
+///
+/// Lock-free queue algorithm adapted from Maged M. Michael and Michael L. Scott.,
+/// "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms",
+/// in Principles of Distributed Computing '96 (PODC96)
+/// See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 
 final public class LockFreeLinkQueue<T>: QueueType
 {
