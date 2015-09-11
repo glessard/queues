@@ -7,19 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0305F26F1B4DF90A00F4B44B /* mtbench-linkosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0305F26E1B4DF90A00F4B44B /* mtbench-linkosqueue.swift */; };
-		0305F2701B4DF93400F4B44B /* linkosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C1D1A61205500F4B44B /* linkosqueue.swift */; };
-		0305F2721B4DF95300F4B44B /* mtbench-doublelocklinkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0305F2711B4DF95300F4B44B /* mtbench-doublelocklinkqueue.swift */; };
 		030F58D71A5B5EA500F4B44B /* fastqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030F58D61A5B5EA500F4B44B /* fastqueue.swift */; };
 		030F58D81A5B62CF00F4B44B /* fastqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030F58D61A5B5EA500F4B44B /* fastqueue.swift */; };
-		031DEDD71B175C1000F4B44B /* mtbench-fastosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDD51B175C1000F4B44B /* mtbench-fastosqueue.swift */; };
-		031DEDD81B175C2D00F4B44B /* fastosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C291A61239C00F4B44B /* fastosqueue.swift */; };
-		031DEDE61B17A4EB00F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
-		031DEDE91B17A53200F4B44B /* mtbench-linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDE71B17A53200F4B44B /* mtbench-linkqueue.swift */; };
 		031DEDEB1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDEA1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift */; };
-		031DEDEC1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDEA1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift */; };
 		031DEDEE1B17ADFB00F4B44B /* link2lockqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDED1B17ADFB00F4B44B /* link2lockqueue.swift */; };
-		031DEDEF1B17ADFB00F4B44B /* link2lockqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDED1B17ADFB00F4B44B /* link2lockqueue.swift */; };
 		03223F171A64560600F4B44B /* LinkQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F161A64560600F4B44B /* LinkQueueTests.swift */; };
 		03223F201A645BA900F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
 		03223F211A645BFD00F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
@@ -43,33 +34,16 @@
 		036939BA1A5EFB3500F4B44B /* queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036939B81A5EFB3500F4B44B /* queue.swift */; };
 		038ACC791BA0E54200F4B44B /* taggedpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC781BA0E54200F4B44B /* taggedpointer.swift */; settings = {ASSET_TAGS = (); }; };
 		038ACC7A1BA0E5A300F4B44B /* taggedpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC781BA0E54200F4B44B /* taggedpointer.swift */; settings = {ASSET_TAGS = (); }; };
-		038ACC7B1BA0E5A300F4B44B /* taggedpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC781BA0E54200F4B44B /* taggedpointer.swift */; settings = {ASSET_TAGS = (); }; };
 		038ACC7D1BA0ECA500F4B44B /* fastqueue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */; settings = {ASSET_TAGS = (); }; };
 		038ACC7E1BA0ED4A00F4B44B /* fastqueue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */; settings = {ASSET_TAGS = (); }; };
 		03B14A0D1AEB05FF00F4B44B /* fastqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B14A0C1AEB05FF00F4B44B /* fastqueue-lockfree.swift */; };
 		03B14A0E1AEB60E000F4B44B /* fastqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B14A0C1AEB05FF00F4B44B /* fastqueue-lockfree.swift */; };
 		03DB472F1B4D546700F4B44B /* linkqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */; };
-		03DB47301B4D8D6F00F4B44B /* linkqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */; };
 		03DB47311B4D8D7200F4B44B /* linkqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */; };
-		03DB47331B4D951000F4B44B /* mtbench-lockfreelinkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DB47321B4D951000F4B44B /* mtbench-lockfreelinkqueue.swift */; };
-		03DB47351B4D968600F4B44B /* mtbench-optimisticlinkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DB47341B4D968600F4B44B /* mtbench-optimisticlinkqueue.swift */; };
 		03E4CC1C1AF7563300F4B44B /* fast2lockqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC1B1AF7563300F4B44B /* fast2lockqueue.swift */; };
 		03E4CC1D1AF75B9800F4B44B /* fast2lockqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC1B1AF7563300F4B44B /* fast2lockqueue.swift */; };
 		03E4CC2F1AF8A38300F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC2E1AF8A38300F4B44B /* fastqueue-lockfree-optimistic.swift */; };
 		03E4CC301AF8A39A00F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC2E1AF8A38300F4B44B /* fastqueue-lockfree-optimistic.swift */; };
-		03E4CC421AFA909D00F4B44B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC411AFA909D00F4B44B /* main.swift */; };
-		03E4CC471AFA90C000F4B44B /* mtbench-arcqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC461AFA90C000F4B44B /* mtbench-arcqueue.swift */; };
-		03E4CC481AFAA12B00F4B44B /* queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036939B81A5EFB3500F4B44B /* queue.swift */; };
-		03E4CC491AFAA13100F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
-		03E4CC4B1AFABBC700F4B44B /* mtbench-fastqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC4A1AFABBC700F4B44B /* mtbench-fastqueue.swift */; };
-		03E4CC4C1AFABC1B00F4B44B /* fastqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030F58D61A5B5EA500F4B44B /* fastqueue.swift */; };
-		03E4CC4D1AFABC3A00F4B44B /* osatomicqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C101A60963700F4B44B /* osatomicqueue.swift */; };
-		03E4CC4F1AFABFF900F4B44B /* mtbench-doublelockfastqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC4E1AFABFF900F4B44B /* mtbench-doublelockfastqueue.swift */; };
-		03E4CC501AFAC07000F4B44B /* fast2lockqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC1B1AF7563300F4B44B /* fast2lockqueue.swift */; };
-		03E4CC511AFAC07000F4B44B /* fastqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B14A0C1AEB05FF00F4B44B /* fastqueue-lockfree.swift */; };
-		03E4CC521AFAC07000F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC2E1AF8A38300F4B44B /* fastqueue-lockfree-optimistic.swift */; };
-		03E4CC541AFAC0C300F4B44B /* mtbench-lockfreequeue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC531AFAC0C300F4B44B /* mtbench-lockfreequeue.swift */; };
-		03E4CC561AFAC18400F4B44B /* mtbench-optimisticqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC551AFAC18400F4B44B /* mtbench-optimisticqueue.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -92,23 +66,10 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
-		03E4CC3D1AFA909D00F4B44B /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0305F26E1B4DF90A00F4B44B /* mtbench-linkosqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-linkosqueue.swift"; sourceTree = "<group>"; };
-		0305F2711B4DF95300F4B44B /* mtbench-doublelocklinkqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-doublelocklinkqueue.swift"; sourceTree = "<group>"; };
 		030F58D61A5B5EA500F4B44B /* fastqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = fastqueue.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		031DEDD51B175C1000F4B44B /* mtbench-fastosqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-fastosqueue.swift"; sourceTree = "<group>"; };
-		031DEDE71B17A53200F4B44B /* mtbench-linkqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-linkqueue.swift"; sourceTree = "<group>"; };
 		031DEDEA1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "linkqueue-lockfree-optimistic.swift"; sourceTree = "<group>"; };
 		031DEDED1B17ADFB00F4B44B /* link2lockqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = link2lockqueue.swift; sourceTree = "<group>"; };
 		03223F161A64560600F4B44B /* LinkQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkQueueTests.swift; sourceTree = "<group>"; };
@@ -132,17 +93,8 @@
 		038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "fastqueue-unsafe.swift"; sourceTree = "<group>"; };
 		03B14A0C1AEB05FF00F4B44B /* fastqueue-lockfree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "fastqueue-lockfree.swift"; sourceTree = "<group>"; };
 		03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "linkqueue-lockfree.swift"; sourceTree = "<group>"; };
-		03DB47321B4D951000F4B44B /* mtbench-lockfreelinkqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-lockfreelinkqueue.swift"; sourceTree = "<group>"; };
-		03DB47341B4D968600F4B44B /* mtbench-optimisticlinkqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-optimisticlinkqueue.swift"; sourceTree = "<group>"; };
 		03E4CC1B1AF7563300F4B44B /* fast2lockqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = fast2lockqueue.swift; sourceTree = "<group>"; };
 		03E4CC2E1AF8A38300F4B44B /* fastqueue-lockfree-optimistic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "fastqueue-lockfree-optimistic.swift"; sourceTree = "<group>"; };
-		03E4CC3F1AFA909D00F4B44B /* MultithreadBenchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MultithreadBenchmark; sourceTree = BUILT_PRODUCTS_DIR; };
-		03E4CC411AFA909D00F4B44B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		03E4CC461AFA90C000F4B44B /* mtbench-arcqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-arcqueue.swift"; sourceTree = "<group>"; };
-		03E4CC4A1AFABBC700F4B44B /* mtbench-fastqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-fastqueue.swift"; sourceTree = "<group>"; };
-		03E4CC4E1AFABFF900F4B44B /* mtbench-doublelockfastqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-doublelockfastqueue.swift"; sourceTree = "<group>"; };
-		03E4CC531AFAC0C300F4B44B /* mtbench-lockfreequeue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-lockfreequeue.swift"; sourceTree = "<group>"; };
-		03E4CC551AFAC18400F4B44B /* mtbench-optimisticqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mtbench-optimisticqueue.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -167,13 +119,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		03E4CC3C1AFA909D00F4B44B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -183,7 +128,6 @@
 				035A98291A539CF600F4B44B /* QQ */,
 				035A98361A539CF600F4B44B /* QQTests */,
 				035A98551A53B0A500F4B44B /* QueueBenchmark */,
-				03E4CC401AFA909D00F4B44B /* MultithreadBenchmark */,
 				035A98281A539CF600F4B44B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -194,7 +138,6 @@
 				035A98271A539CF600F4B44B /* QQ.framework */,
 				035A98321A539CF600F4B44B /* QQTests.xctest */,
 				035A98541A53B0A500F4B44B /* QueueBenchmark */,
-				03E4CC3F1AFA909D00F4B44B /* MultithreadBenchmark */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -274,25 +217,6 @@
 				035A98461A539D7300F4B44B /* queuetype.swift */,
 			);
 			name = Definitions;
-			sourceTree = "<group>";
-		};
-		03E4CC401AFA909D00F4B44B /* MultithreadBenchmark */ = {
-			isa = PBXGroup;
-			children = (
-				03E4CC411AFA909D00F4B44B /* main.swift */,
-				03E4CC461AFA90C000F4B44B /* mtbench-arcqueue.swift */,
-				031DEDE71B17A53200F4B44B /* mtbench-linkqueue.swift */,
-				03E4CC4A1AFABBC700F4B44B /* mtbench-fastqueue.swift */,
-				0305F26E1B4DF90A00F4B44B /* mtbench-linkosqueue.swift */,
-				031DEDD51B175C1000F4B44B /* mtbench-fastosqueue.swift */,
-				0305F2711B4DF95300F4B44B /* mtbench-doublelocklinkqueue.swift */,
-				03E4CC4E1AFABFF900F4B44B /* mtbench-doublelockfastqueue.swift */,
-				03E4CC531AFAC0C300F4B44B /* mtbench-lockfreequeue.swift */,
-				03DB47321B4D951000F4B44B /* mtbench-lockfreelinkqueue.swift */,
-				03E4CC551AFAC18400F4B44B /* mtbench-optimisticqueue.swift */,
-				03DB47341B4D968600F4B44B /* mtbench-optimisticlinkqueue.swift */,
-			);
-			path = MultithreadBenchmark;
 			sourceTree = "<group>";
 		};
 		03E861761A64696D00F4B44B /* Pointer Queues */ = {
@@ -384,23 +308,6 @@
 			productReference = 035A98541A53B0A500F4B44B /* QueueBenchmark */;
 			productType = "com.apple.product-type.tool";
 		};
-		03E4CC3E1AFA909D00F4B44B /* MultithreadBenchmark */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 03E4CC431AFA909D00F4B44B /* Build configuration list for PBXNativeTarget "MultithreadBenchmark" */;
-			buildPhases = (
-				03E4CC3B1AFA909D00F4B44B /* Sources */,
-				03E4CC3C1AFA909D00F4B44B /* Frameworks */,
-				03E4CC3D1AFA909D00F4B44B /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = MultithreadBenchmark;
-			productName = MultithreadBenchmark;
-			productReference = 03E4CC3F1AFA909D00F4B44B /* MultithreadBenchmark */;
-			productType = "com.apple.product-type.tool";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -420,9 +327,6 @@
 					035A98531A53B0A500F4B44B = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
-					03E4CC3E1AFA909D00F4B44B = {
-						CreatedOnToolsVersion = 6.3.1;
-					};
 				};
 			};
 			buildConfigurationList = 035A98211A539CF600F4B44B /* Build configuration list for PBXProject "QQ" */;
@@ -440,7 +344,6 @@
 				035A98261A539CF600F4B44B /* QQ */,
 				035A98311A539CF600F4B44B /* QQTests */,
 				035A98531A53B0A500F4B44B /* QueueBenchmark */,
-				03E4CC3E1AFA909D00F4B44B /* MultithreadBenchmark */,
 			);
 		};
 /* End PBXProject section */
@@ -518,39 +421,6 @@
 				035DB9631BA1F33400F4B44B /* link2lockqueue.swift in Sources */,
 				038ACC7A1BA0E5A300F4B44B /* taggedpointer.swift in Sources */,
 				030F58D81A5B62CF00F4B44B /* fastqueue.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		03E4CC3B1AFA909D00F4B44B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				0305F2721B4DF95300F4B44B /* mtbench-doublelocklinkqueue.swift in Sources */,
-				031DEDE91B17A53200F4B44B /* mtbench-linkqueue.swift in Sources */,
-				0305F2701B4DF93400F4B44B /* linkosqueue.swift in Sources */,
-				031DEDEC1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */,
-				031DEDD81B175C2D00F4B44B /* fastosqueue.swift in Sources */,
-				03E4CC421AFA909D00F4B44B /* main.swift in Sources */,
-				03E4CC4D1AFABC3A00F4B44B /* osatomicqueue.swift in Sources */,
-				038ACC7B1BA0E5A300F4B44B /* taggedpointer.swift in Sources */,
-				03E4CC561AFAC18400F4B44B /* mtbench-optimisticqueue.swift in Sources */,
-				03E4CC491AFAA13100F4B44B /* queuetype.swift in Sources */,
-				03E4CC4F1AFABFF900F4B44B /* mtbench-doublelockfastqueue.swift in Sources */,
-				03DB47331B4D951000F4B44B /* mtbench-lockfreelinkqueue.swift in Sources */,
-				03E4CC481AFAA12B00F4B44B /* queue.swift in Sources */,
-				031DEDEF1B17ADFB00F4B44B /* link2lockqueue.swift in Sources */,
-				03E4CC501AFAC07000F4B44B /* fast2lockqueue.swift in Sources */,
-				031DEDD71B175C1000F4B44B /* mtbench-fastosqueue.swift in Sources */,
-				0305F26F1B4DF90A00F4B44B /* mtbench-linkosqueue.swift in Sources */,
-				03E4CC471AFA90C000F4B44B /* mtbench-arcqueue.swift in Sources */,
-				03E4CC4B1AFABBC700F4B44B /* mtbench-fastqueue.swift in Sources */,
-				03DB47301B4D8D6F00F4B44B /* linkqueue-lockfree.swift in Sources */,
-				03DB47351B4D968600F4B44B /* mtbench-optimisticlinkqueue.swift in Sources */,
-				03E4CC541AFAC0C300F4B44B /* mtbench-lockfreequeue.swift in Sources */,
-				03E4CC511AFAC07000F4B44B /* fastqueue-lockfree.swift in Sources */,
-				031DEDE61B17A4EB00F4B44B /* linkqueue.swift in Sources */,
-				03E4CC521AFAC07000F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */,
-				03E4CC4C1AFABC1B00F4B44B /* fastqueue.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -741,34 +611,6 @@
 			};
 			name = Release;
 		};
-		03E4CC441AFA909D00F4B44B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "";
-			};
-			name = Debug;
-		};
-		03E4CC451AFA909D00F4B44B /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				COPY_PHASE_STRIP = NO;
-				GCC_NO_COMMON_BLOCKS = YES;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -804,15 +646,6 @@
 			buildConfigurations = (
 				035A98591A53B0A500F4B44B /* Debug */,
 				035A985A1A53B0A500F4B44B /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		03E4CC431AFA909D00F4B44B /* Build configuration list for PBXNativeTarget "MultithreadBenchmark" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				03E4CC441AFA909D00F4B44B /* Debug */,
-				03E4CC451AFA909D00F4B44B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
