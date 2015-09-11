@@ -1,5 +1,5 @@
 //
-//  queue.swift
+//  queue-unsafe.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
@@ -8,17 +8,12 @@
 
 import Darwin.libkern.OSAtomic
 
-/// An ARC-based queue with a spin-lock for thread safety.
-///
-/// Should be thread-safe in principle, but causes an ARC crash under heavy contention.
-/// (rdar://20984816)
+/// An ARC-based queue with no thread safety.
 
-final public class Queue<T>: QueueType
+final public class UnsafeQueue<T>: QueueType
 {
   private var head: Node<T>? = nil
   private var tail: Node<T>! = nil
-
-  private var lock = OS_SPINLOCK_INIT
 
   public init() { }
 
@@ -40,7 +35,6 @@ final public class Queue<T>: QueueType
   {
     let node = Node(newElement)
 
-    OSSpinLockLock(&lock)
     if head == nil
     {
       head = node
@@ -51,12 +45,10 @@ final public class Queue<T>: QueueType
       tail.next = node
       tail = node
     }
-    OSSpinLockUnlock(&lock)
   }
 
   public func dequeue() -> T?
   {
-    OSSpinLockLock(&lock)
     if let node = head
     {
       // Promote the 2nd node to 1st
@@ -65,12 +57,10 @@ final public class Queue<T>: QueueType
       // Logical housekeeping
       if head == nil { tail = nil }
 
-      OSSpinLockUnlock(&lock)
       return node.elem
     }
 
     // queue is empty
-    OSSpinLockUnlock(&lock)
     return nil
   }
 }
