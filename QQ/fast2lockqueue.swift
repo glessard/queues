@@ -8,12 +8,12 @@
 
 import Darwin.libkern.OSAtomic
 
-/**
-  Two-lock queue algorithm adapted from Maged M. Michael and Michael L. Scott.,
-  "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms",
-  in Principles of Distributed Computing '96 (PODC96)
-  See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
-*/
+/// Double-lock queue with node recycling
+///
+/// Two-lock queue algorithm adapted from Maged M. Michael and Michael L. Scott.,
+/// "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms",
+/// in Principles of Distributed Computing '96 (PODC96)
+/// See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 
 final public class Fast2LockQueue<T>: QueueType
 {
@@ -25,21 +25,11 @@ final public class Fast2LockQueue<T>: QueueType
 
   private let pool = AtomicStackInit()
 
-  public init()
-  {
-    head = UnsafeMutablePointer<Node<T>>.alloc(1)
-    head.memory = Node(UnsafeMutablePointer<T>.alloc(1))
-    tail = head
-  }
+  public init() { }
 
   deinit
   {
     // empty the queue
-    let emptyhead = head
-    head = head.memory.next
-    emptyhead.memory.elem.dealloc(1)
-    emptyhead.dealloc(1)
-
     while head != nil
     {
       let node = head
@@ -78,21 +68,39 @@ final public class Fast2LockQueue<T>: QueueType
     var node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
     if node == nil
     {
-      node = UnsafeMutablePointer<Node<T>>.alloc(1)
-      node.memory = Node(UnsafeMutablePointer<T>.alloc(1))
+      node = UnsafeMutablePointer.alloc(1)
+      node.memory = Node()
     }
     node.memory.next = nil
     node.memory.elem.initialize(newElement)
 
     OSSpinLockLock(&tlock)
-    tail.memory.next = node
-    tail = node
+    if tail == nil
+    { // This is the initial element
+      tail = node
+      node = UnsafeMutablePointer.alloc(1)
+      node.memory = Node()
+      node.memory.next = tail
+      node.memory.elem.initialize(newElement)
+      head = node
+    }
+    else
+    {
+      tail.memory.next = node
+      tail = node
+    }
     OSSpinLockUnlock(&tlock)
   }
 
   public func dequeue() -> T?
   {
     OSSpinLockLock(&hlock)
+    if head == nil
+    {
+      OSSpinLockUnlock(&hlock)
+      return nil
+    }
+
     let next = head.memory.next
     if next != nil
     {
@@ -116,8 +124,8 @@ private struct Node<T>
   var next: UnsafeMutablePointer<Node<T>> = nil
   let elem: UnsafeMutablePointer<T>
 
-  init(_ p: UnsafeMutablePointer<T>)
+  init()
   {
-    elem = p
+    elem = UnsafeMutablePointer.alloc(1)
   }
 }

@@ -8,12 +8,17 @@
 
 import Darwin.libkern.OSAtomic
 
-/**
-  Two-lock queue algorithm adapted from Maged M. Michael and Michael L. Scott.,
-  "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms",
-  in Principles of Distributed Computing '96 (PODC96)
-  See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
-*/
+/// Double-lock queue
+///
+/// Note that if `T` is a type that involves a reference -- i.e. either is an `AnyObject` or
+/// directly references one internally, the queue will hold a live copy of the reference
+/// past the moment it gets dequeued, until the successful `dequeue()` operation that follows it.
+/// If that behaviour is undesirable, use another queue type.
+///
+/// Two-lock queue algorithm adapted from Maged M. Michael and Michael L. Scott.,
+/// "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms",
+/// in Principles of Distributed Computing '96 (PODC96)
+/// See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 
 final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
 {
@@ -23,27 +28,16 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
   private var hlock = OS_SPINLOCK_INIT
   private var tlock = OS_SPINLOCK_INIT
 
-  public init()
-  {
-    head = UnsafeMutablePointer<Node<T>>.alloc(1)
-    head.memory = Node(UnsafeMutablePointer<T>.alloc(1))
-    tail = head
-  }
+  public init() { }
 
   deinit
   {
     // empty the queue
-    let emptyhead = head
-    head = head.memory.next
-    emptyhead.memory.elem.dealloc(1)
-    emptyhead.dealloc(1)
-
     while head != nil
     {
       let node = head
       head = node.memory.next
-      node.memory.elem.destroy()
-      node.memory.elem.dealloc(1)
+      node.destroy()
       node.dealloc(1)
     }
   }
@@ -64,27 +58,43 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
   public func enqueue(newElement: T)
   {
     let node = UnsafeMutablePointer<Node<T>>.alloc(1)
-    node.memory = Node(UnsafeMutablePointer<T>.alloc(1))
-    node.memory.elem.initialize(newElement)
+    node.initialize(Node(newElement))
 
     OSSpinLockLock(&tlock)
-    tail.memory.next = node
-    tail = node
+    if tail == nil
+    { // This is the initial element
+      tail = node
+      let node = UnsafeMutablePointer<Node<T>>.alloc(1)
+      node.initialize(Node(newElement))
+      node.memory.next = tail
+      head = node
+    }
+    else
+    {
+      tail.memory.next = node
+      tail = node
+    }
     OSSpinLockUnlock(&tlock)
   }
 
   public func dequeue() -> T?
   {
     OSSpinLockLock(&hlock)
+    if head == nil
+    {
+      OSSpinLockUnlock(&hlock)
+      return nil
+    }
+
     let next = head.memory.next
     if next != nil
     {
       let oldhead = head
       head = next
-      let element = next.memory.elem.move()
+      let element = next.memory.elem
       OSSpinLockUnlock(&hlock)
 
-      oldhead.memory.elem.dealloc(1)
+      oldhead.destroy()
       oldhead.dealloc(1)
       return element
     }
@@ -98,10 +108,10 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
 private struct Node<T>
 {
   var next: UnsafeMutablePointer<Node<T>> = nil
-  let elem: UnsafeMutablePointer<T>
+  let elem: T
 
-  init(_ p: UnsafeMutablePointer<T>)
+  init(_ element: T)
   {
-    elem = p
+    elem = element
   }
 }
