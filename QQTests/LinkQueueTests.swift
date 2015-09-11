@@ -45,7 +45,7 @@ class LinkQueueTests: QQTests
     QueuePerformanceTestEmpty(LinkQueue<Thing>.self)
   }
 
-  func testExtra()
+  func testEmpty()
   {
     QueueInitEmptyTest(LinkQueue<Thing>.self, newElement: Thing())
   }
@@ -85,7 +85,7 @@ class LinkOSQueueTests: QQTests
     QueuePerformanceTestEmpty(LinkOSQueue<Thing>.self)
   }
 
-  func testExtra()
+  func testEmpty()
   {
     QueueInitEmptyTest(LinkOSQueue<Thing>.self, newElement: Thing())
   }
@@ -125,7 +125,7 @@ class DoubleLockLinkQueueTests: QQTests
     QueuePerformanceTestEmpty(Link2LockQueue<Thing>.self)
   }
 
-  func testExtra()
+  func testEmpty()
   {
     QueueInitEmptyTest(Link2LockQueue<Thing>.self, newElement: Thing())
   }
@@ -170,7 +170,7 @@ class LockFreeLinkQueueTests: QQTests
     QueuePerformanceTestEmpty(LockFreeLinkQueue<Thing>.self)
   }
 
-  func testExtra()
+  func testEmpty()
   {
     QueueInitEmptyTest(LockFreeLinkQueue<Thing>.self, newElement: Thing())
   }
@@ -210,7 +210,7 @@ class OptimisticLinkQueueTests: QQTests
     QueuePerformanceTestEmpty(OptimisticLinkQueue<Thing>.self)
   }
 
-  func testExtra()
+  func testEmpty()
   {
     QueueInitEmptyTest(OptimisticLinkQueue<Thing>.self, newElement: Thing())
   }

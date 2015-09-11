@@ -145,22 +145,14 @@ class QQTests: XCTestCase
     XCTAssert(q.isEmpty == false)
 
     _ = q.dequeue()
-
     XCTAssert(q.isEmpty == true)
 
-    let testenqueues = 10
+    let enqueueCount = 10
 
-    for _ in 1...testenqueues
-    {
-      q.enqueue(newElement)
-    }
+    (1...enqueueCount).forEach { _ in q.enqueue(newElement) }
+    let dequeueCount = q.reduce(0) { (i, _) in i+1 }
 
-    var j = Int.min
-    for (i,_) in q.enumerate()
-    {
-      j = i+1
-    }
-    XCTAssert(j == testenqueues)
+    XCTAssert(dequeueCount == enqueueCount)
   }
 
   func MultiThreadedBenchmark<Q: QueueType where Q.Element == UInt32>(type: Q.Type)

@@ -43,7 +43,7 @@ class GenericNodeQueueTests: QQTests
     QueuePerformanceTestEmpty(Queue<Thing>.self)
   }
 
-  func testExtra()
+  func testEmpty()
   {
     QueueInitEmptyTest(Queue<Thing>.self, newElement: Thing())
   }
