@@ -97,16 +97,11 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
 
 private struct Node<T>
 {
-  var nptr: UnsafeMutablePointer<Void> = nil
+  var next: UnsafeMutablePointer<Node<T>> = nil
   let elem: UnsafeMutablePointer<T>
 
   init(_ p: UnsafeMutablePointer<T>)
   {
     elem = p
-  }
-
-  var next: UnsafeMutablePointer<Node<T>> {
-    get { return UnsafeMutablePointer(nptr) }
-    set { nptr = UnsafeMutablePointer(newValue) }
   }
 }

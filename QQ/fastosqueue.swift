@@ -87,15 +87,11 @@ final public class FastOSQueue<T>: QueueType
 
 private struct Node<T>
 {
-  var nptr: COpaquePointer = nil
+  var next: UnsafeMutablePointer<Node<T>> = nil
   let elem: T
 
   init(_ e: T)
   {
     elem = e
-  }
-
-  var next: UnsafeMutablePointer<Node<T>> {
-    get { return UnsafeMutablePointer(nptr) }
   }
 }
