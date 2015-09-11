@@ -155,21 +155,21 @@ class QQTests: XCTestCase
     XCTAssert(dequeueCount == enqueueCount)
   }
 
-  func MultiThreadedBenchmark<Q: QueueType where Q.Element == UInt32>(type: Q.Type)
+  func MultiThreadedBenchmark<Q: QueueType where Q.Element == Thing>(type: Q.Type)
   {
     let workers  = [3,5,7,11,19]
 
     workers.forEach { n in MTBenchmark(type, n) }
   }
 
-  func MTBenchmark<Q: QueueType where Q.Element == UInt32>(_: Q.Type, _ threads: Int) -> Int
+  func MTBenchmark<Q: QueueType where Q.Element == Thing>(_: Q.Type, _ threads: Int) -> Int
   {
     guard threads > 0 else { return Int.max }
 
     let iterations: Int32 = 1_000_000
     var i: Int32 = 0
 
-    let queue = Q(arc4random())
+    let queue = Q(Thing())
     let start = mach_absolute_time()
     dispatch_apply(threads, dispatch_get_global_queue(qos_class_self(), 0)) {
       _ in
@@ -177,7 +177,7 @@ class QQTests: XCTestCase
       {
         if (random() & 1) == 1
         {
-          queue.enqueue(arc4random())
+          queue.enqueue(Thing())
         }
         else
         {

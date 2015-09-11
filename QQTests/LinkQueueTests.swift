@@ -52,7 +52,7 @@ class LinkQueueTests: QQTests
 
   func testMT()
   {
-    MultiThreadedBenchmark(LinkQueue<UInt32>.self)
+    MultiThreadedBenchmark(LinkQueue<Thing>.self)
   }
 }
 
@@ -97,7 +97,7 @@ class LinkOSQueueTests: QQTests
 
   func testMT()
   {
-    MultiThreadedBenchmark(LinkOSQueue<UInt32>.self)
+    MultiThreadedBenchmark(LinkOSQueue<Thing>.self)
   }
 }
 
@@ -142,7 +142,7 @@ class DoubleLockLinkQueueTests: QQTests
 
   func testMT()
   {
-    MultiThreadedBenchmark(Link2LockQueue<UInt32>.self)
+    MultiThreadedBenchmark(Link2LockQueue<Thing>.self)
   }
 }
 

@@ -52,7 +52,7 @@ class FastQueueTests: QQTests
 
   func testMT()
   {
-    MultiThreadedBenchmark(FastQueue<UInt32>.self)
+    MultiThreadedBenchmark(FastQueue<Thing>.self)
   }
 }
 
@@ -97,7 +97,7 @@ class FastOSQueueTests: QQTests
 
   func testMT()
   {
-    MultiThreadedBenchmark(FastOSQueue<UInt32>.self)
+    MultiThreadedBenchmark(FastOSQueue<Thing>.self)
   }
 }
 
@@ -142,7 +142,7 @@ class DoubleLockFastQueueTests: QQTests
 
   func testMT()
   {
-    MultiThreadedBenchmark(Fast2LockQueue<UInt32>.self)
+    MultiThreadedBenchmark(Fast2LockQueue<Thing>.self)
   }
 }
 
