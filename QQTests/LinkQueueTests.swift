@@ -49,6 +49,11 @@ class LinkQueueTests: QQTests
   {
     QueueInitEmptyTest(LinkQueue<Thing>.self, newElement: Thing())
   }
+
+  func testMT()
+  {
+    MultiThreadedBenchmark(LinkQueue<UInt32>.self)
+  }
 }
 
 class LinkOSQueueTests: QQTests
@@ -88,6 +93,11 @@ class LinkOSQueueTests: QQTests
   func testEmpty()
   {
     QueueInitEmptyTest(LinkOSQueue<Thing>.self, newElement: Thing())
+  }
+
+  func testMT()
+  {
+    MultiThreadedBenchmark(LinkOSQueue<UInt32>.self)
   }
 }
 

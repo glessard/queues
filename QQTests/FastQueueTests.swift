@@ -49,6 +49,11 @@ class FastQueueTests: QQTests
   {
     QueueInitEmptyTest(FastQueue<Thing>.self, newElement: Thing())
   }
+
+  func testMT()
+  {
+    MultiThreadedBenchmark(FastQueue<UInt32>.self)
+  }
 }
 
 class FastOSQueueTests: QQTests
@@ -88,6 +93,11 @@ class FastOSQueueTests: QQTests
   func testEmpty()
   {
     QueueInitEmptyTest(FastOSQueue<Thing>.self, newElement: Thing())
+  }
+
+  func testMT()
+  {
+    MultiThreadedBenchmark(FastOSQueue<UInt32>.self)
   }
 }
 
