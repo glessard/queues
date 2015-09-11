@@ -129,6 +129,11 @@ class DoubleLockFastQueueTests: QQTests
   {
     QueueInitEmptyTest(Fast2LockQueue<Thing>.self, newElement: Thing())
   }
+
+  func testMT()
+  {
+    MultiThreadedBenchmark(Fast2LockQueue<UInt32>.self)
+  }
 }
 
 class LockFreeFastQueueTests: QQTests

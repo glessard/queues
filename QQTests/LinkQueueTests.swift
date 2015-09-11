@@ -129,6 +129,11 @@ class DoubleLockLinkQueueTests: QQTests
   {
     QueueInitEmptyTest(Link2LockQueue<Thing>.self, newElement: Thing())
   }
+
+  func testMT()
+  {
+    MultiThreadedBenchmark(Link2LockQueue<UInt32>.self)
+  }
 }
 
 class LockFreeLinkQueueTests: QQTests
