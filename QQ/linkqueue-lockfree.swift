@@ -110,7 +110,7 @@ final public class LockFreeLinkQueue<T>: QueueType
             let oldelem = oldpntr.memory.elem
             if oldelem != nil
             {
-              oldelem.destroy(1)
+              oldelem.destroy()
               oldelem.dealloc(1)
             }
             oldpntr.dealloc(1)
