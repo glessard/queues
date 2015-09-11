@@ -29,8 +29,8 @@ final public class OptimisticFastQueue<T>: QueueType
   {
     let node = UnsafeMutablePointer<Node<T>>.alloc(1)
     node.memory = Node(nil)
-    head.set(node, tag: 1)
-    tail.set(node, tag: 1)
+    head = TaggedPointer(node, tag: 1)
+    tail = TaggedPointer(node, tag: 1)
   }
 
   deinit
@@ -93,10 +93,10 @@ final public class OptimisticFastQueue<T>: QueueType
       let oldpntr = UnsafeMutablePointer<Node<T>>(oldtail.pointer)
       let oldtag  = oldtail.tag
 
-      node.memory.prev.set(oldpntr, tag: oldtag+1)
+      node.memory.prev = TaggedPointer(oldpntr, tag: oldtag+1)
       if tail.CAS(old: oldtail, new: node)
       {
-        oldpntr.memory.next.set(node, tag: oldtag)
+        oldpntr.memory.next = TaggedPointer(node, tag: oldtag)
         break
       }
     }
@@ -154,8 +154,8 @@ final public class OptimisticFastQueue<T>: QueueType
     while oldhead == head && current != oldhead
     {
       let prevptr = UnsafeMutablePointer<Node<T>>(UnsafePointer<Node<T>>(current.pointer).memory.prev.pointer)
-      prevptr.memory.next.set(current.pointer, tag: current.tag-1)
-      current.set(prevptr, tag: current.tag-1)
+      prevptr.memory.next = TaggedPointer(current.pointer, tag: current.tag-1)
+      current = TaggedPointer(prevptr, tag: current.tag-1)
     }
   }
 }

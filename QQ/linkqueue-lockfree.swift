@@ -24,8 +24,8 @@ final public class LockFreeLinkQueue<T>: QueueType
   {
     let node = UnsafeMutablePointer<Node<T>>.alloc(1)
     node.memory = Node(nil)
-    head.set(node, tag: 0)
-    tail.set(node, tag: 0)
+    head = TaggedPointer(node, tag: 0)
+    tail = TaggedPointer(node, tag: 0)
   }
 
   deinit
