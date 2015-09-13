@@ -54,3 +54,41 @@ class GenericNodeQueueTests: QQTests
   //    MultiThreadedBenchmark(Queue<UInt32>.self)
   //  }
 }
+
+class UnsafeQueueTests: QQTests
+{
+  func testQueueCount()
+  {
+    QueueTestCount(UnsafeQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(UnsafeQueue<UInt64>)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(UnsafeQueue<Thing>)
+  }
+
+  func testPerformanceFill()
+  {
+    QueuePerformanceTestFill(UnsafeQueue<Thing>.self, element: Thing())
+  }
+
+  func testPerformanceSpin()
+  {
+    QueuePerformanceTestSpin(UnsafeQueue<Thing>.self, element: Thing())
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(UnsafeQueue<Thing>.self)
+  }
+
+  func testEmpty()
+  {
+    QueueInitEmptyTest(UnsafeQueue<Thing>.self, newElement: Thing())
+  }
+}

@@ -225,3 +225,43 @@ class OptimisticLinkQueueTests: QQTests
     QueueInitEmptyTest(OptimisticLinkQueue<Thing>.self, newElement: Thing())
   }
 }
+
+class UnsafeLinkQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTestCount(UnsafeLinkQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(UnsafeLinkQueue<UInt64>)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(UnsafeLinkQueue<Thing>)
+  }
+
+  func testPerformanceFill()
+  {
+    let s = Thing()
+    QueuePerformanceTestFill(UnsafeLinkQueue<Thing>.self, element: s)
+  }
+
+  func testPerformanceSpin()
+  {
+    let s = Thing()
+    QueuePerformanceTestSpin(UnsafeLinkQueue<Thing>.self, element: s)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(UnsafeLinkQueue<Thing>.self)
+  }
+
+  func testEmpty()
+  {
+    QueueInitEmptyTest(UnsafeLinkQueue<Thing>.self, newElement: Thing())
+  }
+}
