@@ -187,31 +187,7 @@ print("\(dt/iterations) ns per iteration with references")
 print("\nQueues without thread-safety")
 
 print("UnsafeQueue:")
-var uqueue = UnsafeQueue(iterations)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  uqueue.dequeue()
-  uqueue.enqueue(i)
-}
-dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration")
-
-var urefqueue = UnsafeQueue(ref)
-
-then = mach_absolute_time()
-for i in 1...iterations
-{
-  urefqueue.dequeue()
-  urefqueue.enqueue(ref)
-}
-dt = mach_absolute_time() - then
-print("\(dt/iterations) ns per iteration with references")
-
-
-print("UnsafeFastQueue:" )
-var unsafequeue = UnsafeFastQueue(iterations)
+var unsafequeue = UnsafeQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -222,13 +198,61 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
-var unsaferefqueue = UnsafeFastQueue(ref)
+var unsaferefqueue = UnsafeQueue(ref)
 
 then = mach_absolute_time()
 for i in 1...iterations
 {
   unsaferefqueue.dequeue()
   unsaferefqueue.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration with references")
+
+
+print("UnsafeLinkQueue:")
+var ulinkqueue = UnsafeLinkQueue(iterations)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  ulinkqueue.dequeue()
+  ulinkqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration")
+
+var ureflinkqueue = UnsafeLinkQueue(ref)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  ureflinkqueue.dequeue()
+  ureflinkqueue.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration with references")
+
+
+print("UnsafeFastQueue:" )
+var ufastqueue = UnsafeFastQueue(iterations)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  ufastqueue.dequeue()
+  ufastqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration")
+
+var ureffastqueue = UnsafeFastQueue(ref)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  ureffastqueue.dequeue()
+  ureffastqueue.enqueue(ref)
 }
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with references")
