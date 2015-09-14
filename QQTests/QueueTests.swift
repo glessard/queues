@@ -30,12 +30,12 @@ class GenericNodeQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(Queue<Thing>.self, element: Thing())
+    QueuePerformanceTestFill(Queue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(Queue<Thing>.self, element: Thing())
+    QueuePerformanceTestSpin(Queue<Thing>.self)
   }
 
   func testPerformanceEmpty()
@@ -74,12 +74,12 @@ class UnsafeQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(UnsafeQueue<Thing>.self, element: Thing())
+    QueuePerformanceTestFill(UnsafeQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(UnsafeQueue<Thing>.self, element: Thing())
+    QueuePerformanceTestSpin(UnsafeQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()

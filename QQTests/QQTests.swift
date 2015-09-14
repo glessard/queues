@@ -100,10 +100,11 @@ class QQTests: XCTestCase
     }
   }
 
-  func QueuePerformanceTestFill<Q: QueueType>(_: Q.Type, element: Q.Element)
+  func QueuePerformanceTestFill<Q: QueueType where Q.Element == Thing>(_: Q.Type)
   {
     self.measureBlock() {
       let q = Q()
+      let element = Thing()
       for _ in 1...self.performanceTestIterations
       {
         q.enqueue(element)
@@ -116,10 +117,11 @@ class QQTests: XCTestCase
     }
   }
 
-  func QueuePerformanceTestSpin<Q: QueueType>(_: Q.Type, element: Q.Element)
+  func QueuePerformanceTestSpin<Q: QueueType where Q.Element == Thing>(_: Q.Type)
   {
     self.measureBlock() {
       let q = Q()
+      let element = Thing()
       for _ in 1...self.performanceTestIterations
       {
         q.enqueue(element)

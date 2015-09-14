@@ -30,14 +30,12 @@ class LinkQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    let s = Thing()
-    QueuePerformanceTestFill(LinkQueue<Thing>.self, element: s)
+    QueuePerformanceTestFill(LinkQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    let s = Thing()
-    QueuePerformanceTestSpin(LinkQueue<Thing>.self, element: s)
+    QueuePerformanceTestSpin(LinkQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
@@ -75,14 +73,12 @@ class LinkOSQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    let s = Thing()
-    QueuePerformanceTestFill(LinkOSQueue<Thing>.self, element: s)
+    QueuePerformanceTestFill(LinkOSQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    let s = Thing()
-    QueuePerformanceTestSpin(LinkOSQueue<Thing>.self, element: s)
+    QueuePerformanceTestSpin(LinkOSQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
@@ -120,14 +116,12 @@ class DoubleLockLinkQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    let s = Thing()
-    QueuePerformanceTestFill(Link2LockQueue<Thing>.self, element: s)
+    QueuePerformanceTestFill(Link2LockQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    let s = Thing()
-    QueuePerformanceTestSpin(Link2LockQueue<Thing>.self, element: s)
+    QueuePerformanceTestSpin(Link2LockQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
@@ -165,14 +159,12 @@ class LockFreeLinkQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    let s = Thing()
-    QueuePerformanceTestFill(LockFreeLinkQueue<Thing>.self, element: s)
+    QueuePerformanceTestFill(LockFreeLinkQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    let s = Thing()
-    QueuePerformanceTestSpin(LockFreeLinkQueue<Thing>.self, element: s)
+    QueuePerformanceTestSpin(LockFreeLinkQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
@@ -205,14 +197,12 @@ class OptimisticLinkQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    let s = Thing()
-    QueuePerformanceTestFill(OptimisticLinkQueue<Thing>.self, element: s)
+    QueuePerformanceTestFill(OptimisticLinkQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    let s = Thing()
-    QueuePerformanceTestSpin(OptimisticLinkQueue<Thing>.self, element: s)
+    QueuePerformanceTestSpin(OptimisticLinkQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
@@ -245,14 +235,12 @@ class UnsafeLinkQueueTests: QQTests
 
   func testPerformanceFill()
   {
-    let s = Thing()
-    QueuePerformanceTestFill(UnsafeLinkQueue<Thing>.self, element: s)
+    QueuePerformanceTestFill(UnsafeLinkQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    let s = Thing()
-    QueuePerformanceTestSpin(UnsafeLinkQueue<Thing>.self, element: s)
+    QueuePerformanceTestSpin(UnsafeLinkQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
