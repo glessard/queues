@@ -52,6 +52,11 @@ class LinkQueueTests: QQTests
   {
     MultiThreadedBenchmark(LinkQueue<UInt32>.self)
   }
+
+  func testPerformanceMT()
+  {
+    QueuePerformanceTestMultiThreaded(LinkQueue<UInt32>.self)
+  }
 }
 
 class LinkOSQueueTests: QQTests
@@ -95,6 +100,11 @@ class LinkOSQueueTests: QQTests
   {
     MultiThreadedBenchmark(LinkOSQueue<UInt32>.self)
   }
+
+  func testPerformanceMT()
+  {
+    QueuePerformanceTestMultiThreaded(LinkOSQueue<UInt32>.self)
+  }
 }
 
 class DoubleLockLinkQueueTests: QQTests
@@ -137,6 +147,11 @@ class DoubleLockLinkQueueTests: QQTests
   func testMT()
   {
     MultiThreadedBenchmark(Link2LockQueue<UInt32>.self)
+  }
+
+  func testPerformanceMT()
+  {
+    QueuePerformanceTestMultiThreaded(Link2LockQueue<UInt32>.self)
   }
 }
 

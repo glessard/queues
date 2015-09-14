@@ -157,18 +157,30 @@ class QQTests: XCTestCase
     XCTAssert(dequeueCount == enqueueCount)
   }
 
+  func QueuePerformanceTestMultiThreaded<Q: QueueType where Q.Element == UInt32>(type: Q.Type)
+  {
+    self.measureBlock() {
+      MTBenchmark(type, threads: 7, iterations: 1_000_000)
+    }
+  }
+
   func MultiThreadedBenchmark<Q: QueueType where Q.Element == UInt32>(type: Q.Type)
   {
     let workers  = [3,5,7,11,19]
+    let iterations = 1_000_000
 
-    workers.forEach { n in MTBenchmark(type, n) }
+    workers.forEach {
+      threads in
+      let avg = MTBenchmark(type, threads: threads, iterations: iterations)
+      print("\(threads):\t\(avg)")
+    }
   }
 
-  func MTBenchmark<Q: QueueType where Q.Element == UInt32>(_: Q.Type, _ threads: Int) -> Int
+  func MTBenchmark<Q: QueueType where Q.Element == UInt32>(_: Q.Type, threads: Int, iterations: Int) -> Int
   {
     guard threads > 0 else { return Int.max }
 
-    let iterations: Int32 = 1_000_000
+    let iterations = Int32(iterations)
     var i: Int32 = 0
 
     let queue = Q(arc4random())
@@ -191,7 +203,6 @@ class QQTests: XCTestCase
       }
     }
     let dt = mach_absolute_time() - start
-    print("\(threads): \t\(dt/numericCast(i))")
     return numericCast(dt)/numericCast(i)
   }
 }
