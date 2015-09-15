@@ -1,0 +1,35 @@
+Thread-safe, pure-Swift queues
+ARC Queue:
+331 ns per iteration
+400 ns per iteration with references
+LinkQueue:
+176 ns per iteration
+202 ns per iteration with references
+FastQueue:
+122 ns per iteration
+148 ns per iteration with references
+Two-Lock LinkQueue:
+176 ns per iteration
+255 ns per iteration with references
+Two-Lock FastQueue:
+125 ns per iteration
+177 ns per iteration with references
+
+Swift combined with OSAtomicFifoQueue:
+LinkOSQueue:
+151 ns per iteration
+204 ns per iteration with references
+FastOSQueue:
+126 ns per iteration
+148 ns per iteration with references
+
+Queues without thread-safety
+UnsafeQueue:
+270 ns per iteration
+312 ns per iteration with references
+UnsafeLinkQueue:
+118 ns per iteration
+146 ns per iteration with references
+UnsafeFastQueue:
+65 ns per iteration
+90 ns per iteration with references
