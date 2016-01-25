@@ -6,7 +6,8 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin.libkern.OSAtomic
+import func Darwin.libkern.OSAtomic.OSAtomicEnqueue
+import func Darwin.libkern.OSAtomic.OSAtomicDequeue
 
 final public class UnsafeFastQueue<T>: QueueType
 {

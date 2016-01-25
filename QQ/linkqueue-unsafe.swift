@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin.libkern.OSAtomic
-
 final public class UnsafeLinkQueue<T>: QueueType
 {
   private var head: UnsafeMutablePointer<Node<T>> = nil

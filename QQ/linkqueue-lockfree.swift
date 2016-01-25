@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin.libkern.OSAtomic
-
 /// Lock-free queue
 ///
 /// Note that this algorithm is not designed for tri-state memory as used in Swift.

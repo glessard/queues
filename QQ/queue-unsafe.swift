@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin.libkern.OSAtomic
-
 /// An ARC-based queue with no thread safety.
 
 final public class UnsafeQueue<T>: QueueType
