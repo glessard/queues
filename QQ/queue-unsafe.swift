@@ -24,7 +24,7 @@ final public class UnsafeQueue<T>: QueueType
     while let n = node
     { // Iterate along the linked nodes while counting
       node = n.next
-      i++
+      i += 1
     }
     return i
   }

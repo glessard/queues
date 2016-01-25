@@ -54,7 +54,7 @@ final public class LockFreeLinkQueue<T>: QueueType
     while node.pointer != nil
     { // Iterate along the linked nodes while counting
       node = UnsafeMutablePointer<Node<T>>(node.pointer).memory.next
-      i++
+      i += 1
     }
     return i
   }

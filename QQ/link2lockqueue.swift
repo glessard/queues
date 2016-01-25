@@ -50,7 +50,7 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
-      i++
+      i += 1
     }
     return i
   }

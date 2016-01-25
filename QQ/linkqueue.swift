@@ -40,7 +40,7 @@ final public class LinkQueue<T>: QueueType
     while node != nil
     { // Iterate along the linked nodes while counting
       node = node.memory.next
-      i++
+      i += 1
     }
 
     return i

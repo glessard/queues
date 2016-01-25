@@ -76,7 +76,7 @@ final public class OptimisticFastQueue<T>: QueueType
     while nodepointer != nil
     { // Iterate along the linked nodes while counting
       nodepointer = UnsafePointer<Node<T>>(nodepointer).memory.next.pointer
-      i++
+      i += 1
     }
     return i
   }
