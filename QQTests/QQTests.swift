@@ -160,7 +160,7 @@ class QQTests: XCTestCase
   func QueuePerformanceTestMultiThreaded<Q: QueueType where Q.Element == UInt32>(type: Q.Type)
   {
     self.measureBlock() {
-      MTBenchmark(type, threads: 7, iterations: 1_000_000)
+      self.MTBenchmark(type, threads: 7, iterations: 1_000_000)
     }
   }
 
