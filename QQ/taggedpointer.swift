@@ -21,7 +21,7 @@ internal extension TaggedPointer
   @inline(__always) init(_ pointer: UnsafePointer<Void>, tag: Int64)
   {
     #if arch(x86_64) || arch(arm64)
-      self = Int64(bitPattern: unsafeBitCast(pointer, UInt64.self) & 0x00ff_ffff_ffff_ffff + UInt64(bitPattern: tag) << 56)
+      self = Int64(bitPattern: unsafeBitCast(pointer, UInt64.self) & 0x00ff_ffff_ffff_ffff + UInt64(bitPattern: tag) << 48)
     #else
       self = Int64(bitPattern: UInt64(unsafeBitCast(pointer, UInt32.self)) + UInt64(bitPattern: tag) << 32)
     #endif
@@ -29,10 +29,8 @@ internal extension TaggedPointer
 
   @inline(__always) mutating func CAS(old old: Int64, new: UnsafePointer<Void>) -> Bool
   {
-    if old != self { return false }
-
     #if arch(x86_64) || arch(arm64)
-      let oldtag = old >> 56
+      let oldtag = old >> 48
     #else // 32-bit architecture
       let oldtag = old >> 32
     #endif
@@ -51,7 +49,7 @@ internal extension TaggedPointer
 
   var tag: Int64 {
     #if arch(x86_64) || arch(arm64)
-      return Int64(bitPattern: UInt64(bitPattern: self) >> 56)
+      return Int64(bitPattern: UInt64(bitPattern: self) >> 48)
     #else // 32-bit architecture
       return Int64(bitPattern: UInt64(bitPattern: self) >> 32)
     #endif
