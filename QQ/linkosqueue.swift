@@ -32,7 +32,6 @@ final public class LinkOSQueue<T>: QueueType
   }
 
   public var count: Int {
-    // Not thread safe.
     var i = 0
     var node = UnsafeMutablePointer<UnsafeMutablePointer<Node<T>>>(head).memory
     while node != nil

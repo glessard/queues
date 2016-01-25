@@ -42,10 +42,6 @@ final public class FastOSQueue<T>: QueueType
   }
 
   public var count: Int {
-    if UnsafePointer<COpaquePointer>(head).memory == nil { return 0 }
-
-    // Not thread safe.
-
     var i = 0
     var node = UnsafePointer<UnsafeMutablePointer<Node<T>>>(head).memory
     while node != nil
@@ -53,7 +49,6 @@ final public class FastOSQueue<T>: QueueType
       node = node.memory.next
       i += 1
     }
-
     return i
   }
 

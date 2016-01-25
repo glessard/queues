@@ -18,7 +18,6 @@ final public class UnsafeQueue<T>: QueueType
   public var isEmpty: Bool { return head == nil }
 
   public var count: Int {
-    // Not thread safe.
     var i = 0
     var node = head
     while let n = node

@@ -31,10 +31,6 @@ final public class LinkQueue<T>: QueueType
   public var isEmpty: Bool { return head == nil }
 
   public var count: Int {
-    if head == nil { return 0 }
-
-    // Not thread safe.
-
     var i = 0
     var node = head
     while node != nil
@@ -42,7 +38,6 @@ final public class LinkQueue<T>: QueueType
       node = node.memory.next
       i += 1
     }
-
     return i
   }
 
