@@ -10,7 +10,7 @@
 
 public protocol QueueType: SequenceType, GeneratorType, ArrayLiteralConvertible
 {
-  typealias Element
+  associatedtype Element
 
   /**
     Initialize an empty queue
