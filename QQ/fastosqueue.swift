@@ -11,7 +11,7 @@ import Darwin.libkern.OSAtomic
 final public class FastOSQueue<T>: QueueType
 {
   private let head = AtomicQueueInit()
-  private let pool = AtomicStackInit()
+  private let pool = AtomicStack<Node<T>>()
 
   public init() { }
 
@@ -28,13 +28,12 @@ final public class FastOSQueue<T>: QueueType
     AtomicQueueRelease(head)
 
     // drain the pool
-    while UnsafePointer<OpaquePointer?>(pool).pointee != nil
+    while let node = pool.pop()
     {
-      let node = OSAtomicDequeue(pool, 0).assumingMemoryBound(to: Node<T>.self)
       node.deallocate(capacity: 1)
     }
     // release the pool stack structure
-    AtomicStackRelease(pool)
+    pool.release()
   }
 
   public var isEmpty: Bool {
@@ -54,15 +53,7 @@ final public class FastOSQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node: UnsafeMutablePointer<Node<T>>
-    if let raw = OSAtomicDequeue(pool, 0)
-    {
-      node = raw.assumingMemoryBound(to: Node<T>.self)
-    }
-    else
-    {
-      node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-    }
+    let node = pool.pop() ?? UnsafeMutablePointer.allocate(capacity: 1)
     node.initialize(to: Node(newElement))
 
     OSAtomicFifoEnqueue(head, node, 0)
@@ -75,7 +66,7 @@ final public class FastOSQueue<T>: QueueType
       let node = raw.assumingMemoryBound(to: Node<T>.self)
       let element = node.pointee.elem
       node.deinitialize()
-      OSAtomicEnqueue(pool, node, 0)
+      pool.push(node)
       return element
     }
 

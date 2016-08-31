@@ -6,14 +6,16 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin.libkern.OSAtomic
+import let  Darwin.libkern.OSAtomic.OS_SPINLOCK_INIT
+import func Darwin.libkern.OSAtomic.OSSpinLockLock
+import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 
 final public class FastQueue<T>: QueueType
 {
   private var head: UnsafeMutablePointer<Node<T>>? = nil
   private var tail: UnsafeMutablePointer<Node<T>> = UnsafeMutablePointer(bitPattern: 0x0000000f)!
 
-  private let pool = AtomicStackInit()
+  private let pool = AtomicStack<Node<T>>()
   private var lock = OS_SPINLOCK_INIT
 
   public init() { }
@@ -29,13 +31,12 @@ final public class FastQueue<T>: QueueType
     }
 
     // drain the pool
-    while UnsafePointer<OpaquePointer?>(pool).pointee != nil
+    while let node = pool.pop()
     {
-      let node = OSAtomicDequeue(pool, 0).assumingMemoryBound(to: Node<T>.self)
       node.deallocate(capacity: 1)
     }
     // release the pool stack structure
-    AtomicStackRelease(pool)
+    pool.release()
   }
 
   public var isEmpty: Bool { return head == nil }
@@ -53,15 +54,7 @@ final public class FastQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node: UnsafeMutablePointer<Node<T>>
-    if let raw = OSAtomicDequeue(pool, 0)
-    {
-      node = raw.assumingMemoryBound(to: Node<T>.self)
-    }
-    else
-    {
-      node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-    }
+    let node = pool.pop() ?? UnsafeMutablePointer.allocate(capacity: 1)
     node.initialize(to: Node(newElement))
 
     OSSpinLockLock(&lock)
@@ -88,7 +81,7 @@ final public class FastQueue<T>: QueueType
 
       let element = node.pointee.elem
       node.deinitialize()
-      OSAtomicEnqueue(pool, node, 0)
+      pool.push(node)
       return element
     }
 

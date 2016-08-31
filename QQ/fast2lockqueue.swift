@@ -6,7 +6,9 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin.libkern.OSAtomic
+import let  Darwin.libkern.OSAtomic.OS_SPINLOCK_INIT
+import func Darwin.libkern.OSAtomic.OSSpinLockLock
+import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 
 /// Double-lock queue with node recycling
 ///
@@ -23,7 +25,7 @@ final public class Fast2LockQueue<T>: QueueType
   private var hlock = OS_SPINLOCK_INIT
   private var tlock = OS_SPINLOCK_INIT
 
-  private let pool = AtomicStackInit()
+  private let pool = AtomicStack<Node<T>>()
 
   public init() { }
 
@@ -39,14 +41,13 @@ final public class Fast2LockQueue<T>: QueueType
     }
 
     // drain the pool
-    while UnsafePointer<OpaquePointer?>(pool).pointee != nil
+    while let node = pool.pop()
     {
-      let node = OSAtomicDequeue(pool, 0).assumingMemoryBound(to: Node<T>.self)
       node.pointee.elem.deallocate(capacity: 1)
       node.deallocate(capacity: 1)
     }
     // release the pool stack structure
-    AtomicStackRelease(pool)
+    pool.release()
   }
 
   public var isEmpty: Bool { return head == tail }
@@ -65,9 +66,9 @@ final public class Fast2LockQueue<T>: QueueType
   public func enqueue(_ newElement: T)
   {
     let node: UnsafeMutablePointer<Node<T>>
-    if let raw = OSAtomicDequeue(pool, 0)
+    if let popped = pool.pop()
     {
-      node = raw.assumingMemoryBound(to: Node<T>.self)
+      node = popped
     }
     else
     {
@@ -104,7 +105,7 @@ final public class Fast2LockQueue<T>: QueueType
       let element = next.pointee.elem.move()
       OSSpinLockUnlock(&hlock)
 
-      OSAtomicEnqueue(pool, oldhead, 0)
+      pool.push(oldhead)
       return element
     }
 

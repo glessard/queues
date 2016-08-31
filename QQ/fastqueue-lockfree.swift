@@ -6,9 +6,6 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import func Darwin.libkern.OSAtomic.OSAtomicEnqueue
-import func Darwin.libkern.OSAtomic.OSAtomicDequeue
-
 /// Lock-free queue with node recycling
 ///
 /// Note that this algorithm is not designed for tri-state memory as used in Swift.
@@ -25,13 +22,12 @@ final public class LockFreeFastQueue<T>: QueueType
   private var head = TaggedPointer<Node<T>>()
   private var tail = TaggedPointer<Node<T>>()
 
-  private let pool = AtomicStackInit()
+  private let pool = AtomicStack<Node<T>>()
 
   public init()
   {
     let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-    let elem = UnsafeMutablePointer<T>.allocate(capacity: 1)
-    node.pointee = Node(elem)
+    node.pointee = Node()
     head = TaggedPointer(node, tag: 0)
     tail = TaggedPointer(node, tag: 0)
   }
@@ -51,13 +47,12 @@ final public class LockFreeFastQueue<T>: QueueType
     }
 
     // drain the pool
-    while UnsafePointer<OpaquePointer?>(pool).pointee != nil,
-      let node = OSAtomicDequeue(pool, 0)?.assumingMemoryBound(to: Node<T>.self)
+    while let node = pool.pop()
     {
       node.pointee.elem.deallocate(capacity: 1)
       node.deallocate(capacity: 1)
     }
-    AtomicStackRelease(pool)
+    pool.release()
   }
 
   public var isEmpty: Bool { return head.pointer == tail.pointer }
@@ -76,14 +71,14 @@ final public class LockFreeFastQueue<T>: QueueType
   public func enqueue(_ newElement: T)
   {
     var node: UnsafeMutablePointer<Node<T>>
-    if let raw = OSAtomicDequeue(pool, 0)
+    if let popped = pool.pop()
     {
-      node = raw.assumingMemoryBound(to: Node<T>.self)
+      node = popped
     }
     else
     {
       node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-      node.pointee.elem = UnsafeMutablePointer<T>.allocate(capacity: 1)
+      node.pointee = Node()
     }
     node.pointee.next = TaggedPointer()
     node.pointee.elem.initialize(to: newElement)
@@ -136,7 +131,7 @@ final public class LockFreeFastQueue<T>: QueueType
             if head.CAS(old: oldhead, new: newpntr)
             {
               oldpntr.pointee.elem.deinitialize()
-              OSAtomicEnqueue(pool, oldpntr, 0)
+              pool.push(oldpntr)
               return element
             }
           }
@@ -159,10 +154,10 @@ private struct Node<T>
 {
   var sptr: Int64 = 0
   var next = TaggedPointer<Node<T>>()
-  var elem: UnsafeMutablePointer<T>
+  let elem: UnsafeMutablePointer<T>
 
-  init(_ p: UnsafeMutablePointer<T>)
+  init()
   {
-    elem = p
+    elem = UnsafeMutablePointer<T>.allocate(capacity: 1)
   }
 }

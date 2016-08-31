@@ -49,28 +49,44 @@ func AtomicQueueRelease(_ h: QueueHead)
   have the definition of it. See libkern/OSAtomic.h
 */
 
-typealias StackHead = OpaquePointer
+import func Darwin.libkern.OSAtomic.OSAtomicEnqueue
+import func Darwin.libkern.OSAtomic.OSAtomicDequeue
 
-func AtomicStackInit() -> StackHead
+struct AtomicStack<T>
 {
-  //  typedef volatile struct {
-  //    void	*opaque1;
-  //    long	 opaque2;
-  //  } __attribute__ ((aligned (16))) OSQueueHead;
+  private let head: OpaquePointer
 
-  let size = MemoryLayout<OpaquePointer>.size
-  let count = 2
-
-  let h = UnsafeMutableRawPointer.allocate(bytes: count*size, alignedTo: 16)
-  for i in 0..<count
+  init()
   {
-    h.storeBytes(of: nil, toByteOffset: i*size, as: Optional<OpaquePointer>.self)
+    //  typedef volatile struct {
+    //    void	*opaque1;
+    //    long	 opaque2;
+    //  } __attribute__ ((aligned (16))) OSQueueHead;
+
+    let size = MemoryLayout<OpaquePointer>.size
+    let count = 2
+
+    let h = UnsafeMutableRawPointer.allocate(bytes: count*size, alignedTo: 16)
+    for i in 0..<count
+    {
+      h.storeBytes(of: nil, toByteOffset: i*size, as: Optional<OpaquePointer>.self)
+    }
+
+    head = OpaquePointer(h)
   }
 
-  return OpaquePointer(h)
-}
+  func release()
+  {
+    UnsafeMutableRawPointer(head).deallocate(bytes: 2*MemoryLayout<OpaquePointer>.size, alignedTo: 16)
+  }
 
-func AtomicStackRelease(_ h: StackHead)
-{
-  UnsafeMutableRawPointer(h).deallocate(bytes: 2*MemoryLayout<OpaquePointer>.size, alignedTo: 16)
+  func push(_ node: UnsafeMutablePointer<T>)
+  {
+    OSAtomicEnqueue(head, UnsafeMutableRawPointer(node), 0)
+  }
+
+  func pop() -> UnsafeMutablePointer<T>?
+  {
+    return OSAtomicDequeue(head, 0)?.assumingMemoryBound(to: T.self)
+  }
 }
