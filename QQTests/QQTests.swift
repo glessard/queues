@@ -189,7 +189,7 @@ class QQTests: XCTestCase
       _ in
       while i < iterations
       {
-        if (random() & 1) == 1
+        if (arc4random() & 1) == 1
         {
           queue.enqueue(arc4random())
         }
