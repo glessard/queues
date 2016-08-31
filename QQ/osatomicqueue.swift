@@ -116,3 +116,52 @@ struct AtomicStack<Node>
     return OSAtomicDequeue(head, 0)?.assumingMemoryBound(to: Node.self)
   }
 }
+
+protocol OSAtomicNode
+{
+  init(storage: UnsafeMutableRawPointer)
+  var storage: UnsafeMutableRawPointer { get }
+}
+
+struct BetterAtomicStack<Node: OSAtomicNode>
+{
+  private let head: OpaquePointer
+
+  init()
+  {
+    //  typedef volatile struct {
+    //    void	*opaque1;
+    //    long	 opaque2;
+    //  } __attribute__ ((aligned (16))) OSQueueHead;
+
+    let size = MemoryLayout<OpaquePointer>.size
+    let count = 2
+
+    let h = UnsafeMutableRawPointer.allocate(bytes: count*size, alignedTo: 16)
+    for i in 0..<count
+    {
+      h.storeBytes(of: nil, toByteOffset: i*size, as: Optional<OpaquePointer>.self)
+    }
+
+    head = OpaquePointer(h)
+  }
+
+  func release()
+  {
+    UnsafeMutableRawPointer(head).deallocate(bytes: 2*MemoryLayout<OpaquePointer>.size, alignedTo: 16)
+  }
+
+  func push(_ node: Node)
+  {
+    OSAtomicEnqueue(head, node.storage, 0)
+  }
+
+  func pop() -> Node?
+  {
+    if let bytes = OSAtomicDequeue(head, 0)
+    {
+      return Node(storage: bytes)
+    }
+    return nil
+  }
+}
