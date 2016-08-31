@@ -1,5 +1,5 @@
 //
-//  fastqueue.swift
+//  fast2lockqueue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
@@ -17,8 +17,8 @@ import Darwin.libkern.OSAtomic
 
 final public class Fast2LockQueue<T>: QueueType
 {
-  private var head: UnsafeMutablePointer<Node<T>> = nil
-  private var tail: UnsafeMutablePointer<Node<T>> = nil
+  private var head: UnsafeMutablePointer<Node<T>>? = nil
+  private var tail: UnsafeMutablePointer<Node<T>> = UnsafeMutablePointer(bitPattern: 0x0000000f)!
 
   private var hlock = OS_SPINLOCK_INIT
   private var tlock = OS_SPINLOCK_INIT
@@ -30,21 +30,20 @@ final public class Fast2LockQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while head != nil
+    while let node = head
     {
-      let node = head
-      head = node.memory.next
-      node.memory.elem.destroy()
-      node.memory.elem.dealloc(1)
-      node.dealloc(1)
+      node.pointee.next?.pointee.elem.deinitialize()
+      head = node.pointee.next
+      node.pointee.elem.deallocate(capacity: 1)
+      node.deallocate(capacity: 1)
     }
 
     // drain the pool
-    while UnsafePointer<COpaquePointer>(pool).memory != nil
+    while UnsafePointer<OpaquePointer?>(pool).pointee != nil
     {
-      let node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
-      node.memory.elem.dealloc(1)
-      node.dealloc(1)
+      let node = OSAtomicDequeue(pool, 0).assumingMemoryBound(to: Node<T>.self)
+      node.pointee.elem.deallocate(capacity: 1)
+      node.deallocate(capacity: 1)
     }
     // release the pool stack structure
     AtomicStackRelease(pool)
@@ -54,39 +53,42 @@ final public class Fast2LockQueue<T>: QueueType
 
   public var count: Int {
     var i = 0
-    var node = head.memory.next
-    while node != nil
+    var node = head?.pointee.next
+    while let current = node
     { // Iterate along the linked nodes while counting
-      node = node.memory.next
+      node = current.pointee.next
       i += 1
     }
     return i
   }
 
-  public func enqueue(newElement: T)
+  public func enqueue(_ newElement: T)
   {
-    var node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
-    if node == nil
+    let node: UnsafeMutablePointer<Node<T>>
+    if let raw = OSAtomicDequeue(pool, 0)
     {
-      node = UnsafeMutablePointer.alloc(1)
-      node.memory = Node()
+      node = raw.assumingMemoryBound(to: Node<T>.self)
     }
-    node.memory.next = nil
-    node.memory.elem.initialize(newElement)
+    else
+    {
+      node = UnsafeMutablePointer.allocate(capacity: 1)
+      node.pointee = Node()
+    }
+    node.pointee.next = nil
+    node.pointee.elem.initialize(to: newElement)
 
     OSSpinLockLock(&tlock)
-    if tail == nil
+    if head == nil
     { // This is the initial element
       tail = node
-      node = UnsafeMutablePointer.alloc(1)
-      node.memory = Node()
-      node.memory.next = tail
-      node.memory.elem.initialize(newElement)
+      let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+      node.pointee = Node()
+      node.pointee.next = tail
       head = node
     }
     else
     {
-      tail.memory.next = node
+      tail.pointee.next = node
       tail = node
     }
     OSSpinLockUnlock(&tlock)
@@ -95,18 +97,11 @@ final public class Fast2LockQueue<T>: QueueType
   public func dequeue() -> T?
   {
     OSSpinLockLock(&hlock)
-    if head == nil
+    if let oldhead = head,
+       let next = oldhead.pointee.next
     {
-      OSSpinLockUnlock(&hlock)
-      return nil
-    }
-
-    let next = head.memory.next
-    if next != nil
-    {
-      let oldhead = head
       head = next
-      let element = next.memory.elem.move()
+      let element = next.pointee.elem.move()
       OSSpinLockUnlock(&hlock)
 
       OSAtomicEnqueue(pool, oldhead, 0)
@@ -121,11 +116,11 @@ final public class Fast2LockQueue<T>: QueueType
 
 private struct Node<T>
 {
-  var next: UnsafeMutablePointer<Node<T>> = nil
+  var next: UnsafeMutablePointer<Node<T>>? = nil
   let elem: UnsafeMutablePointer<T>
 
   init()
   {
-    elem = UnsafeMutablePointer.alloc(1)
+    elem = UnsafeMutablePointer.allocate(capacity: 1)
   }
 }

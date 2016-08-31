@@ -20,12 +20,12 @@ class LinkQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(LinkQueue<UInt64>)
+    QueueIntTest(LinkQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(LinkQueue<Thing>)
+    QueueRefTest(LinkQueue<Thing>.self)
   }
 
   func testPerformanceFill()
@@ -55,7 +55,7 @@ class LinkQueueTests: QQTests
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(LinkQueue<UInt32>.self)
+    QueuePerformanceTestMultiThreaded(type: LinkQueue<UInt32>.self)
   }
 }
 
@@ -68,12 +68,12 @@ class LinkOSQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(LinkOSQueue<UInt64>)
+    QueueIntTest(LinkOSQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(LinkOSQueue<Thing>)
+    QueueRefTest(LinkOSQueue<Thing>.self)
   }
 
   func testPerformanceFill()
@@ -103,7 +103,7 @@ class LinkOSQueueTests: QQTests
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(LinkOSQueue<UInt32>.self)
+    QueuePerformanceTestMultiThreaded(type: LinkOSQueue<UInt32>.self)
   }
 }
 
@@ -116,12 +116,12 @@ class DoubleLockLinkQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(Link2LockQueue<UInt64>)
+    QueueIntTest(Link2LockQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(Link2LockQueue<Thing>)
+    QueueRefTest(Link2LockQueue<Thing>.self)
   }
 
   func testPerformanceFill()
@@ -151,7 +151,7 @@ class DoubleLockLinkQueueTests: QQTests
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(Link2LockQueue<UInt32>.self)
+    QueuePerformanceTestMultiThreaded(type: Link2LockQueue<UInt32>.self)
   }
 }
 
@@ -164,12 +164,12 @@ class LockFreeLinkQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(LockFreeLinkQueue<UInt64>)
+    QueueIntTest(LockFreeLinkQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(LockFreeLinkQueue<Thing>)
+    QueueRefTest(LockFreeLinkQueue<Thing>.self)
   }
 
   func testPerformanceFill()
@@ -202,12 +202,12 @@ class OptimisticLinkQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(OptimisticLinkQueue<UInt64>)
+    QueueIntTest(OptimisticLinkQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(OptimisticLinkQueue<Thing>)
+    QueueRefTest(OptimisticLinkQueue<Thing>.self)
   }
 
   func testPerformanceFill()
@@ -240,12 +240,12 @@ class UnsafeLinkQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(UnsafeLinkQueue<UInt64>)
+    QueueIntTest(UnsafeLinkQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(UnsafeLinkQueue<Thing>)
+    QueueRefTest(UnsafeLinkQueue<Thing>.self)
   }
 
   func testPerformanceFill()

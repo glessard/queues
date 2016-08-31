@@ -20,12 +20,12 @@ class FastQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(FastQueue<UInt64>)
+    QueueIntTest(FastQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(FastQueue<Thing>)
+    QueueRefTest(FastQueue<Thing>.self)
   }
 
   func testPerformanceFill()
@@ -55,7 +55,7 @@ class FastQueueTests: QQTests
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(FastQueue<UInt32>.self)
+    QueuePerformanceTestMultiThreaded(type: FastQueue<UInt32>.self)
   }
 }
 
@@ -68,12 +68,12 @@ class FastOSQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(FastOSQueue<UInt64>)
+    QueueIntTest(FastOSQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(FastOSQueue<Thing>)
+    QueueRefTest(FastOSQueue<Thing>.self)
   }
 
   func testPerformanceFill()
@@ -103,7 +103,7 @@ class FastOSQueueTests: QQTests
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(FastOSQueue<UInt32>.self)
+    QueuePerformanceTestMultiThreaded(type: FastOSQueue<UInt32>.self)
   }
 }
 
@@ -116,12 +116,12 @@ class DoubleLockFastQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(Fast2LockQueue<UInt64>)
+    QueueIntTest(Fast2LockQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(Fast2LockQueue<Thing>)
+    QueueRefTest(Fast2LockQueue<Thing>.self)
   }
 
   func testPerformanceFill()
@@ -151,7 +151,7 @@ class DoubleLockFastQueueTests: QQTests
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(Fast2LockQueue<UInt32>.self)
+    QueuePerformanceTestMultiThreaded(type: Fast2LockQueue<UInt32>.self)
   }
 }
 
@@ -164,12 +164,12 @@ class LockFreeFastQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(LockFreeFastQueue<UInt64>)
+    QueueIntTest(LockFreeFastQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(LockFreeFastQueue<Thing>)
+    QueueRefTest(LockFreeFastQueue<Thing>.self)
   }
 
   func testPerformanceFill()
@@ -203,12 +203,12 @@ class OptimisticFastQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(OptimisticFastQueue<UInt64>)
+    QueueIntTest(OptimisticFastQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(OptimisticFastQueue<Thing>)
+    QueueRefTest(OptimisticFastQueue<Thing>.self)
   }
 
   func testPerformanceFill()
@@ -242,12 +242,12 @@ class UnsafeFastQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(UnsafeFastQueue<UInt64>)
+    QueueIntTest(UnsafeFastQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(UnsafeFastQueue<Thing>)
+    QueueRefTest(UnsafeFastQueue<Thing>.self)
   }
 
   func testPerformanceFill()

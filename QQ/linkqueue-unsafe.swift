@@ -8,8 +8,8 @@
 
 final public class UnsafeLinkQueue<T>: QueueType
 {
-  private var head: UnsafeMutablePointer<Node<T>> = nil
-  private var tail: UnsafeMutablePointer<Node<T>>  = nil
+  private var head: UnsafeMutablePointer<Node<T>>? = nil
+  private var tail: UnsafeMutablePointer<Node<T>> = UnsafeMutablePointer(bitPattern: 0x0000000f)!
 
   public init() { }
 
@@ -18,9 +18,9 @@ final public class UnsafeLinkQueue<T>: QueueType
     while head != nil
     {
       let node = head
-      head = node.memory.next
-      node.destroy()
-      node.dealloc(1)
+      head = node?.pointee.next
+      node?.deinitialize()
+      node?.deallocate(capacity: 1)
     }
   }
 
@@ -31,17 +31,17 @@ final public class UnsafeLinkQueue<T>: QueueType
     var node = head
     while node != nil
     { // Iterate along the linked nodes while counting
-      node = node.memory.next
+      node = node?.pointee.next
       i += 1
     }
 
     return i
   }
 
-  public func enqueue(newElement: T)
+  public func enqueue(_ newElement: T)
   {
-    let node = UnsafeMutablePointer<Node<T>>.alloc(1)
-    node.initialize(Node(newElement))
+    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+    node.initialize(to: Node(newElement))
 
     if head == nil
     {
@@ -50,7 +50,7 @@ final public class UnsafeLinkQueue<T>: QueueType
     }
     else
     {
-      tail.memory.next = node
+      tail.pointee.next = node
       tail = node
     }
   }
@@ -60,11 +60,11 @@ final public class UnsafeLinkQueue<T>: QueueType
     if head != nil
     { // Promote the 2nd item to 1st
       let node = head
-      head = node.memory.next
+      head = node?.pointee.next
 
-      let element = node.memory.elem
-      node.destroy()
-      node.dealloc(1)
+      let element = node?.pointee.elem
+      node?.deinitialize()
+      node?.deallocate(capacity: 1)
       return element
     }
 
@@ -75,7 +75,7 @@ final public class UnsafeLinkQueue<T>: QueueType
 
 private struct Node<T>
 {
-  var next: UnsafeMutablePointer<Node<T>> = nil
+  var next: UnsafeMutablePointer<Node<T>>? = nil
   let elem: T
 
   init(_ e: T)

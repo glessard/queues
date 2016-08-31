@@ -22,15 +22,16 @@ import func Darwin.libkern.OSAtomic.OSAtomicDequeue
 
 final public class LockFreeFastQueue<T>: QueueType
 {
-  private var head = Int64()
-  private var tail = Int64()
+  private var head = TaggedPointer<Node<T>>()
+  private var tail = TaggedPointer<Node<T>>()
 
   private let pool = AtomicStackInit()
 
   public init()
   {
-    let node = UnsafeMutablePointer<Node<T>>.alloc(1)
-    node.memory = Node(nil)
+    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+    let elem = UnsafeMutablePointer<T>.allocate(capacity: 1)
+    node.pointee = Node(elem)
     head = TaggedPointer(node, tag: 0)
     tail = TaggedPointer(node, tag: 0)
   }
@@ -38,24 +39,23 @@ final public class LockFreeFastQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while head.pointer != nil
+    while let node = head.pointer
     {
-      let node = UnsafeMutablePointer<Node<T>>(head.pointer)
-      head = node.memory.next
-      if node.memory.elem != nil
+      head = node.pointee.next
+      if let elem = node.pointee.next.pointee?.elem
       {
-        node.memory.elem.destroy()
-        node.memory.elem.dealloc(1)
+        elem.deinitialize()
       }
-      node.dealloc(1)
+      node.pointee.elem.deallocate(capacity: 1)
+      node.deallocate(capacity: 1)
     }
 
     // drain the pool
-    while UnsafePointer<COpaquePointer>(pool).memory != nil
+    while UnsafePointer<OpaquePointer?>(pool).pointee != nil,
+      let node = OSAtomicDequeue(pool, 0)?.assumingMemoryBound(to: Node<T>.self)
     {
-      let node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
-      node.memory.elem.dealloc(1)
-      node.dealloc(1)
+      node.pointee.elem.deallocate(capacity: 1)
+      node.deallocate(capacity: 1)
     }
     AtomicStackRelease(pool)
   }
@@ -63,46 +63,52 @@ final public class LockFreeFastQueue<T>: QueueType
   public var isEmpty: Bool { return head.pointer == tail.pointer }
 
   public var count: Int {
+    var node = head
     var i = 0
-    var node = UnsafeMutablePointer<Node<T>>(head.pointer).memory.next
-    while node.pointer != nil
+    while let raw = node.pointer
     { // Iterate along the linked nodes while counting
-      node = UnsafeMutablePointer<Node<T>>(node.pointer).memory.next
+      node = raw.pointee.next
       i += 1
     }
     return i
   }
 
-  public func enqueue(newElement: T)
+  public func enqueue(_ newElement: T)
   {
-    var node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
-    if node == nil
+    var node: UnsafeMutablePointer<Node<T>>
+    if let raw = OSAtomicDequeue(pool, 0)
     {
-      node = UnsafeMutablePointer<Node<T>>.alloc(1)
-      node.memory.elem = UnsafeMutablePointer<T>.alloc(1)
+      node = raw.assumingMemoryBound(to: Node<T>.self)
     }
-    node.memory.next = 0
-    node.memory.elem.initialize(newElement)
+    else
+    {
+      node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+      node.pointee.elem = UnsafeMutablePointer<T>.allocate(capacity: 1)
+    }
+    node.pointee.next = TaggedPointer()
+    node.pointee.elem.initialize(to: newElement)
 
     while true
     {
       let oldtail = tail
-      let oldpntr = UnsafeMutablePointer<Node<T>>(oldtail.pointer)
-      let oldnext = oldpntr.memory.next
+      if let oldpntr = oldtail.pointer
+      {
+        let oldnext = oldpntr.pointee.next
 
-      if oldtail == tail
-      { // was tail pointing to the last node?
-        if oldnext.pointer == nil
-        { // try to link the new node to the end of the list
-          if oldpntr.memory.next.CAS(old: oldnext, new: node)
-          { // success. try to have tail point to the inserted node.
-            tail.CAS(old: oldtail, new: node)
-            break
+        if oldtail == tail
+        { // was tail pointing to the last node?
+          if oldnext.pointer == nil
+          { // try to link the new node to the end of the list
+            if oldpntr.pointee.next.CAS(old: oldnext, new: node)
+            { // success. try to have tail point to the inserted node.
+              tail.CAS(old: oldtail, new: node)
+              break
+            }
           }
-        }
-        else
-        { // tail wasn't pointing to the actual last node; try to fix it.
-          tail.CAS(old: oldtail, new: oldnext.pointer)
+          else
+          { // tail wasn't pointing to the actual last node; try to fix it.
+            tail.CAS(old: oldtail, new: oldnext.pointer)
+          }
         }
       }
     }
@@ -115,39 +121,34 @@ final public class LockFreeFastQueue<T>: QueueType
       let oldhead = head
       let oldtail = tail
 
-      let oldpntr = UnsafeMutablePointer<Node<T>>(oldhead.pointer)
-      let newhead = oldpntr.memory.next
-
-      if oldhead == head
+      if let oldpntr = oldhead.pointer
       {
-        let newpntr = UnsafePointer<Node<T>>(newhead.pointer)
+        let newhead = oldpntr.pointee.next
 
-        if oldpntr != UnsafeMutablePointer<Node<T>>(oldtail.pointer)
-        { // no need to deal with tail
-          // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
-          let element = newpntr.memory.elem.memory
-          if head.CAS(old: oldhead, new: newpntr)
-          {
-            if oldpntr.memory.elem == nil
-            {
-              oldpntr.memory = Node(UnsafeMutablePointer<T>.alloc(1))
-            }
-            else
-            {
-              oldpntr.memory.elem.destroy()
-            }
-            OSAtomicEnqueue(pool, oldpntr, 0)
-            return element
-          }
-        }
-        else
+        if oldhead == head
         {
-          if newpntr == nil
-          { // queue is empty
-            return nil
+          let newpntr = UnsafePointer<Node<T>>(newhead.pointer)
+
+          if oldpntr != UnsafeMutablePointer<Node<T>>(oldtail.pointer)
+          { // no need to deal with tail
+            // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
+            let element = newpntr!.pointee.elem.pointee
+            if head.CAS(old: oldhead, new: newpntr)
+            {
+              oldpntr.pointee.elem.deinitialize()
+              OSAtomicEnqueue(pool, oldpntr, 0)
+              return element
+            }
           }
-          // tail wasn't pointing to the actual last node; try to fix it.
-          tail.CAS(old: oldtail, new: newpntr)
+          else
+          {
+            if newpntr == nil
+            { // queue is empty
+              return nil
+            }
+            // tail wasn't pointing to the actual last node; try to fix it.
+            tail.CAS(old: oldtail, new: newpntr)
+          }
         }
       }
     }
@@ -156,8 +157,8 @@ final public class LockFreeFastQueue<T>: QueueType
 
 private struct Node<T>
 {
-  let sptr: Int64 = 0
-  var next: Int64 = 0
+  var sptr: Int64 = 0
+  var next = TaggedPointer<Node<T>>()
   var elem: UnsafeMutablePointer<T>
 
   init(_ p: UnsafeMutablePointer<T>)

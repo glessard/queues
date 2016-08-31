@@ -21,7 +21,7 @@ var queue1 = Queue(iterations)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  queue1.dequeue()
+  _ = queue1.dequeue()
   queue1.enqueue(i)
 }
 dt = mach_absolute_time() - then
@@ -32,7 +32,7 @@ var queue1ref = Queue(ref)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  queue1ref.dequeue()
+  _ = queue1ref.dequeue()
   queue1ref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
@@ -45,7 +45,7 @@ var lqueue = LinkQueue(iterations)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  lqueue.dequeue()
+  _ = lqueue.dequeue()
   lqueue.enqueue(i)
 }
 dt = mach_absolute_time() - then
@@ -57,7 +57,7 @@ var lqueueref = LinkQueue(ref)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  lqueueref.dequeue()
+  _ = lqueueref.dequeue()
   lqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
@@ -71,7 +71,7 @@ var fqueue = FastQueue(iterations)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  fqueue.dequeue()
+  _ = fqueue.dequeue()
   fqueue.enqueue(i)
 }
 dt = mach_absolute_time() - then
@@ -82,7 +82,7 @@ var fqueueref = FastQueue(ref)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  fqueueref.dequeue()
+  _ = fqueueref.dequeue()
   fqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
@@ -94,7 +94,7 @@ var tllqueue = Link2LockQueue(iterations)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  tllqueue.dequeue()
+  _ = tllqueue.dequeue()
   tllqueue.enqueue(i)
 }
 dt = mach_absolute_time() - then
@@ -105,7 +105,7 @@ var tllqueueref = Link2LockQueue(ref)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  tllqueueref.dequeue()
+  _ = tllqueueref.dequeue()
   tllqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
@@ -117,7 +117,7 @@ var tlfqueue = Fast2LockQueue(iterations)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  tlfqueue.dequeue()
+  _ = tlfqueue.dequeue()
   tlfqueue.enqueue(i)
 }
 dt = mach_absolute_time() - then
@@ -128,7 +128,7 @@ var tlfqueueref = Fast2LockQueue(ref)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  tlfqueueref.dequeue()
+  _ = tlfqueueref.dequeue()
   tlfqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
@@ -143,7 +143,7 @@ var losqueue = LinkOSQueue(iterations)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  losqueue.dequeue()
+  _ = losqueue.dequeue()
   losqueue.enqueue(i)
 }
 dt = mach_absolute_time() - then
@@ -153,7 +153,7 @@ var losqueueref = LinkOSQueue(ref)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  losqueueref.dequeue()
+  _ = losqueueref.dequeue()
   losqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
@@ -166,7 +166,7 @@ var fosqueue = FastOSQueue(iterations)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  fosqueue.dequeue()
+  _ = fosqueue.dequeue()
   fosqueue.enqueue(i)
 }
 dt = mach_absolute_time() - then
@@ -177,7 +177,7 @@ var fosqueueref = FastOSQueue(ref)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  fosqueueref.dequeue()
+  _ = fosqueueref.dequeue()
   fosqueueref.enqueue(ref)
 }
 dt = mach_absolute_time() - then
@@ -192,7 +192,7 @@ var unsafequeue = UnsafeQueue(iterations)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  unsafequeue.dequeue()
+  _ = unsafequeue.dequeue()
   unsafequeue.enqueue(i)
 }
 dt = mach_absolute_time() - then
@@ -203,7 +203,7 @@ var unsaferefqueue = UnsafeQueue(ref)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  unsaferefqueue.dequeue()
+  _ = unsaferefqueue.dequeue()
   unsaferefqueue.enqueue(ref)
 }
 dt = mach_absolute_time() - then
@@ -216,7 +216,7 @@ var ulinkqueue = UnsafeLinkQueue(iterations)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  ulinkqueue.dequeue()
+  _ = ulinkqueue.dequeue()
   ulinkqueue.enqueue(i)
 }
 dt = mach_absolute_time() - then
@@ -227,7 +227,7 @@ var ureflinkqueue = UnsafeLinkQueue(ref)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  ureflinkqueue.dequeue()
+  _ = ureflinkqueue.dequeue()
   ureflinkqueue.enqueue(ref)
 }
 dt = mach_absolute_time() - then
@@ -240,7 +240,7 @@ var ufastqueue = UnsafeFastQueue(iterations)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  ufastqueue.dequeue()
+  _ = ufastqueue.dequeue()
   ufastqueue.enqueue(i)
 }
 dt = mach_absolute_time() - then
@@ -251,7 +251,7 @@ var ureffastqueue = UnsafeFastQueue(ref)
 then = mach_absolute_time()
 for i in 1...iterations
 {
-  ureffastqueue.dequeue()
+  _ = ureffastqueue.dequeue()
   ureffastqueue.enqueue(ref)
 }
 dt = mach_absolute_time() - then

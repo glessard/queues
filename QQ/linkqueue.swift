@@ -10,8 +10,8 @@ import Darwin.libkern.OSAtomic
 
 final public class LinkQueue<T>: QueueType
 {
-  private var head: UnsafeMutablePointer<Node<T>> = nil
-  private var tail: UnsafeMutablePointer<Node<T>>  = nil
+  private var head: UnsafeMutablePointer<Node<T>>? = nil
+  private var tail: UnsafeMutablePointer<Node<T>> = UnsafeMutablePointer(bitPattern: 0x0000000f)!
 
   private var lock = OS_SPINLOCK_INIT
 
@@ -19,12 +19,11 @@ final public class LinkQueue<T>: QueueType
 
   deinit
   {
-    while head != nil
+    while let node = head
     {
-      let node = head
-      head = node.memory.next
-      node.destroy()
-      node.dealloc(1)
+      head = node.pointee.next
+      node.deinitialize()
+      node.deallocate(capacity: 1)
     }
   }
 
@@ -33,18 +32,18 @@ final public class LinkQueue<T>: QueueType
   public var count: Int {
     var i = 0
     var node = head
-    while node != nil
+    while let current = node
     { // Iterate along the linked nodes while counting
-      node = node.memory.next
+      node = current.pointee.next
       i += 1
     }
     return i
   }
 
-  public func enqueue(newElement: T)
+  public func enqueue(_ newElement: T)
   {
-    let node = UnsafeMutablePointer<Node<T>>.alloc(1)
-    node.initialize(Node(newElement))
+    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+    node.initialize(to: Node(newElement))
 
     OSSpinLockLock(&lock)
     if head == nil
@@ -54,7 +53,7 @@ final public class LinkQueue<T>: QueueType
     }
     else
     {
-      tail.memory.next = node
+      tail.pointee.next = node
       tail = node
     }
     OSSpinLockUnlock(&lock)
@@ -63,15 +62,14 @@ final public class LinkQueue<T>: QueueType
   public func dequeue() -> T?
   {
     OSSpinLockLock(&lock)
-    if head != nil
+    if let node = head
     { // Promote the 2nd item to 1st
-      let node = head
-      head = node.memory.next
+      head = node.pointee.next
       OSSpinLockUnlock(&lock)
 
-      let element = node.memory.elem
-      node.destroy()
-      node.dealloc(1)
+      let element = node.pointee.elem
+      node.deinitialize()
+      node.deallocate(capacity: 1)
       return element
     }
 
@@ -83,7 +81,7 @@ final public class LinkQueue<T>: QueueType
 
 private struct Node<T>
 {
-  var next: UnsafeMutablePointer<Node<T>> = nil
+  var next: UnsafeMutablePointer<Node<T>>? = nil
   let elem: T
 
   init(_ e: T)

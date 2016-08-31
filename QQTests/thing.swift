@@ -8,9 +8,9 @@
 
 import Darwin.C.stdlib
 
-public class Thing
+open class Thing
 {
-  public var id = arc4random()
+  open var id = arc4random()
 
   public init() { }
 }

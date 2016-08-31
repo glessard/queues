@@ -8,7 +8,7 @@
 
 // MARK: QueueType
 
-public protocol QueueType: SequenceType, GeneratorType, ArrayLiteralConvertible
+public protocol QueueType: Sequence, IteratorProtocol, ExpressibleByArrayLiteral
 {
   associatedtype Element
 
@@ -32,7 +32,7 @@ public protocol QueueType: SequenceType, GeneratorType, ArrayLiteralConvertible
     - parameter elements: a collection of initial elements
   */
 
-  init<C: CollectionType where C.Generator.Element == Element>(collection: C)
+  init<C: Collection>(collection: C) where C.Iterator.Element == Element
 
   /**
     Return whether the queue is empty
@@ -49,7 +49,7 @@ public protocol QueueType: SequenceType, GeneratorType, ArrayLiteralConvertible
     - parameter newElement: a new element
   */
 
-  func enqueue(newElement: Element)
+  func enqueue(_ newElement: Element)
 
   /**
     Return the oldest element from the queue, or nil if the queue is empty.
@@ -107,7 +107,7 @@ public extension QueueType
     - parameter elements: a collection of initial elements
   */
 
-  public init<C: CollectionType where C.Generator.Element == Element>(collection: C)
+  public init<C: Collection>(collection: C) where C.Iterator.Element == Element
   {
     self.init()
     for element in collection

@@ -19,13 +19,14 @@
 
 final public class LockFreeLinkQueue<T>: QueueType
 {
-  private var head = Int64()
-  private var tail = Int64()
+  private var head = TaggedPointer<Node<T>>()
+  private var tail = TaggedPointer<Node<T>>()
 
   public init()
   {
-    let node = UnsafeMutablePointer<Node<T>>.alloc(1)
-    node.memory = Node(nil)
+    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+    let elem = UnsafeMutablePointer<T>.allocate(capacity: 1)
+    node.pointee = Node(elem)
     head = TaggedPointer(node, tag: 0)
     tail = TaggedPointer(node, tag: 0)
   }
@@ -33,57 +34,56 @@ final public class LockFreeLinkQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while head.pointer != nil
+    while let node = head.pointer
     {
-      let node = UnsafeMutablePointer<Node<T>>(head.pointer)
-      head = node.memory.next
-      if node.memory.elem != nil
-      {
-        node.memory.elem.destroy()
-        node.memory.elem.dealloc(1)
-      }
-      node.dealloc(1)
+      head = node.pointee.next
+      node.pointee.elem.deinitialize()
+      node.pointee.elem.deallocate(capacity: 1)
+      node.deallocate(capacity: 1)
     }
   }
 
   public var isEmpty: Bool { return head.pointer == tail.pointer }
 
   public var count: Int {
+    var node = head
     var i = 0
-    var node = UnsafeMutablePointer<Node<T>>(head.pointer).memory.next
-    while node.pointer != nil
+    while let raw = node.pointer
     { // Iterate along the linked nodes while counting
-      node = UnsafeMutablePointer<Node<T>>(node.pointer).memory.next
+      node = raw.pointee.next
       i += 1
     }
     return i
   }
 
-  public func enqueue(newElement: T)
+  public func enqueue(_ newElement: T)
   {
-    let node = UnsafeMutablePointer<Node<T>>.alloc(1)
-    node.memory = Node(UnsafeMutablePointer<T>.alloc(1))
-    node.memory.elem.initialize(newElement)
+    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+    let elem = UnsafeMutablePointer<T>.allocate(capacity: 1)
+    elem.initialize(to: newElement)
+    node.pointee = Node(elem)
 
     while true
     {
       let oldtail = tail
-      let oldpntr = UnsafeMutablePointer<Node<T>>(oldtail.pointer)
-      let oldnext = oldpntr.memory.next
+      if let oldpntr = oldtail.pointer
+      {
+        let oldnext = oldpntr.pointee.next
 
-      if oldtail == tail
-      { // was tail pointing to the last node?
-        if oldnext.pointer == nil
-        { // try to link the new node to the end of the list
-          if oldpntr.memory.next.CAS(old: oldnext, new: node)
-          { // success. try to have tail point to the inserted node.
-            tail.CAS(old: oldtail, new: node)
-            break
+        if oldtail == tail
+        { // was tail pointing to the last node?
+          if oldnext.pointer == nil
+          { // try to link the new node to the end of the list
+            if oldpntr.pointee.next.CAS(old: oldnext, new: node)
+            { // success. try to have tail point to the inserted node.
+              tail.CAS(old: oldtail, new: node)
+              break
+            }
           }
-        }
-        else
-        { // tail wasn't pointing to the actual last node; try to fix it.
-          tail.CAS(old: oldtail, new: oldnext.pointer)
+          else
+          { // tail wasn't pointing to the actual last node; try to fix it.
+            tail.CAS(old: oldtail, new: oldnext.pointer)
+          }
         }
       }
     }
@@ -96,37 +96,34 @@ final public class LockFreeLinkQueue<T>: QueueType
       let oldhead = head
       let oldtail = tail
 
-      let oldpntr = UnsafeMutablePointer<Node<T>>(oldhead.pointer)
-      let newhead = oldpntr.memory.next
-
-      if oldhead == head
+      if let oldpntr = oldhead.pointer
       {
-        let newpntr = UnsafePointer<Node<T>>(newhead.pointer)
+        let newhead = oldpntr.pointee.next
 
-        if oldpntr != UnsafeMutablePointer<Node<T>>(oldtail.pointer)
-        { // no need to deal with tail
-          // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
-          let element = newpntr.memory.elem.memory
-          if head.CAS(old: oldhead, new: newpntr)
-          {
-            let oldelem = oldpntr.memory.elem
-            if oldelem != nil
-            {
-              oldelem.destroy()
-              oldelem.dealloc(1)
-            }
-            oldpntr.dealloc(1)
-            return element
-          }
-        }
-        else
+        if oldhead == head
         {
-          if newpntr == nil
-          { // queue is empty
-            return nil
+          let newpntr = newhead.pointer
+          if oldpntr != oldtail.pointer
+          { // no need to deal with tail
+            // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
+            let element = newpntr!.pointee.elem.pointee
+            if head.CAS(old: oldhead, new: newpntr)
+            {
+              oldpntr.pointee.elem.deinitialize()
+              oldpntr.pointee.elem.deallocate(capacity: 1)
+              oldpntr.deallocate(capacity: 1)
+              return element
+            }
           }
-          // tail wasn't pointing to the actual last node; try to fix it.
-          tail.CAS(old: oldtail, new: newpntr)
+          else
+          {
+            if newpntr == nil
+            { // queue is empty
+              return nil
+            }
+            // tail wasn't pointing to the actual last node; try to fix it.
+            tail.CAS(old: oldtail, new: newpntr)
+          }
         }
       }
     }
@@ -135,7 +132,7 @@ final public class LockFreeLinkQueue<T>: QueueType
 
 private struct Node<T>
 {
-  var next: Int64 = 0
+  var next = TaggedPointer<Node<T>>()
   var elem: UnsafeMutablePointer<T>
 
   init(_ p: UnsafeMutablePointer<T>)

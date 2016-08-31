@@ -58,7 +58,7 @@ class QQTests: XCTestCase
     }
   }
 
-  func QueueRefTest<Q: QueueType where Q.Element == Thing>(_: Q.Type)
+  func QueueRefTest<Q: QueueType>(_: Q.Type) where Q.Element == Thing
   {
     let q = Q()
     let iterations = 100
@@ -79,11 +79,11 @@ class QQTests: XCTestCase
     }
   }
 
-  func QueueIntTest<Q: QueueType where Q.Element == UInt64>(_: Q.Type)
+  func QueueIntTest<Q: QueueType>(_: Q.Type) where Q.Element == UInt64
   {
     let q = Q()
     let iterations = 100
-    var a = Array<UInt64>(count: iterations, repeatedValue: 0)
+    var a = Array<UInt64>(repeating: 0, count: iterations)
 
     for i in 0..<iterations
     {
@@ -100,9 +100,9 @@ class QQTests: XCTestCase
     }
   }
 
-  func QueuePerformanceTestFill<Q: QueueType where Q.Element == Thing>(_: Q.Type)
+  func QueuePerformanceTestFill<Q: QueueType>(_: Q.Type) where Q.Element == Thing
   {
-    self.measureBlock() {
+    self.measure() {
       let q = Q()
       let element = Thing()
       for _ in 1...self.performanceTestIterations
@@ -112,14 +112,14 @@ class QQTests: XCTestCase
 
       for _ in 1...self.performanceTestIterations
       {
-        q.dequeue()
+        _ = q.dequeue()
       }
     }
   }
 
-  func QueuePerformanceTestSpin<Q: QueueType where Q.Element == Thing>(_: Q.Type)
+  func QueuePerformanceTestSpin<Q: QueueType>(_: Q.Type) where Q.Element == Thing
   {
-    self.measureBlock() {
+    self.measure() {
       let q = Q()
       let element = Thing()
       for _ in 1...self.performanceTestIterations
@@ -132,11 +132,11 @@ class QQTests: XCTestCase
 
   func QueuePerformanceTestEmpty<Q: QueueType>(_: Q.Type)
   {
-    self.measureBlock() {
+    self.measure() {
       let q = Q()
       for _ in 1...self.performanceTestIterations
       {
-        q.dequeue()
+        _ = q.dequeue()
       }
     }
   }
@@ -157,14 +157,14 @@ class QQTests: XCTestCase
     XCTAssert(dequeueCount == enqueueCount)
   }
 
-  func QueuePerformanceTestMultiThreaded<Q: QueueType where Q.Element == UInt32>(type: Q.Type)
+  func QueuePerformanceTestMultiThreaded<Q: QueueType>(type: Q.Type) where Q.Element == UInt32
   {
-    self.measureBlock() {
+    self.measure() {
       self.MTBenchmark(type, threads: 7, iterations: 1_000_000)
     }
   }
 
-  func MultiThreadedBenchmark<Q: QueueType where Q.Element == UInt32>(type: Q.Type)
+  func MultiThreadedBenchmark<Q: QueueType>(_ type: Q.Type) where Q.Element == UInt32
   {
     let workers  = [3,5,7,11,19]
     let iterations = 1_000_000
@@ -176,7 +176,8 @@ class QQTests: XCTestCase
     }
   }
 
-  func MTBenchmark<Q: QueueType where Q.Element == UInt32>(_: Q.Type, threads: Int, iterations: Int) -> Int
+  @discardableResult
+  func MTBenchmark<Q: QueueType>(_: Q.Type, threads: Int, iterations: Int) -> Int where Q.Element == UInt32
   {
     guard threads > 0 else { return Int.max }
 
@@ -185,7 +186,7 @@ class QQTests: XCTestCase
 
     let queue = Q(arc4random())
     let start = mach_absolute_time()
-    dispatch_apply(threads, dispatch_get_global_queue(qos_class_self(), 0)) {
+    DispatchQueue.concurrentPerform(iterations: threads) {
       _ in
       while i < iterations
       {

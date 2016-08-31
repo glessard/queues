@@ -20,12 +20,12 @@ class GenericNodeQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(Queue<UInt64>)
+    QueueIntTest(Queue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(Queue<Thing>)
+    QueueRefTest(Queue<Thing>.self)
   }
 
   func testPerformanceFill()
@@ -64,12 +64,12 @@ class UnsafeQueueTests: QQTests
 
   func testQueueInt()
   {
-    QueueIntTest(UnsafeQueue<UInt64>)
+    QueueIntTest(UnsafeQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(UnsafeQueue<Thing>)
+    QueueRefTest(UnsafeQueue<Thing>.self)
   }
 
   func testPerformanceFill()

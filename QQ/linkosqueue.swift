@@ -17,47 +17,47 @@ final public class LinkOSQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while UnsafeMutablePointer<COpaquePointer>(head).memory != nil
+    while UnsafeMutablePointer<OpaquePointer?>(head).pointee != nil
     {
-      let node = UnsafeMutablePointer<Node<T>>(OSAtomicFifoDequeue(head, 0))
-      node.destroy()
-      node.dealloc(1)
+      let node = OSAtomicFifoDequeue(head, 0).assumingMemoryBound(to: Node<T>.self)
+      node.deinitialize()
+      node.deallocate(capacity: 1)
     }
     // release the queue head structure
     AtomicQueueRelease(head)
   }
 
   public var isEmpty: Bool {
-    return UnsafeMutablePointer<COpaquePointer>(head).memory == nil
+    return UnsafeMutablePointer<OpaquePointer?>(head).pointee == nil
   }
 
   public var count: Int {
     var i = 0
-    var node = UnsafeMutablePointer<UnsafeMutablePointer<Node<T>>>(head).memory
-    while node != nil
+    var node = UnsafeMutablePointer<UnsafeMutablePointer<Node<T>>?>(head).pointee
+    while let current = node
     { // Iterate along the linked nodes while counting
-      node = node.memory.next
+      node = current.pointee.next
       i += 1
     }
     return i
   }
 
-  public func enqueue(newElement: T)
+  public func enqueue(_ newElement: T)
   {
-    let node = UnsafeMutablePointer<Node<T>>.alloc(1)
-    node.initialize(Node(newElement))
+    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+    node.initialize(to: Node(newElement))
 
     OSAtomicFifoEnqueue(head, node, 0)
   }
 
   public func dequeue() -> T?
   {
-    let node = UnsafeMutablePointer<Node<T>>(OSAtomicFifoDequeue(head, 0))
-    if node != nil
+    if let raw = OSAtomicFifoDequeue(head, 0)
     {
-      let element = node.memory.elem
-      node.destroy()
-      node.dealloc(1)
+      let node = raw.assumingMemoryBound(to: Node<T>.self)
+      let element = node.pointee.elem
+      node.deinitialize()
+      node.deallocate(capacity: 1)
       return element
     }
 
@@ -68,7 +68,7 @@ final public class LinkOSQueue<T>: QueueType
 
 private struct Node<T>
 {
-  var next: UnsafeMutablePointer<Node<T>> = nil
+  var next: UnsafeMutablePointer<Node<T>>? = nil
   let elem: T
 
   init(_ e: T)

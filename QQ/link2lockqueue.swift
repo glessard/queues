@@ -1,5 +1,5 @@
 //
-//  fastqueue.swift
+//  link2lockqueue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
@@ -20,10 +20,10 @@ import Darwin.libkern.OSAtomic
 /// in Principles of Distributed Computing '96 (PODC96)
 /// See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 
-final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
+final public class Link2LockQueue<T>: QueueType, Sequence, IteratorProtocol
 {
-  private var head: UnsafeMutablePointer<Node<T>> = nil
-  private var tail: UnsafeMutablePointer<Node<T>> = nil
+  private var head: UnsafeMutablePointer<Node<T>>? = nil
+  private var tail: UnsafeMutablePointer<Node<T>> = UnsafeMutablePointer(bitPattern: 0x0000000f)!
 
   private var hlock = OS_SPINLOCK_INIT
   private var tlock = OS_SPINLOCK_INIT
@@ -33,12 +33,11 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
   deinit
   {
     // empty the queue
-    while head != nil
+    while let node = head
     {
-      let node = head
-      head = node.memory.next
-      node.destroy()
-      node.dealloc(1)
+      head = node.pointee.next
+      node.deinitialize()
+      node.deallocate(capacity: 1)
     }
   }
 
@@ -46,32 +45,32 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
 
   public var count: Int {
     var i = 0
-    var node = head.memory.next
-    while node != nil
+    var node = head?.pointee.next
+    while let current = node
     { // Iterate along the linked nodes while counting
-      node = node.memory.next
+      node = current.pointee.next
       i += 1
     }
     return i
   }
 
-  public func enqueue(newElement: T)
+  public func enqueue(_ newElement: T)
   {
-    let node = UnsafeMutablePointer<Node<T>>.alloc(1)
-    node.initialize(Node(newElement))
+    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+    node.initialize(to: Node(newElement))
 
     OSSpinLockLock(&tlock)
-    if tail == nil
+    if head == nil
     { // This is the initial element
       tail = node
-      let node = UnsafeMutablePointer<Node<T>>.alloc(1)
-      node.initialize(Node(newElement))
-      node.memory.next = tail
+      let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+      node.initialize(to: Node(newElement))
+      node.pointee.next = tail
       head = node
     }
     else
     {
-      tail.memory.next = node
+      tail.pointee.next = node
       tail = node
     }
     OSSpinLockUnlock(&tlock)
@@ -80,22 +79,15 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
   public func dequeue() -> T?
   {
     OSSpinLockLock(&hlock)
-    if head == nil
+    if let oldhead = head,
+       let next = oldhead.pointee.next
     {
-      OSSpinLockUnlock(&hlock)
-      return nil
-    }
-
-    let next = head.memory.next
-    if next != nil
-    {
-      let oldhead = head
       head = next
-      let element = next.memory.elem
+      let element = next.pointee.elem
       OSSpinLockUnlock(&hlock)
 
-      oldhead.destroy()
-      oldhead.dealloc(1)
+      oldhead.deinitialize()
+      oldhead.deallocate(capacity: 1)
       return element
     }
 
@@ -107,7 +99,7 @@ final public class Link2LockQueue<T>: QueueType, SequenceType, GeneratorType
 
 private struct Node<T>
 {
-  var next: UnsafeMutablePointer<Node<T>> = nil
+  var next: UnsafeMutablePointer<Node<T>>? = nil
   let elem: T
 
   init(_ element: T)

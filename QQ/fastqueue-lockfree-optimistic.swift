@@ -25,15 +25,16 @@ import func Darwin.libkern.OSAtomic.OSAtomicDequeue
 
 final public class OptimisticFastQueue<T>: QueueType
 {
-  private var head = Int64()
-  private var tail = Int64()
+  private var head = TaggedPointer<Node<T>>()
+  private var tail = TaggedPointer<Node<T>>()
 
   private let pool = AtomicStackInit()
 
   public init()
   {
-    let node = UnsafeMutablePointer<Node<T>>.alloc(1)
-    node.memory = Node(nil)
+    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+    let elem = UnsafeMutablePointer<T>.allocate(capacity: 1)
+    node.pointee = Node(elem)
     head = TaggedPointer(node, tag: 1)
     tail = TaggedPointer(node, tag: 1)
   }
@@ -41,24 +42,23 @@ final public class OptimisticFastQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while head.pointer != nil
+    while let node = head.pointer
     {
-      let node = UnsafeMutablePointer<Node<T>>(head.pointer)
-      head = node.memory.next
-      if node.memory.elem != nil
+      head = node.pointee.next
+      if let elem = node.pointee.next.pointee?.elem
       {
-        node.memory.elem.destroy()
-        node.memory.elem.dealloc(1)
+        elem.deinitialize()
       }
-      node.dealloc(1)
+      node.pointee.elem.deallocate(capacity: 1)
+      node.deallocate(capacity: 1)
     }
 
     // drain the pool
-    while UnsafePointer<COpaquePointer>(pool).memory != nil
+    while UnsafePointer<OpaquePointer?>(pool).pointee != nil,
+          let node = OSAtomicDequeue(pool, 0)?.assumingMemoryBound(to: Node<T>.self)
     {
-      let node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
-      node.memory.elem.dealloc(1)
-      node.dealloc(1)
+      node.pointee.elem.deallocate(capacity: 1)
+      node.deallocate(capacity: 1)
     }
     AtomicStackRelease(pool)
   }
@@ -72,37 +72,43 @@ final public class OptimisticFastQueue<T>: QueueType
     fixlist(tail: tail, head: head)
 
     var i = 0
-    var nodepointer = UnsafePointer<Node<T>>(head.pointer).memory.next.pointer
-    while nodepointer != nil
+    var node = head.pointee?.next
+    while let raw = node?.pointer
     { // Iterate along the linked nodes while counting
-      nodepointer = UnsafePointer<Node<T>>(nodepointer).memory.next.pointer
+      node = raw.pointee.next
       i += 1
     }
     return i
   }
 
-  public func enqueue(newElement: T)
+  public func enqueue(_ newElement: T)
   {
-    var node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
-    if node == nil
+    var node: UnsafeMutablePointer<Node<T>>
+    if let raw = OSAtomicDequeue(pool, 0)
     {
-      node = UnsafeMutablePointer<Node<T>>.alloc(1)
-      node.memory.elem = UnsafeMutablePointer<T>.alloc(1)
+      node = raw.assumingMemoryBound(to: Node<T>.self)
     }
-    node.memory.next = 0
-    node.memory.elem.initialize(newElement)
+    else
+    {
+      node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+      node.pointee.elem = UnsafeMutablePointer<T>.allocate(capacity: 1)
+    }
+    node.pointee.next = TaggedPointer()
+    node.pointee.elem.initialize(to: newElement)
 
     while true
     {
       let oldtail = tail
-      let oldpntr = UnsafeMutablePointer<Node<T>>(oldtail.pointer)
-      let oldtag  = oldtail.tag
-
-      node.memory.prev = TaggedPointer(oldpntr, tag: oldtag+1)
-      if tail.CAS(old: oldtail, new: node)
+      if let oldpntr = UnsafeMutablePointer<Node<T>>(oldtail.pointer)
       {
-        oldpntr.memory.next = TaggedPointer(node, tag: oldtag)
-        break
+        let oldtag  = oldtail.tag
+
+        node.pointee.prev = TaggedPointer(oldpntr, tag: oldtag+1)
+        if tail.CAS(old: oldtail, new: node)
+        {
+          oldpntr.pointee.next = TaggedPointer(node, tag: oldtag)
+          break
+        }
       }
     }
   }
@@ -112,34 +118,25 @@ final public class OptimisticFastQueue<T>: QueueType
     while true
     {
       let oldhead = head
-      let oldpntr = UnsafeMutablePointer<Node<T>>(oldhead.pointer)
-
       let oldtail = tail
-      let newhead = oldpntr.memory.next
 
-      if oldhead == head
+      if let oldpntr = oldhead.pointer, oldhead == head
       {
+        let newhead = oldpntr.pointee.next
         if oldhead != oldtail
         {
-          if newhead == 0 || newhead.tag != oldhead.tag
+          if newhead.isEmpty || newhead.tag != oldhead.tag
           {
             fixlist(tail: oldtail, head: oldhead)
           }
           else
           {
-            let newpntr = UnsafeMutablePointer<Node<T>>(newhead.pointer)
+            let newpntr = newhead.pointer
             // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
-            let element = newpntr.memory.elem.memory
+            let element = newpntr!.pointee.elem.pointee
             if head.CAS(old: oldhead, new: newpntr)
             {
-              if oldpntr.memory.elem == nil
-              {
-                oldpntr.memory = Node(UnsafeMutablePointer<T>.alloc(1))
-              }
-              else
-              {
-                oldpntr.memory.elem.destroy()
-              }
+              oldpntr.pointee.elem.deinitialize()
               OSAtomicEnqueue(pool, oldpntr, 0)
               return element
             }
@@ -153,23 +150,25 @@ final public class OptimisticFastQueue<T>: QueueType
     }
   }
 
-  private func fixlist(tail oldtail: Int64, head oldhead: Int64)
+  private func fixlist(tail oldtail: TaggedPointer<Node<T>>, head oldhead: TaggedPointer<Node<T>>)
   {
     var current = oldtail
     while oldhead == head && current != oldhead
     {
-      let prevptr = UnsafeMutablePointer<Node<T>>(UnsafePointer<Node<T>>(current.pointer).memory.prev.pointer)
-      prevptr.memory.next = TaggedPointer(current.pointer, tag: current.tag-1)
-      current = TaggedPointer(prevptr, tag: current.tag-1)
+      if let prevptr = current.pointee?.prev.pointer
+      {
+        prevptr.pointee.next = TaggedPointer(current.pointer, tag: current.tag-1)
+        current = TaggedPointer(prevptr, tag: current.tag-1)
+      }
     }
   }
 }
 
 private struct Node<T>
 {
-  let sptr: Int64 = 0
-  var next: Int64 = 0
-  var prev: Int64 = 0
+  var sptr: Int64 = 0
+  var next = TaggedPointer<Node<T>>()
+  var prev = TaggedPointer<Node<T>>()
   var elem: UnsafeMutablePointer<T>
 
   init(_ p: UnsafeMutablePointer<T>)

@@ -11,8 +11,8 @@ import func Darwin.libkern.OSAtomic.OSAtomicDequeue
 
 final public class UnsafeFastQueue<T>: QueueType
 {
-  private var head: UnsafeMutablePointer<Node<T>> = nil
-  private var tail: UnsafeMutablePointer<Node<T>> = nil
+  private var head: UnsafeMutablePointer<Node<T>>? = nil
+  private var tail: UnsafeMutablePointer<Node<T>> = UnsafeMutablePointer(bitPattern: 0x0000000f)!
 
   private let pool = AtomicStackInit()
 
@@ -24,16 +24,16 @@ final public class UnsafeFastQueue<T>: QueueType
     while head != nil
     {
       let node = head
-      head = node.memory.next
-      node.destroy()
-      node.dealloc(1)
+      head = node?.pointee.next
+      node?.deinitialize()
+      node?.deallocate(capacity: 1)
     }
 
     // drain the pool
-    while UnsafePointer<COpaquePointer>(pool).memory != nil
+    while UnsafePointer<OpaquePointer?>(pool).pointee != nil
     {
-      let node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
-      node.dealloc(1)
+      let node = OSAtomicDequeue(pool, 0).assumingMemoryBound(to: Node<T>.self)
+      node.deallocate(capacity: 1)
     }
     // release the pool stack structure
     AtomicStackRelease(pool)
@@ -46,20 +46,24 @@ final public class UnsafeFastQueue<T>: QueueType
     var node = head
     while node != nil
     { // Iterate along the linked nodes while counting
-      node = node.memory.next
+      node = node?.pointee.next
       i += 1
     }
     return i
   }
 
-  public func enqueue(newElement: T)
+  public func enqueue(_ newElement: T)
   {
-    var node = UnsafeMutablePointer<Node<T>>(OSAtomicDequeue(pool, 0))
-    if node == nil
+    let node: UnsafeMutablePointer<Node<T>>
+    if let raw = OSAtomicDequeue(pool, 0)
     {
-      node = UnsafeMutablePointer<Node<T>>.alloc(1)
+      node = raw.assumingMemoryBound(to: Node<T>.self)
     }
-    node.initialize(Node(newElement))
+    else
+    {
+      node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
+    }
+    node.initialize(to: Node(newElement))
 
     if head == nil
     {
@@ -68,20 +72,19 @@ final public class UnsafeFastQueue<T>: QueueType
     }
     else
     {
-      tail.memory.next = node
+      tail.pointee.next = node
       tail = node
     }
   }
 
   public func dequeue() -> T?
   {
-    if head != nil
+    if let node = head
     { // Promote the 2nd item to 1st
-      let node = head
-      head = head.memory.next
+      head = node.pointee.next
 
-      let element = node.memory.elem
-      node.destroy()
+      let element = node.pointee.elem
+      node.deinitialize()
       OSAtomicEnqueue(pool, node, 0)
       return element
     }
@@ -93,7 +96,7 @@ final public class UnsafeFastQueue<T>: QueueType
 
 private struct Node<T>
 {
-  var next: UnsafeMutablePointer<Node<T>> = nil
+  var next: UnsafeMutablePointer<Node<T>>? = nil
   let elem: T
 
   init(_ e: T)

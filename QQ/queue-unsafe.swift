@@ -28,7 +28,7 @@ final public class UnsafeQueue<T>: QueueType
     return i
   }
 
-  public func enqueue(newElement: T)
+  public func enqueue(_ newElement: T)
   {
     let node = Node(newElement)
 
