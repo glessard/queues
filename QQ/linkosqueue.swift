@@ -6,40 +6,30 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin.libkern.OSAtomic
-
 final public class LinkOSQueue<T>: QueueType
 {
-  private let head = AtomicQueueInit()
+  private let queue = AtomicQueue<Node<T>>()
 
   public init() { }
 
   deinit
   {
     // empty the queue
-    while UnsafeMutablePointer<OpaquePointer?>(head).pointee != nil
+    while let node = queue.dequeue()
     {
-      let node = OSAtomicFifoDequeue(head, 0).assumingMemoryBound(to: Node<T>.self)
       node.deinitialize()
       node.deallocate(capacity: 1)
     }
     // release the queue head structure
-    AtomicQueueRelease(head)
+    queue.release()
   }
 
   public var isEmpty: Bool {
-    return UnsafeMutablePointer<OpaquePointer?>(head).pointee == nil
+    return queue.isEmpty
   }
 
   public var count: Int {
-    var i = 0
-    var node = UnsafeMutablePointer<UnsafeMutablePointer<Node<T>>?>(head).pointee
-    while let current = node
-    { // Iterate along the linked nodes while counting
-      node = current.pointee.next
-      i += 1
-    }
-    return i
+    return queue.count
   }
 
   public func enqueue(_ newElement: T)
@@ -47,14 +37,13 @@ final public class LinkOSQueue<T>: QueueType
     let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
     node.initialize(to: Node(newElement))
 
-    OSAtomicFifoEnqueue(head, node, 0)
+    queue.enqueue(node)
   }
 
   public func dequeue() -> T?
   {
-    if let raw = OSAtomicFifoDequeue(head, 0)
+    if let node = queue.dequeue()
     {
-      let node = raw.assumingMemoryBound(to: Node<T>.self)
       let element = node.pointee.elem
       node.deinitialize()
       node.deallocate(capacity: 1)

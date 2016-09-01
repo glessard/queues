@@ -6,11 +6,9 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin.libkern.OSAtomic
-
 final public class FastOSQueue<T>: QueueType
 {
-  private let head = AtomicQueueInit()
+  private let queue = AtomicQueue<Node<T>>()
   private let pool = AtomicStack<Node<T>>()
 
   public init() { }
@@ -18,14 +16,13 @@ final public class FastOSQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while UnsafePointer<OpaquePointer?>(head).pointee != nil
+    while let node = queue.dequeue()
     {
-      let node = OSAtomicFifoDequeue(head, 0).assumingMemoryBound(to: Node<T>.self)
       node.deinitialize()
       node.deallocate(capacity: 1)
     }
     // release the queue head structure
-    AtomicQueueRelease(head)
+    queue.release()
 
     // drain the pool
     while let node = pool.pop()
@@ -37,18 +34,11 @@ final public class FastOSQueue<T>: QueueType
   }
 
   public var isEmpty: Bool {
-    return UnsafePointer<OpaquePointer?>(head).pointee == nil
+    return queue.isEmpty
   }
 
   public var count: Int {
-    var i = 0
-    var node = UnsafePointer<UnsafeMutablePointer<Node<T>>?>(head).pointee
-    while let current = node
-    { // Iterate along the linked nodes while counting
-      node = current.pointee.next
-      i += 1
-    }
-    return i
+    return queue.count
   }
 
   public func enqueue(_ newElement: T)
@@ -56,14 +46,13 @@ final public class FastOSQueue<T>: QueueType
     let node = pool.pop() ?? UnsafeMutablePointer.allocate(capacity: 1)
     node.initialize(to: Node(newElement))
 
-    OSAtomicFifoEnqueue(head, node, 0)
+    queue.enqueue(node)
   }
 
   public func dequeue() -> T?
   {
-    if let raw = OSAtomicFifoDequeue(head, 0)
+    if let node = queue.dequeue()
     {
-      let node = raw.assumingMemoryBound(to: Node<T>.self)
       let element = node.pointee.elem
       node.deinitialize()
       pool.push(node)

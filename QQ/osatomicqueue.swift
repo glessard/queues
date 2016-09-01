@@ -12,37 +12,63 @@
   have the definition of it. See libkern/OSAtomic.h
 */
 
-typealias QueueHead = OpaquePointer
+import func Darwin.libkern.OSAtomic.OSAtomicFifoEnqueue
+import func Darwin.libkern.OSAtomic.OSAtomicFifoDequeue
 
-func AtomicQueueInit() -> QueueHead
+struct AtomicQueue<T>
 {
-  // There are 3 values in OSAtomicFifoQueueHead, but the struct
-  // is aligned on 16-byte boundaries on x64, translating to 32 bytes.
-  // As a workaround, we assign a chunk of 4 integers.
+  private let head: OpaquePointer
 
-  //  typedef	volatile struct {
-  //    void	*opaque1;
-  //    void	*opaque2;
-  //    int	 opaque3;
-  //  } __attribute__ ((aligned (16))) OSFifoQueueHead;
-
-  let size = MemoryLayout<OpaquePointer>.size
-  let count = 3
-
-  let h = UnsafeMutableRawPointer.allocate(bytes: count*size, alignedTo: 16)
-  for i in 0..<count
+  init()
   {
-    h.storeBytes(of: nil, toByteOffset: i*size, as: Optional<OpaquePointer>.self)
+    //  typedef	volatile struct {
+    //    void	*opaque1;
+    //    void	*opaque2;
+    //    int	 opaque3;
+    //  } __attribute__ ((aligned (16))) OSFifoQueueHead;
+
+    let size = MemoryLayout<OpaquePointer>.size
+    let count = 3
+
+    let h = UnsafeMutableRawPointer.allocate(bytes: count*size, alignedTo: 16)
+    for i in 0..<count
+    {
+      h.storeBytes(of: nil, toByteOffset: i*size, as: Optional<OpaquePointer>.self)
+    }
+
+    head = OpaquePointer(h)
   }
 
-  return OpaquePointer(h)
-}
+  var isEmpty: Bool {
+    return UnsafeMutablePointer<OpaquePointer?>(head).pointee == nil
+  }
 
-func AtomicQueueRelease(_ h: QueueHead)
-{
-  UnsafeMutableRawPointer(h).deallocate(bytes: 3*MemoryLayout<OpaquePointer>.size, alignedTo: 16)
-}
+  public var count: Int {
+    var i = 0
+    var node = UnsafePointer<UnsafeRawPointer?>(head).pointee
+    while let current = node
+    { // Iterate along the linked nodes while counting
+      node = current.assumingMemoryBound(to: (UnsafeRawPointer?).self).pointee
+      i += 1
+    }
+    return i
+  }
 
+  func release()
+  {
+    UnsafeMutableRawPointer(head).deallocate(bytes: 3*MemoryLayout<OpaquePointer>.size, alignedTo: 16)
+  }
+
+  func enqueue(_ node: UnsafeMutablePointer<T>)
+  {
+    OSAtomicFifoEnqueue(head, UnsafeMutableRawPointer(node), 0)
+  }
+
+  func dequeue() -> UnsafeMutablePointer<T>?
+  {
+    return OSAtomicFifoDequeue(head, 0)?.assumingMemoryBound(to: T.self)
+  }
+}
 
 /*
   Initialize an OSQueueHead struct, even though we don't
