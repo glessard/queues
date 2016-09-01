@@ -26,21 +26,21 @@ func AtomicQueueInit() -> QueueHead
   //    int	 opaque3;
   //  } __attribute__ ((aligned (16))) OSFifoQueueHead;
 
-  let h = UnsafeMutablePointer<Int>.allocate(capacity: 4)
-  for i in 0..<4
-  {
-    h.advanced(by: i).initialize(to: 0)
-  }
+  let size = MemoryLayout<OpaquePointer>.size
+  let count = 3
 
-  // Check pointer alignment
-  // assert(unsafeBitCast(h, Word.self) & 0x7 == 0)
+  let h = UnsafeMutableRawPointer.allocate(bytes: count*size, alignedTo: 16)
+  for i in 0..<count
+  {
+    h.storeBytes(of: nil, toByteOffset: i*size, as: Optional<OpaquePointer>.self)
+  }
 
   return OpaquePointer(h)
 }
 
 func AtomicQueueRelease(_ h: QueueHead)
 {
-  UnsafeMutablePointer<Int>(h).deallocate(capacity: 4)
+  UnsafeMutableRawPointer(h).deallocate(bytes: 3*MemoryLayout<OpaquePointer>.size, alignedTo: 16)
 }
 
 
@@ -58,19 +58,19 @@ func AtomicStackInit() -> StackHead
   //    long	 opaque2;
   //  } __attribute__ ((aligned (16))) OSQueueHead;
 
-  let h = UnsafeMutablePointer<Int>.allocate(capacity: 2)
-  for i in 0..<2
-  {
-    h.advanced(by: i).initialize(to: 0)
-  }
+  let size = MemoryLayout<OpaquePointer>.size
+  let count = 2
 
-  // Check pointer alignment
-  // assert(unsafeBitCast(h, Word.self) & 0x7 == 0)
+  let h = UnsafeMutableRawPointer.allocate(bytes: count*size, alignedTo: 16)
+  for i in 0..<count
+  {
+    h.storeBytes(of: nil, toByteOffset: i*size, as: Optional<OpaquePointer>.self)
+  }
 
   return OpaquePointer(h)
 }
 
 func AtomicStackRelease(_ h: StackHead)
 {
-  UnsafeMutablePointer<Int>(h).deallocate(capacity: 2)
+  UnsafeMutableRawPointer(h).deallocate(bytes: 2*MemoryLayout<OpaquePointer>.size, alignedTo: 16)
 }
