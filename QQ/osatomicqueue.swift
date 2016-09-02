@@ -15,7 +15,7 @@
 import func Darwin.libkern.OSAtomic.OSAtomicFifoEnqueue
 import func Darwin.libkern.OSAtomic.OSAtomicFifoDequeue
 
-struct AtomicQueue<T>
+struct AtomicQueue<Node>
 {
   private let head: OpaquePointer
 
@@ -59,14 +59,14 @@ struct AtomicQueue<T>
     UnsafeMutableRawPointer(head).deallocate(bytes: 3*MemoryLayout<OpaquePointer>.size, alignedTo: 16)
   }
 
-  func enqueue(_ node: UnsafeMutablePointer<T>)
+  func enqueue(_ node: UnsafeMutablePointer<Node>)
   {
     OSAtomicFifoEnqueue(head, UnsafeMutableRawPointer(node), 0)
   }
 
-  func dequeue() -> UnsafeMutablePointer<T>?
+  func dequeue() -> UnsafeMutablePointer<Node>?
   {
-    return OSAtomicFifoDequeue(head, 0)?.assumingMemoryBound(to: T.self)
+    return OSAtomicFifoDequeue(head, 0)?.assumingMemoryBound(to: Node.self)
   }
 }
 
@@ -78,7 +78,7 @@ struct AtomicQueue<T>
 import func Darwin.libkern.OSAtomic.OSAtomicEnqueue
 import func Darwin.libkern.OSAtomic.OSAtomicDequeue
 
-struct AtomicStack<T>
+struct AtomicStack<Node>
 {
   private let head: OpaquePointer
 
@@ -106,13 +106,13 @@ struct AtomicStack<T>
     UnsafeMutableRawPointer(head).deallocate(bytes: 2*MemoryLayout<OpaquePointer>.size, alignedTo: 16)
   }
 
-  func push(_ node: UnsafeMutablePointer<T>)
+  func push(_ node: UnsafeMutablePointer<Node>)
   {
     OSAtomicEnqueue(head, UnsafeMutableRawPointer(node), 0)
   }
 
-  func pop() -> UnsafeMutablePointer<T>?
+  func pop() -> UnsafeMutablePointer<Node>?
   {
-    return OSAtomicDequeue(head, 0)?.assumingMemoryBound(to: T.self)
+    return OSAtomicDequeue(head, 0)?.assumingMemoryBound(to: Node.self)
   }
 }
