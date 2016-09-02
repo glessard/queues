@@ -19,13 +19,13 @@ import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 
 final public class Fast2LockQueue<T>: QueueType
 {
-  private var head: UnsafeMutablePointer<Node<T>>? = nil
-  private var tail: UnsafeMutablePointer<Node<T>> = UnsafeMutablePointer(bitPattern: 0x0000000f)!
+  private var head: QueueNode<T>? = nil
+  private var tail: QueueNode<T>! = nil
 
   private var hlock = OS_SPINLOCK_INIT
   private var tlock = OS_SPINLOCK_INIT
 
-  private let pool = AtomicStack<Node<T>>()
+  private let pool = AtomicStack<QueueNode<T>>()
 
   public init() { }
 
@@ -34,30 +34,28 @@ final public class Fast2LockQueue<T>: QueueType
     // empty the queue
     while let node = head
     {
-      node.pointee.next?.pointee.elem.deinitialize()
-      head = node.pointee.next
-      node.pointee.elem.deallocate(capacity: 1)
-      node.deallocate(capacity: 1)
+      node.next?.deinitialize()
+      head = node.next
+      node.deallocate()
     }
 
     // drain the pool
     while let node = pool.pop()
     {
-      node.pointee.elem.deallocate(capacity: 1)
-      node.deallocate(capacity: 1)
+      node.deallocate()
     }
     // release the pool stack structure
     pool.release()
   }
 
-  public var isEmpty: Bool { return head == tail }
+  public var isEmpty: Bool { return head?.storage == tail.storage }
 
   public var count: Int {
     var i = 0
-    var node = head?.pointee.next
+    var node = head?.next
     while let current = node
     { // Iterate along the linked nodes while counting
-      node = current.pointee.next
+      node = current.next
       i += 1
     }
     return i
@@ -65,31 +63,19 @@ final public class Fast2LockQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node: UnsafeMutablePointer<Node<T>>
-    if let popped = pool.pop()
-    {
-      node = popped
-    }
-    else
-    {
-      node = UnsafeMutablePointer.allocate(capacity: 1)
-      node.pointee = Node()
-    }
-    node.pointee.next = nil
-    node.pointee.elem.initialize(to: newElement)
+    let node = pool.pop() ?? QueueNode()
+    node.initialize(to: newElement)
 
     OSSpinLockLock(&tlock)
     if head == nil
     { // This is the initial element
       tail = node
-      let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-      node.pointee = Node()
-      node.pointee.next = tail
-      head = node
+      head = QueueNode()
+      head!.next = tail
     }
     else
     {
-      tail.pointee.next = node
+      tail.next = node
       tail = node
     }
     OSSpinLockUnlock(&tlock)
@@ -99,10 +85,10 @@ final public class Fast2LockQueue<T>: QueueType
   {
     OSSpinLockLock(&hlock)
     if let oldhead = head,
-       let next = oldhead.pointee.next
+       let next = oldhead.next
     {
       head = next
-      let element = next.pointee.elem.move()
+      let element = next.move()
       OSSpinLockUnlock(&hlock)
 
       pool.push(oldhead)
@@ -112,16 +98,5 @@ final public class Fast2LockQueue<T>: QueueType
     // queue is empty
     OSSpinLockUnlock(&hlock)
     return nil
-  }
-}
-
-private struct Node<T>
-{
-  var next: UnsafeMutablePointer<Node<T>>? = nil
-  let elem: UnsafeMutablePointer<T>
-
-  init()
-  {
-    elem = UnsafeMutablePointer.allocate(capacity: 1)
   }
 }

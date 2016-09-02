@@ -12,10 +12,10 @@ import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 
 final public class FastQueue<T>: QueueType
 {
-  private var head: Node<T>? = nil
-  private var tail: Node<T>! = nil
+  private var head: QueueNode<T>? = nil
+  private var tail: QueueNode<T>! = nil
 
-  private let pool = BetterAtomicStack<Node<T>>()
+  private let pool = AtomicStack<QueueNode<T>>()
   private var lock = OS_SPINLOCK_INIT
 
   public init() { }
@@ -54,7 +54,7 @@ final public class FastQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node = pool.pop() ?? Node()
+    let node = pool.pop() ?? QueueNode()
     node.initialize(to: newElement)
 
     OSSpinLockLock(&lock)
@@ -87,61 +87,5 @@ final public class FastQueue<T>: QueueType
     // queue is empty
     OSSpinLockUnlock(&lock)
     return nil
-  }
-}
-
-private let offset = MemoryLayout<UnsafeMutableRawPointer>.stride
-
-private struct Node<T>: OSAtomicNode
-{
-  let storage: UnsafeMutableRawPointer
-
-  init(storage: UnsafeMutableRawPointer)
-  {
-    self.storage = storage
-  }
-
-  init()
-  {
-    let size = offset + MemoryLayout<T>.stride
-    storage = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: 16)
-    storage.assumingMemoryBound(to: (UnsafeMutableRawPointer?).self).pointee = nil
-    (storage+offset).bindMemory(to: T.self, capacity: 1)
-  }
-
-  func deallocate()
-  {
-    let size = offset + MemoryLayout<T>.stride
-    storage.deallocate(bytes: size, alignedTo: MemoryLayout<UnsafeMutableRawPointer>.alignment)
-  }
-
-  var next: Node<T>? {
-    get {
-      if let s = storage.assumingMemoryBound(to: (UnsafeMutableRawPointer?).self).pointee
-      {
-        return Node(storage: s)
-      }
-      return nil
-    }
-    nonmutating set {
-      storage.assumingMemoryBound(to: (UnsafeMutableRawPointer?).self).pointee = newValue?.storage
-    }
-  }
-
-  func initialize(to element: T)
-  {
-    storage.assumingMemoryBound(to: (UnsafeMutableRawPointer?).self).pointee = nil
-    (storage+offset).assumingMemoryBound(to: T.self).initialize(to: element)
-  }
-
-  func deinitialize()
-  {
-    (storage+offset).assumingMemoryBound(to: T.self).deinitialize()
-  }
-
-  @discardableResult
-  func move() -> T
-  {
-    return (storage+offset).assumingMemoryBound(to: T.self).move()
   }
 }
