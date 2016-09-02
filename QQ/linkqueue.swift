@@ -6,7 +6,9 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin.libkern.OSAtomic
+import let  Darwin.libkern.OSAtomic.OS_SPINLOCK_INIT
+import func Darwin.libkern.OSAtomic.OSSpinLockLock
+import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 
 final public class LinkQueue<T>: QueueType
 {
