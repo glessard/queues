@@ -34,8 +34,7 @@ final public class LinkOSQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node = QueueNode<T>()
-    node.initialize(to: newElement)
+    let node = QueueNode(initializedWith: newElement)
 
     queue.enqueue(node)
   }

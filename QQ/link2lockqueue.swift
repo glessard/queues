@@ -58,8 +58,7 @@ final public class Link2LockQueue<T>: QueueType, Sequence, IteratorProtocol
 
   public func enqueue(_ newElement: T)
   {
-    let node = QueueNode<T>()
-    node.initialize(to: newElement)
+    let node = QueueNode(initializedWith: newElement)
 
     OSSpinLockLock(&tlock)
     if head == nil
