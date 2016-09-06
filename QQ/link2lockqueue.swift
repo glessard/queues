@@ -24,8 +24,8 @@ import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 
 final public class Link2LockQueue<T>: QueueType, Sequence, IteratorProtocol
 {
-  private var head: UnsafeMutablePointer<Node<T>>? = nil
-  private var tail: UnsafeMutablePointer<Node<T>> = UnsafeMutablePointer(bitPattern: 0x0000000f)!
+  private var head: QueueNode<T>? = nil
+  private var tail: QueueNode<T>! = nil
 
   private var hlock = OS_SPINLOCK_INIT
   private var tlock = OS_SPINLOCK_INIT
@@ -37,20 +37,20 @@ final public class Link2LockQueue<T>: QueueType, Sequence, IteratorProtocol
     // empty the queue
     while let node = head
     {
-      head = node.pointee.next
-      node.deinitialize()
-      node.deallocate(capacity: 1)
+      node.next?.deinitialize()
+      head = node.next
+      node.deallocate()
     }
   }
 
-  public var isEmpty: Bool { return head == tail }
+  public var isEmpty: Bool { return head?.storage == tail.storage }
 
   public var count: Int {
     var i = 0
-    var node = head?.pointee.next
+    var node = head?.next
     while let current = node
     { // Iterate along the linked nodes while counting
-      node = current.pointee.next
+      node = current.next
       i += 1
     }
     return i
@@ -58,21 +58,19 @@ final public class Link2LockQueue<T>: QueueType, Sequence, IteratorProtocol
 
   public func enqueue(_ newElement: T)
   {
-    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-    node.initialize(to: Node(newElement))
+    let node = QueueNode<T>()
+    node.initialize(to: newElement)
 
     OSSpinLockLock(&tlock)
     if head == nil
     { // This is the initial element
       tail = node
-      let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-      node.initialize(to: Node(newElement))
-      node.pointee.next = tail
-      head = node
+      head = QueueNode()
+      head!.next = tail
     }
     else
     {
-      tail.pointee.next = node
+      tail.next = node
       tail = node
     }
     OSSpinLockUnlock(&tlock)
@@ -82,30 +80,18 @@ final public class Link2LockQueue<T>: QueueType, Sequence, IteratorProtocol
   {
     OSSpinLockLock(&hlock)
     if let oldhead = head,
-       let next = oldhead.pointee.next
+       let next = oldhead.next
     {
       head = next
-      let element = next.pointee.elem
+      let element = next.move()
       OSSpinLockUnlock(&hlock)
 
-      oldhead.deinitialize()
-      oldhead.deallocate(capacity: 1)
+      oldhead.deallocate()
       return element
     }
 
     // queue is empty
     OSSpinLockUnlock(&hlock)
     return nil
-  }
-}
-
-private struct Node<T>
-{
-  var next: UnsafeMutablePointer<Node<T>>? = nil
-  let elem: T
-
-  init(_ element: T)
-  {
-    elem = element
   }
 }
