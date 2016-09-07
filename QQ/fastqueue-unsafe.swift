@@ -8,28 +8,27 @@
 
 final public class UnsafeFastQueue<T>: QueueType
 {
-  private var head: UnsafeMutablePointer<Node<T>>? = nil
-  private var tail: UnsafeMutablePointer<Node<T>> = UnsafeMutablePointer(bitPattern: 0x0000000f)!
+  private var head: QueueNode<T>? = nil
+  private var tail: QueueNode<T>! = nil
 
-  private let pool = AtomicStack<Node<T>>()
+  private let pool = AtomicStack<QueueNode<T>>()
 
   public init() { }
 
   deinit
   {
     // empty the queue
-    while head != nil
+    while let node = head
     {
-      let node = head
-      head = node?.pointee.next
-      node?.deinitialize()
-      node?.deallocate(capacity: 1)
+      head = node.next
+      node.deinitialize()
+      node.deallocate()
     }
 
     // drain the pool
     while let node = pool.pop()
     {
-      node.deallocate(capacity: 1)
+      node.deallocate()
     }
     // release the pool stack structure
     pool.release()
@@ -40,9 +39,9 @@ final public class UnsafeFastQueue<T>: QueueType
   public var count: Int {
     var i = 0
     var node = head
-    while node != nil
+    while let current = node
     { // Iterate along the linked nodes while counting
-      node = node?.pointee.next
+      node = current.next
       i += 1
     }
     return i
@@ -50,8 +49,8 @@ final public class UnsafeFastQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node = pool.pop() ?? UnsafeMutablePointer.allocate(capacity: 1)
-    node.initialize(to: Node(newElement))
+    let node = pool.pop() ?? QueueNode()
+    node.initialize(to: newElement)
 
     if head == nil
     {
@@ -60,7 +59,7 @@ final public class UnsafeFastQueue<T>: QueueType
     }
     else
     {
-      tail.pointee.next = node
+      tail.next = node
       tail = node
     }
   }
@@ -69,26 +68,14 @@ final public class UnsafeFastQueue<T>: QueueType
   {
     if let node = head
     { // Promote the 2nd item to 1st
-      head = node.pointee.next
+      head = node.next
 
-      let element = node.pointee.elem
-      node.deinitialize()
+      let element = node.move()
       pool.push(node)
       return element
     }
 
     // queue is empty
     return nil
-  }
-}
-
-private struct Node<T>
-{
-  var next: UnsafeMutablePointer<Node<T>>? = nil
-  let elem: T
-
-  init(_ e: T)
-  {
-    elem = e
   }
 }

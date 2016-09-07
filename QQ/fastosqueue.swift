@@ -8,8 +8,8 @@
 
 final public class FastOSQueue<T>: QueueType
 {
-  private let queue = AtomicQueue<Node<T>>()
-  private let pool = AtomicStack<Node<T>>()
+  private let queue = AtomicQueue<QueueNode<T>>()
+  private let pool = AtomicStack<QueueNode<T>>()
 
   public init() { }
 
@@ -19,7 +19,7 @@ final public class FastOSQueue<T>: QueueType
     while let node = queue.dequeue()
     {
       node.deinitialize()
-      node.deallocate(capacity: 1)
+      node.deallocate()
     }
     // release the queue head structure
     queue.release()
@@ -27,7 +27,7 @@ final public class FastOSQueue<T>: QueueType
     // drain the pool
     while let node = pool.pop()
     {
-      node.deallocate(capacity: 1)
+      node.deallocate()
     }
     // release the pool stack structure
     pool.release()
@@ -43,8 +43,8 @@ final public class FastOSQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node = pool.pop() ?? UnsafeMutablePointer.allocate(capacity: 1)
-    node.initialize(to: Node(newElement))
+    let node = pool.pop() ?? QueueNode()
+    node.initialize(to: newElement)
 
     queue.enqueue(node)
   }
@@ -53,24 +53,12 @@ final public class FastOSQueue<T>: QueueType
   {
     if let node = queue.dequeue()
     {
-      let element = node.pointee.elem
-      node.deinitialize()
+      let element = node.move()
       pool.push(node)
       return element
     }
 
     // The queue is empty
     return nil
-  }
-}
-
-private struct Node<T>
-{
-  var next: UnsafeMutablePointer<Node<T>>? = nil
-  let elem: T
-
-  init(_ e: T)
-  {
-    elem = e
   }
 }

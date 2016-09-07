@@ -8,7 +8,7 @@
 
 final public class LinkOSQueue<T>: QueueType
 {
-  private let queue = AtomicQueue<Node<T>>()
+  private let queue = AtomicQueue<QueueNode<T>>()
 
   public init() { }
 
@@ -18,7 +18,7 @@ final public class LinkOSQueue<T>: QueueType
     while let node = queue.dequeue()
     {
       node.deinitialize()
-      node.deallocate(capacity: 1)
+      node.deallocate()
     }
     // release the queue head structure
     queue.release()
@@ -34,8 +34,7 @@ final public class LinkOSQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-    node.initialize(to: Node(newElement))
+    let node = QueueNode(initializedWith: newElement)
 
     queue.enqueue(node)
   }
@@ -44,24 +43,12 @@ final public class LinkOSQueue<T>: QueueType
   {
     if let node = queue.dequeue()
     {
-      let element = node.pointee.elem
-      node.deinitialize()
-      node.deallocate(capacity: 1)
+      let element = node.move()
+      node.deallocate()
       return element
     }
 
     // The queue is empty
     return nil
-  }
-}
-
-private struct Node<T>
-{
-  var next: UnsafeMutablePointer<Node<T>>? = nil
-  let elem: T
-
-  init(_ e: T)
-  {
-    elem = e
   }
 }
