@@ -21,6 +21,9 @@
 		035A985B1A53B0B000F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
 		035A985D1A53B0B000F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
 		035A996A1A5777DE00F4B44B /* QQTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98391A539CF600F4B44B /* QQTests.swift */; };
+		035AB2471D7FD09900F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDEA1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift */; };
+		035AB2481D7FD09A00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDEA1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift */; };
+		035AB24A1D7FD0D000F4B44B /* lockfree-node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035AB2491D7FD0D000F4B44B /* lockfree-node.swift */; };
 		035DB9631BA1F33400F4B44B /* link2lockqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDED1B17ADFB00F4B44B /* link2lockqueue.swift */; };
 		035DB9791BA3943400F4B44B /* queue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035DB9781BA3943400F4B44B /* queue-unsafe.swift */; };
 		035DB97A1BA3947300F4B44B /* queue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035DB9781BA3943400F4B44B /* queue-unsafe.swift */; };
@@ -81,6 +84,7 @@
 		035A984E1A53AC2A00F4B44B /* FastQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FastQueueTests.swift; sourceTree = "<group>"; };
 		035A98541A53B0A500F4B44B /* QueueBenchmark */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = QueueBenchmark; sourceTree = BUILT_PRODUCTS_DIR; };
 		035A98561A53B0A500F4B44B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		035AB2491D7FD0D000F4B44B /* lockfree-node.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "lockfree-node.swift"; sourceTree = "<group>"; };
 		035DB9781BA3943400F4B44B /* queue-unsafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "queue-unsafe.swift"; sourceTree = "<group>"; };
 		035DB97B1BA633B200F4B44B /* linkqueue-unsafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "linkqueue-unsafe.swift"; sourceTree = "<group>"; };
 		03678C101A60963700F4B44B /* osatomicqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = osatomicqueue.swift; sourceTree = "<group>"; };
@@ -221,6 +225,7 @@
 		03E4E2701C55E6FD00F4B44B /* Lock-free Queues */ = {
 			isa = PBXGroup;
 			children = (
+				035AB2491D7FD0D000F4B44B /* lockfree-node.swift */,
 				03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */,
 				03B14A0C1AEB05FF00F4B44B /* fastqueue-lockfree.swift */,
 				031DEDEA1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift */,
@@ -382,6 +387,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				03678C111A60963700F4B44B /* osatomicqueue.swift in Sources */,
+				035AB2471D7FD09900F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */,
 				038ACC791BA0E54200F4B44B /* taggedpointer.swift in Sources */,
 				030F58D71A5B5EA500F4B44B /* fastqueue.swift in Sources */,
 				035DB97C1BA633B200F4B44B /* linkqueue-unsafe.swift in Sources */,
@@ -392,6 +398,7 @@
 				035A98471A539D7300F4B44B /* queuetype.swift in Sources */,
 				035A984A1A53A04300F4B44B /* linkqueue.swift in Sources */,
 				035DB9791BA3943400F4B44B /* queue-unsafe.swift in Sources */,
+				035AB24A1D7FD0D000F4B44B /* lockfree-node.swift in Sources */,
 				031DEDEE1B17ADFB00F4B44B /* link2lockqueue.swift in Sources */,
 				03E4CC1C1AF7563300F4B44B /* fast2lockqueue.swift in Sources */,
 				036939B91A5EFB3500F4B44B /* queue.swift in Sources */,
@@ -416,6 +423,7 @@
 				03678C201A61205500F4B44B /* linkosqueue.swift in Sources */,
 				035A98571A53B0A500F4B44B /* main.swift in Sources */,
 				035A985D1A53B0B000F4B44B /* linkqueue.swift in Sources */,
+				035AB2481D7FD09A00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */,
 				035A985B1A53B0B000F4B44B /* queuetype.swift in Sources */,
 				035DB97D1BA6946D00F4B44B /* linkqueue-unsafe.swift in Sources */,
 				03678C2B1A61239C00F4B44B /* fastosqueue.swift in Sources */,
