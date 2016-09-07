@@ -14,7 +14,7 @@ import Darwin
 /// The implementation uses Int64 as the base type in order to easily
 /// work with OSAtomicCompareAndSwap in Swift.
 
-struct TaggedPointer<T>: Equatable
+struct TaggedPointer<T: OSAtomicNode>: Equatable
 {
   private var value: Int64
 
@@ -27,17 +27,17 @@ struct TaggedPointer<T>: Equatable
     return value == 0
   }
 
-  @inline(__always) init(_ pointer: UnsafePointer<T>?, tag: Int64)
+  @inline(__always) init(_ node: T, tag: Int64)
   {
     #if arch(x86_64) || arch(arm64)
-      value = Int64(bitPattern: unsafeBitCast(pointer, to: UInt64.self) & 0x00ff_ffff_ffff_ffff + UInt64(bitPattern: tag) << 48)
+      value = Int64(bitPattern: unsafeBitCast(node.storage, to: UInt64.self) & 0x00ff_ffff_ffff_ffff + UInt64(bitPattern: tag) << 48)
     #else
       value = Int64(bitPattern: UInt64(unsafeBitCast(pointer, UInt32.self)) + UInt64(bitPattern: tag) << 32)
     #endif
   }
 
   @inline(__always) @discardableResult
-  mutating func CAS(old: TaggedPointer, new: UnsafePointer<T>?) -> Bool
+  mutating func CAS(old: TaggedPointer, new: T) -> Bool
   {
     #if arch(x86_64) || arch(arm64)
       let oldtag = old.value >> 48
@@ -49,18 +49,18 @@ struct TaggedPointer<T>: Equatable
     return OSAtomicCompareAndSwap64Barrier(old.value, nptr.value, &value)
   }
 
-  var pointer: UnsafeMutablePointer<T>? {
+  private var pointer: UnsafeMutableRawPointer? {
     #if arch(x86_64) || arch(arm64)
-      return UnsafeMutablePointer(bitPattern: UInt(value & 0x00ff_ffff_ffff_ffff))
+      return UnsafeMutableRawPointer(bitPattern: UInt(value & 0x00ff_ffff_ffff_ffff))
     #else // 32-bit architecture
-      return UnsafeMutablePointer(bitPattern: UInt(value & 0xffff_ffff))
+      return UnsafeMutableRawPointer(bitPattern: UInt(value & 0xffff_ffff))
     #endif
   }
 
   var pointee: T? {
-    if let p = self.pointer
+    if let bytes = self.pointer
     {
-      return p.pointee
+      return T(storage: bytes)
     }
     return nil
   }

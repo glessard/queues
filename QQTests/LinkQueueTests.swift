@@ -193,43 +193,43 @@ class DoubleLockLinkQueueTests: QQTests
 //  }
 //}
 
-//class OptimisticLinkQueueTests: QQTests
-//{
-//  func testQueue()
-//  {
-//    QueueTestCount(OptimisticLinkQueue<Int>.self, element: 0)
-//  }
-//
-//  func testQueueInt()
-//  {
-//    QueueIntTest(OptimisticLinkQueue<UInt64>.self)
-//  }
-//
-//  func testQueueRef()
-//  {
-//    QueueRefTest(OptimisticLinkQueue<Thing>.self)
-//  }
-//
-//  func testPerformanceFill()
-//  {
-//    QueuePerformanceTestFill(OptimisticLinkQueue<Thing>.self)
-//  }
-//
-//  func testPerformanceSpin()
-//  {
-//    QueuePerformanceTestSpin(OptimisticLinkQueue<Thing>.self)
-//  }
-//
-//  func testPerformanceEmpty()
-//  {
-//    QueuePerformanceTestEmpty(OptimisticLinkQueue<Thing>.self)
-//  }
-//
-//  func testEmpty()
-//  {
-//    QueueInitEmptyTest(OptimisticLinkQueue<Thing>.self, newElement: Thing())
-//  }
-//}
+class OptimisticLinkQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTestCount(OptimisticLinkQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(OptimisticLinkQueue<UInt64>.self)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(OptimisticLinkQueue<Thing>.self)
+  }
+
+  func testPerformanceFill()
+  {
+    QueuePerformanceTestFill(OptimisticLinkQueue<Thing>.self)
+  }
+
+  func testPerformanceSpin()
+  {
+    QueuePerformanceTestSpin(OptimisticLinkQueue<Thing>.self)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(OptimisticLinkQueue<Thing>.self)
+  }
+
+  func testEmpty()
+  {
+    QueueInitEmptyTest(OptimisticLinkQueue<Thing>.self, newElement: Thing())
+  }
+}
 
 class UnsafeLinkQueueTests: QQTests
 {
