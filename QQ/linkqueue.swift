@@ -12,8 +12,8 @@ import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 
 final public class LinkQueue<T>: QueueType
 {
-  private var head: UnsafeMutablePointer<Node<T>>? = nil
-  private var tail: UnsafeMutablePointer<Node<T>> = UnsafeMutablePointer(bitPattern: 0x0000000f)!
+  private var head: QueueNode<T>? = nil
+  private var tail: QueueNode<T>! = nil
 
   private var lock = OS_SPINLOCK_INIT
 
@@ -23,9 +23,9 @@ final public class LinkQueue<T>: QueueType
   {
     while let node = head
     {
-      head = node.pointee.next
+      head = node.next
       node.deinitialize()
-      node.deallocate(capacity: 1)
+      node.deallocate()
     }
   }
 
@@ -36,7 +36,7 @@ final public class LinkQueue<T>: QueueType
     var node = head
     while let current = node
     { // Iterate along the linked nodes while counting
-      node = current.pointee.next
+      node = current.next
       i += 1
     }
     return i
@@ -44,8 +44,7 @@ final public class LinkQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-    node.initialize(to: Node(newElement))
+    let node = QueueNode(initializedWith: newElement)
 
     OSSpinLockLock(&lock)
     if head == nil
@@ -55,7 +54,7 @@ final public class LinkQueue<T>: QueueType
     }
     else
     {
-      tail.pointee.next = node
+      tail.next = node
       tail = node
     }
     OSSpinLockUnlock(&lock)
@@ -66,28 +65,16 @@ final public class LinkQueue<T>: QueueType
     OSSpinLockLock(&lock)
     if let node = head
     { // Promote the 2nd item to 1st
-      head = node.pointee.next
+      head = node.next
       OSSpinLockUnlock(&lock)
 
-      let element = node.pointee.elem
-      node.deinitialize()
-      node.deallocate(capacity: 1)
+      let element = node.move()
+      node.deallocate()
       return element
     }
 
     // queue is empty
     OSSpinLockUnlock(&lock)
     return nil
-  }
-}
-
-private struct Node<T>
-{
-  var next: UnsafeMutablePointer<Node<T>>? = nil
-  let elem: T
-
-  init(_ e: T)
-  {
-    elem = e
   }
 }

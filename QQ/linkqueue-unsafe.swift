@@ -8,19 +8,18 @@
 
 final public class UnsafeLinkQueue<T>: QueueType
 {
-  private var head: UnsafeMutablePointer<Node<T>>? = nil
-  private var tail: UnsafeMutablePointer<Node<T>> = UnsafeMutablePointer(bitPattern: 0x0000000f)!
+  private var head: QueueNode<T>? = nil
+  private var tail: QueueNode<T>! = nil
 
   public init() { }
 
   deinit
   {
-    while head != nil
+    while let node = head
     {
-      let node = head
-      head = node?.pointee.next
-      node?.deinitialize()
-      node?.deallocate(capacity: 1)
+      head = node.next
+      node.deinitialize()
+      node.deallocate()
     }
   }
 
@@ -29,9 +28,9 @@ final public class UnsafeLinkQueue<T>: QueueType
   public var count: Int {
     var i = 0
     var node = head
-    while node != nil
+    while let current = node
     { // Iterate along the linked nodes while counting
-      node = node?.pointee.next
+      node = current.next
       i += 1
     }
 
@@ -40,8 +39,7 @@ final public class UnsafeLinkQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-    node.initialize(to: Node(newElement))
+    let node = QueueNode(initializedWith: newElement)
 
     if head == nil
     {
@@ -50,36 +48,23 @@ final public class UnsafeLinkQueue<T>: QueueType
     }
     else
     {
-      tail.pointee.next = node
+      tail.next = node
       tail = node
     }
   }
 
   public func dequeue() -> T?
   {
-    if head != nil
-    { // Promote the 2nd item to 1st
-      let node = head
-      head = node?.pointee.next
+    if let node = head
+    {
+      head = node.next
 
-      let element = node?.pointee.elem
-      node?.deinitialize()
-      node?.deallocate(capacity: 1)
+      let element = node.move()
+      node.deallocate()
       return element
     }
 
     // queue is empty
     return nil
-  }
-}
-
-private struct Node<T>
-{
-  var next: UnsafeMutablePointer<Node<T>>? = nil
-  let elem: T
-
-  init(_ e: T)
-  {
-    elem = e
   }
 }
