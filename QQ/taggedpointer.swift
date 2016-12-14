@@ -86,7 +86,7 @@ struct TaggedPointer<T: OSAtomicNode>: Equatable
 //    return value == 0
 //  }
 
-  private var pointer: UnsafeMutableRawPointer? {
+  var pointer: UnsafeMutableRawPointer? {
     #if arch(x86_64) || arch(arm64)
       return UnsafeMutableRawPointer(bitPattern: UInt(value & 0x0000_ffff_ffff_ffff))
     #else // 32-bit architecture

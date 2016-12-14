@@ -155,43 +155,53 @@ class DoubleLockLinkQueueTests: QQTests
   }
 }
 
-//class LockFreeLinkQueueTests: QQTests
-//{
-//  func testQueue()
-//  {
-//    QueueTestCount(LockFreeLinkQueue<Int>.self, element: 0)
-//  }
-//
-//  func testQueueInt()
-//  {
-//    QueueIntTest(LockFreeLinkQueue<UInt64>.self)
-//  }
-//
-//  func testQueueRef()
-//  {
-//    QueueRefTest(LockFreeLinkQueue<Thing>.self)
-//  }
-//
-//  func testPerformanceFill()
-//  {
-//    QueuePerformanceTestFill(LockFreeLinkQueue<Thing>.self)
-//  }
-//
-//  func testPerformanceSpin()
-//  {
-//    QueuePerformanceTestSpin(LockFreeLinkQueue<Thing>.self)
-//  }
-//
-//  func testPerformanceEmpty()
-//  {
-//    QueuePerformanceTestEmpty(LockFreeLinkQueue<Thing>.self)
-//  }
-//
-//  func testEmpty()
-//  {
-//    QueueInitEmptyTest(LockFreeLinkQueue<Thing>.self, newElement: Thing())
-//  }
-//}
+class LockFreeLinkQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTestCount(LockFreeLinkQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(LockFreeLinkQueue<UInt64>.self)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(LockFreeLinkQueue<Thing>.self)
+  }
+
+  func testPerformanceFill()
+  {
+    QueuePerformanceTestFill(LockFreeLinkQueue<Thing>.self)
+  }
+
+  func testPerformanceSpin()
+  {
+    QueuePerformanceTestSpin(LockFreeLinkQueue<Thing>.self)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(LockFreeLinkQueue<Thing>.self)
+  }
+
+  func testEmpty()
+  {
+    QueueInitEmptyTest(LockFreeLinkQueue<Thing>.self, newElement: Thing())
+  }
+
+  func testMT()
+  {
+    MultiThreadedBenchmark(LockFreeLinkQueue<Datum>.self)
+  }
+
+  func testPerformanceMT()
+  {
+    QueuePerformanceTestMultiThreaded(type: LockFreeLinkQueue<Datum>.self)
+  }
+}
 
 class OptimisticLinkQueueTests: QQTests
 {
