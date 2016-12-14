@@ -40,7 +40,7 @@ struct LockFreeNode<Element>: OSAtomicNode
   func deallocate()
   {
     let size = dataOffset + MemoryLayout<Element>.stride
-    storage.deallocate(bytes: size, alignedTo: MemoryLayout<UnsafeMutableRawPointer>.alignment)
+    storage.deallocate(bytes: size, alignedTo: 16)
   }
 
   var pointer: UnsafeMutablePointer<LockFreeNode<Element>> {
