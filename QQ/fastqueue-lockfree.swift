@@ -19,50 +19,45 @@
 
 final public class LockFreeFastQueue<T>: QueueType
 {
-  private var head = TaggedPointer<Node<T>>()
-  private var tail = TaggedPointer<Node<T>>()
+  private var head = AtomicTP<LockFreeNode<T>>()
+  private var tail = AtomicTP<LockFreeNode<T>>()
 
-  private let pool = AtomicStack<Node<T>>()
+  private let pool = AtomicStack<LockFreeNode<T>>()
 
   public init()
   {
-    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-    node.pointee = Node()
-    head = TaggedPointer(node, tag: 0)
-    tail = TaggedPointer(node, tag: 0)
+    let node = LockFreeNode<T>()
+    head.store(TaggedPointer(node, tag: 0))
+    tail.store(TaggedPointer(node, tag: 0))
   }
 
   deinit
   {
     // empty the queue
-    while let node = head.pointer
+    while let node = head.load().pointee
     {
-      head = node.pointee.next
-      if let elem = node.pointee.next.pointee?.elem
-      {
-        elem.deinitialize()
-      }
-      node.pointee.elem.deallocate(capacity: 1)
-      node.deallocate(capacity: 1)
+      node.next.pointee.load().pointee?.deinitialize()
+      head.store(node.next.pointee.load())
+      node.deallocate()
     }
 
     // drain the pool
     while let node = pool.pop()
     {
-      node.pointee.elem.deallocate(capacity: 1)
-      node.deallocate(capacity: 1)
+      node.deallocate()
     }
     pool.release()
   }
 
-  public var isEmpty: Bool { return head.pointer == tail.pointer }
+  public var isEmpty: Bool { return head.load().pointer == tail.load().pointer }
 
   public var count: Int {
-    var node = head
     var i = 0
-    while let raw = node.pointer
+    let current = head.load().pointee!
+    var pointer = current.next.pointee.load()
+    while let current = pointer.pointee
     { // Iterate along the linked nodes while counting
-      node = raw.pointee.next
+      pointer = current.next.pointee.load()
       i += 1
     }
     return i
@@ -70,39 +65,29 @@ final public class LockFreeFastQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    var node: UnsafeMutablePointer<Node<T>>
-    if let popped = pool.pop()
-    {
-      node = popped
-    }
-    else
-    {
-      node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-      node.pointee = Node()
-    }
-    node.pointee.next = TaggedPointer()
-    node.pointee.elem.initialize(to: newElement)
+    let node = pool.pop() ?? LockFreeNode()
+    node.initialize(to: newElement)
 
     while true
     {
-      let oldtail = tail
-      if let oldpntr = oldtail.pointer
+      let oldtail = tail.load()
+      if let tailnode = oldtail.pointee
       {
-        let oldnext = oldpntr.pointee.next
+        let oldnext = tailnode.next.pointee.load()
 
-        if oldtail == tail
+        if oldtail == tail.load()
         { // was tail pointing to the last node?
           if oldnext.pointer == nil
           { // try to link the new node to the end of the list
-            if oldpntr.pointee.next.CAS(old: oldnext, new: node)
+            if tailnode.next.pointee.CAS(old: oldnext, new: node)
             { // success. try to have tail point to the inserted node.
-              tail.CAS(old: oldtail, new: node)
+              _ = tail.CAS(old: oldtail, new: node)
               break
             }
           }
           else
           { // tail wasn't pointing to the actual last node; try to fix it.
-            tail.CAS(old: oldtail, new: oldnext.pointer)
+            _ = tail.CAS(old: oldtail, new: oldnext.pointee!)
           }
         }
       }
@@ -113,51 +98,38 @@ final public class LockFreeFastQueue<T>: QueueType
   {
     while true
     {
-      let oldhead = head
-      let oldtail = tail
+      let oldhead = head.load()
+      let oldtail = tail.load()
 
-      if let oldpntr = oldhead.pointer
+      if let oldnode = oldhead.pointee
       {
-        let newhead = oldpntr.pointee.next
+        let second = oldnode.next.pointee.load().pointee
 
-        if oldhead == head
+        if oldhead == head.load()
         {
-          let newpntr = UnsafePointer<Node<T>>(newhead.pointer)
-
-          if oldpntr != UnsafeMutablePointer<Node<T>>(oldtail.pointer)
-          { // no need to deal with tail
-            // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
-            let element = newpntr!.pointee.elem.pointee
-            if head.CAS(old: oldhead, new: newpntr)
-            {
-              oldpntr.pointee.elem.deinitialize()
-              pool.push(oldpntr)
-              return element
-            }
-          }
-          else
-          {
-            if newpntr == nil
+          if oldnode.storage == oldtail.pointer
+          { // queue empty, or tail is behind
+            if second == nil
             { // queue is empty
               return nil
             }
-            // tail wasn't pointing to the actual last node; try to fix it.
-            tail.CAS(old: oldtail, new: newpntr)
+            // tail was behind the actual last node; try to advance it.
+            _ = tail.CAS(old: oldtail, new: second!)
+          }
+          else
+          { // no need to deal with tail
+            // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
+            let newhead = second!
+            let element = newhead.read() // must happen before deinitialize in another thread
+            if head.CAS(old: oldhead, new: newhead)
+            {
+              newhead.deinitialize()
+              pool.push(oldnode)
+              return element
+            }
           }
         }
       }
     }
-  }
-}
-
-private struct Node<T>
-{
-  var sptr: Int64 = 0
-  var next = TaggedPointer<Node<T>>()
-  let elem: UnsafeMutablePointer<T>
-
-  init()
-  {
-    elem = UnsafeMutablePointer<T>.allocate(capacity: 1)
   }
 }

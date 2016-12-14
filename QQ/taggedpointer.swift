@@ -6,7 +6,7 @@
 //  Copyright © 2015 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin
+import ClangAtomics
 
 /// Int64 as tagged pointer, as a strategy to overcome the ABA problem in
 /// synchronization algorithms based on atomic compare-and-swap operations.
@@ -14,62 +14,99 @@ import Darwin
 /// The implementation uses Int64 as the base type in order to easily
 /// work with OSAtomicCompareAndSwap in Swift.
 
-struct TaggedPointer<T>: Equatable
+struct AtomicTP<T: OSAtomicNode>
 {
-  private var value: Int64
+  private var atom: Atomic64
 
   init()
   {
-    value = 0
+    atom = Atomic64()
+    Store64(0, &atom, memory_order_relaxed)
   }
 
-  var isEmpty: Bool {
-    return value == 0
+  @inline(__always)
+  mutating func store(_ p: TaggedPointer<T>)
+  {
+    Store64(p.int, &atom, memory_order_seq_cst)
   }
 
-  @inline(__always) init(_ pointer: UnsafePointer<T>?, tag: Int64)
+  @inline(__always)
+  mutating func initialize()
+  {
+    Store64(0, &atom, memory_order_relaxed)
+  }
+
+  @inline(__always)
+  mutating func load() -> TaggedPointer<T>
+  {
+    let value = unsafeBitCast(Read64(&atom, memory_order_seq_cst), to: UInt64.self)
+    return TaggedPointer(rawValue: value)
+  }
+
+  @inline(__always)
+  mutating func CAS(old: TaggedPointer<T>, new: T) -> Bool
+  {
+    let new = TaggedPointer(new, updatingTagFrom: old).int
+    var old = old.int
+    return CAS64(&old, new, &atom, memory_order_seq_cst, memory_order_relaxed)
+  }
+}
+
+struct TaggedPointer<T: OSAtomicNode>: Equatable
+{
+  private var value: UInt64
+
+  fileprivate var int: Int64 { return unsafeBitCast(value, to: Int64.self) }
+
+//  init()
+//  {
+//    value = 0
+//  }
+
+  fileprivate init(rawValue: UInt64)
+  {
+    value = rawValue
+  }
+
+  init(_ node: T, updatingTagFrom old: TaggedPointer)
+  {
+    self.init(node, tag: old.tag&+1)
+  }
+
+  init(_ node: T, tag: UInt64)
   {
     #if arch(x86_64) || arch(arm64)
-      value = Int64(bitPattern: unsafeBitCast(pointer, to: UInt64.self) & 0x00ff_ffff_ffff_ffff + UInt64(bitPattern: tag) << 48)
+      value = unsafeBitCast(node.storage, to: UInt64.self) & 0x0000_ffff_ffff_ffff + tag << 48
     #else
-      value = Int64(bitPattern: UInt64(unsafeBitCast(pointer, UInt32.self)) + UInt64(bitPattern: tag) << 32)
+      value = UInt64(unsafeBitCast(pointer, UInt32.self)) + tag << 32
     #endif
   }
 
-  @inline(__always) @discardableResult
-  mutating func CAS(old: TaggedPointer, new: UnsafePointer<T>?) -> Bool
-  {
-    #if arch(x86_64) || arch(arm64)
-      let oldtag = old.value >> 48
-    #else // 32-bit architecture
-      let oldtag = old.value >> 32
-    #endif
+//  var isEmpty: Bool {
+//    return value == 0
+//  }
 
-    let nptr = TaggedPointer(new, tag: oldtag&+1)
-    return OSAtomicCompareAndSwap64Barrier(old.value, nptr.value, &value)
-  }
-
-  var pointer: UnsafeMutablePointer<T>? {
+  var pointer: UnsafeMutableRawPointer? {
     #if arch(x86_64) || arch(arm64)
-      return UnsafeMutablePointer(bitPattern: UInt(value & 0x00ff_ffff_ffff_ffff))
+      return UnsafeMutableRawPointer(bitPattern: UInt(value & 0x0000_ffff_ffff_ffff))
     #else // 32-bit architecture
-      return UnsafeMutablePointer(bitPattern: UInt(value & 0xffff_ffff))
+      return UnsafeMutableRawPointer(bitPattern: UInt(value & 0xffff_ffff))
     #endif
   }
 
   var pointee: T? {
-    if let p = self.pointer
+    if let bytes = self.pointer
     {
-      return p.pointee
+      return T(storage: bytes)
     }
     return nil
   }
 
-  var tag: Int64 {
+  var tag: UInt64 {
     #if arch(x86_64) || arch(arm64)
-      return Int64(bitPattern: UInt64(bitPattern: value) >> 48)
+      return (value >> 48)
     #else // 32-bit architecture
-      return Int64(bitPattern: UInt64(bitPattern: value) >> 32)
+      return (value >> 32)
     #endif
   }
 

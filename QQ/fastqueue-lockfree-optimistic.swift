@@ -22,55 +22,50 @@
 
 final public class OptimisticFastQueue<T>: QueueType
 {
-  private var head = TaggedPointer<Node<T>>()
-  private var tail = TaggedPointer<Node<T>>()
+  private var head = AtomicTP<LockFreeNode<T>>()
+  private var tail = AtomicTP<LockFreeNode<T>>()
 
-  private let pool = AtomicStack<Node<T>>()
+  private let pool = AtomicStack<LockFreeNode<T>>()
 
   public init()
   {
-    let node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-    node.pointee = Node()
-    head = TaggedPointer(node, tag: 1)
-    tail = TaggedPointer(node, tag: 1)
+    let node = LockFreeNode<T>()
+    head.store(TaggedPointer(node, tag: 1))
+    tail.store(TaggedPointer(node, tag: 1))
   }
 
   deinit
   {
     // empty the queue
-    while let node = head.pointer
+    while let node = head.load().pointee
     {
-      head = node.pointee.next
-      if let elem = node.pointee.next.pointee?.elem
-      {
-        elem.deinitialize()
-      }
-      node.pointee.elem.deallocate(capacity: 1)
-      node.deallocate(capacity: 1)
+      node.next.pointee.load().pointee?.deinitialize()
+      head.store(node.next.pointee.load())
+      node.deallocate()
     }
 
     // drain the pool
     while let node = pool.pop()
     {
-      node.pointee.elem.deallocate(capacity: 1)
-      node.deallocate(capacity: 1)
+      node.deallocate()
     }
     pool.release()
   }
 
-  public var isEmpty: Bool { return head == tail }
+  public var isEmpty: Bool { return head.load() == tail.load() }
 
   public var count: Int {
-    if head == tail { return 0 }
+    if head.load() == tail.load() { return 0 }
 
     // make sure the `next` pointers are in order
-    fixlist(tail: tail, head: head)
+    fixlist(tail: tail.load(), head: head.load())
 
     var i = 0
-    var node = head.pointee?.next
-    while let raw = node?.pointer
+    let current = head.load().pointee!
+    var pointer = current.next.pointee.load()
+    while let current = pointer.pointee
     { // Iterate along the linked nodes while counting
-      node = raw.pointee.next
+      pointer = current.next.pointee.load()
       i += 1
     }
     return i
@@ -78,32 +73,20 @@ final public class OptimisticFastQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    var node: UnsafeMutablePointer<Node<T>>
-    if let popped = pool.pop()
-    {
-      node = popped
-    }
-    else
-    {
-      node = UnsafeMutablePointer<Node<T>>.allocate(capacity: 1)
-      node.pointee = Node()
-    }
-    node.pointee.next = TaggedPointer()
-    node.pointee.elem.initialize(to: newElement)
+    let node = pool.pop() ?? LockFreeNode<T>()
+    node.initialize(to: newElement)
 
     while true
     {
-      let oldtail = tail
-      if let oldpntr = UnsafeMutablePointer<Node<T>>(oldtail.pointer)
-      {
-        let oldtag  = oldtail.tag
-
-        node.pointee.prev = TaggedPointer(oldpntr, tag: oldtag+1)
-        if tail.CAS(old: oldtail, new: node)
-        {
-          oldpntr.pointee.next = TaggedPointer(node, tag: oldtag)
-          break
-        }
+      let tail = self.tail.load()
+      let tailNode = tail.pointee!
+      let prev = TaggedPointer(tailNode, updatingTagFrom: tail)
+      node.prev.pointee.store(prev)
+      if self.tail.CAS(old: tail, new: node)
+      { // success, update the old tail's next link
+        let next = TaggedPointer(node, tag: tail.tag)
+        tailNode.next.pointee.store(next)
+        break
       }
     }
   }
@@ -112,62 +95,46 @@ final public class OptimisticFastQueue<T>: QueueType
   {
     while true
     {
-      let oldhead = head
-      let oldtail = tail
+      let head = self.head.load()
+      let tail = self.tail.load()
 
-      if let oldpntr = oldhead.pointer, oldhead == head
+      if let second = head.pointee?.next.pointee.load(),
+        head == self.head.load()
       {
-        let newhead = oldpntr.pointee.next
-        if oldhead != oldtail
-        {
-          if newhead.isEmpty || newhead.tag != oldhead.tag
-          {
-            fixlist(tail: oldtail, head: oldhead)
+        if head != tail
+        { // queue is not empty
+          if second.tag != head.tag
+          { // an enqueue missed its final linking operation
+            fixlist(tail: tail, head: head)
+            continue
           }
-          else
+          let newhead = second.pointee!
+          let element = newhead.read() // must happen before deinitialize in another thread
+          if self.head.CAS(old: head, new: newhead)
           {
-            let newpntr = newhead.pointer
-            // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
-            let element = newpntr!.pointee.elem.pointee
-            if head.CAS(old: oldhead, new: newpntr)
-            {
-              oldpntr.pointee.elem.deinitialize()
-              pool.push(oldpntr)
-              return element
-            }
+            newhead.deinitialize()
+            let oldhead = head.pointee!
+            pool.push(oldhead)
+            return element
           }
         }
-        else
-        {
-          return nil
-        }
+        return nil
       }
     }
   }
 
-  private func fixlist(tail oldtail: TaggedPointer<Node<T>>, head oldhead: TaggedPointer<Node<T>>)
+  private func fixlist(tail oldtail: TaggedPointer<LockFreeNode<T>>, head oldhead: TaggedPointer<LockFreeNode<T>>)
   {
     var current = oldtail
-    while oldhead == head && current != oldhead
+    while oldhead == self.head.load() && current != oldhead
     {
-      if let prevptr = current.pointee?.prev.pointer
+      if let curNode = current.pointee,
+        let currentPrev = curNode.prev.pointee.load().pointee
       {
-        prevptr.pointee.next = TaggedPointer(current.pointer, tag: current.tag-1)
-        current = TaggedPointer(prevptr, tag: current.tag-1)
+        let tag = current.tag &- 1
+        currentPrev.next.pointee.store(TaggedPointer(curNode, tag: tag))
+        current = TaggedPointer(currentPrev, tag: tag)
       }
     }
-  }
-}
-
-private struct Node<T>
-{
-  var sptr: Int64 = 0
-  var next = TaggedPointer<Node<T>>()
-  var prev = TaggedPointer<Node<T>>()
-  let elem: UnsafeMutablePointer<T>
-
-  init()
-  {
-    elem = UnsafeMutablePointer<T>.allocate(capacity: 1)
   }
 }

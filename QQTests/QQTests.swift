@@ -19,6 +19,11 @@ class QQTests: XCTestCase
   {
     let q: Q = [element, element]
     var c = 2
+    guard q.count == c else
+    {
+      XCTAssert(c == q.count, "\(q.count) elements counted, should be 2")
+      return
+    }
 
     for _ in 1...1_000
     {
@@ -30,8 +35,8 @@ class QQTests: XCTestCase
         q.enqueue(element)
         c += 1
         let b = q.count
-        XCTAssert(b-a == 1, "element count improperly incremented upon enqueuing")
-        XCTAssert(c == b)
+        XCTAssert(b-a == 1, "element count improperly incremented: \(b)+1 != \(a)")
+        XCTAssert(c == b, "expected \(c) and \(b) equal")
       }
       else
       {
@@ -157,14 +162,14 @@ class QQTests: XCTestCase
     XCTAssert(dequeueCount == enqueueCount)
   }
 
-  func QueuePerformanceTestMultiThreaded<Q: QueueType>(type: Q.Type) where Q.Element == UInt32
+  func QueuePerformanceTestMultiThreaded<Q: QueueType>(type: Q.Type) where Q.Element: TestItem
   {
     self.measure() {
       self.MTBenchmark(type, threads: 7, iterations: 1_000_000)
     }
   }
 
-  func MultiThreadedBenchmark<Q: QueueType>(_ type: Q.Type) where Q.Element == UInt32
+  func MultiThreadedBenchmark<Q: QueueType>(_ type: Q.Type) where Q.Element: TestItem
   {
     let workers  = [3,5,7,11,19]
     let iterations = 1_000_000
@@ -177,14 +182,14 @@ class QQTests: XCTestCase
   }
 
   @discardableResult
-  func MTBenchmark<Q: QueueType>(_: Q.Type, threads: Int, iterations: Int) -> Int where Q.Element == UInt32
+  func MTBenchmark<Q: QueueType>(_: Q.Type, threads: Int, iterations: Int) -> Int where Q.Element: TestItem
   {
     guard threads > 0 else { return Int.max }
 
     let iterations = Int32(iterations)
     var i: Int32 = 0
 
-    let queue = Q(arc4random())
+    let queue = Q(Q.Element())
     let start = mach_absolute_time()
     DispatchQueue.concurrentPerform(iterations: threads) {
       _ in
@@ -192,7 +197,7 @@ class QQTests: XCTestCase
       {
         if (arc4random() & 1) == 1
         {
-          queue.enqueue(arc4random())
+          queue.enqueue(Q.Element())
         }
         else
         {

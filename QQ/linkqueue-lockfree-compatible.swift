@@ -1,9 +1,9 @@
 //
-//  linkqueue-lockfree.swift
+//  linkqueue-lockfree-compatible.swift
 //  QQ
 //
-//  Created by Guillaume Lessard on 2014-08-16.
-//  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
+//  Created by Guillaume Lessard on 2016-12-14.
+//  Copyright (c) 2016 Guillaume Lessard. All rights reserved.
 //
 
 /// Lock-free queue
@@ -17,14 +17,14 @@
 /// in Principles of Distributed Computing '96 (PODC96)
 /// See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 
-final public class LockFreeLinkQueue<T>: QueueType
+final public class LockFreeCompatibleQueue<T>: QueueType
 {
-  private var head = AtomicTP<LockFreeNode<T>>()
-  private var tail = AtomicTP<LockFreeNode<T>>()
+  private var head = AtomicTP<LockFreeNode<UnsafeMutablePointer<T>>>()
+  private var tail = AtomicTP<LockFreeNode<UnsafeMutablePointer<T>>>()
 
   public init()
   {
-    let node = LockFreeNode<T>()
+    let node = LockFreeNode<UnsafeMutablePointer<T>>()
     head.store(TaggedPointer(node, tag: 0))
     tail.store(TaggedPointer(node, tag: 0))
   }
@@ -56,7 +56,9 @@ final public class LockFreeLinkQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node = LockFreeNode(initializedWith: newElement)
+    let pointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
+    pointer.initialize(to: newElement)
+    let node = LockFreeNode(initializedWith: pointer)
 
     while true
     {
@@ -110,11 +112,13 @@ final public class LockFreeLinkQueue<T>: QueueType
           { // no need to deal with tail
             // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
             let newhead = second!
-            let element = newhead.read() // must happen before deinitialize in another thread
+            let pointer = newhead.read() // must happen before deinitialize in another thread
             if head.CAS(old: oldhead, new: newhead)
             {
               newhead.deinitialize()
               oldnode.deallocate()
+              let element = pointer.move()
+              pointer.deallocate(capacity: 1)
               return element
             }
           }
