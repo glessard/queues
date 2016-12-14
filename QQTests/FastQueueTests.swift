@@ -194,43 +194,53 @@ class DoubleLockFastQueueTests: QQTests
 //}
 
 
-//class OptimisticFastQueueTests: QQTests
-//{
-//  func testQueue()
-//  {
-//    QueueTestCount(OptimisticFastQueue<Int>.self, element: 0)
-//  }
-//
-//  func testQueueInt()
-//  {
-//    QueueIntTest(OptimisticFastQueue<UInt64>.self)
-//  }
-//
-//  func testQueueRef()
-//  {
-//    QueueRefTest(OptimisticFastQueue<Thing>.self)
-//  }
-//
-//  func testPerformanceFill()
-//  {
-//    QueuePerformanceTestFill(OptimisticFastQueue<Thing>.self)
-//  }
-//
-//  func testPerformanceSpin()
-//  {
-//    QueuePerformanceTestSpin(OptimisticFastQueue<Thing>.self)
-//  }
-//
-//  func testPerformanceEmpty()
-//  {
-//    QueuePerformanceTestEmpty(OptimisticFastQueue<Thing>.self)
-//  }
-//
-//  func testEmpty()
-//  {
-//    QueueInitEmptyTest(OptimisticFastQueue<Thing>.self, newElement: Thing())
-//  }
-//}
+class OptimisticFastQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTestCount(OptimisticFastQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(OptimisticFastQueue<UInt64>.self)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(OptimisticFastQueue<Thing>.self)
+  }
+
+  func testPerformanceFill()
+  {
+    QueuePerformanceTestFill(OptimisticFastQueue<Thing>.self)
+  }
+
+  func testPerformanceSpin()
+  {
+    QueuePerformanceTestSpin(OptimisticFastQueue<Thing>.self)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(OptimisticFastQueue<Thing>.self)
+  }
+
+  func testEmpty()
+  {
+    QueueInitEmptyTest(OptimisticFastQueue<Thing>.self, newElement: Thing())
+  }
+
+  func testMT()
+  {
+    MultiThreadedBenchmark(OptimisticFastQueue<Datum>.self)
+  }
+
+  func testPerformanceMT()
+  {
+    QueuePerformanceTestMultiThreaded(type: OptimisticFastQueue<Datum>.self)
+  }
+}
 
 
 class UnsafeFastQueueTests: QQTests
