@@ -1,0 +1,5 @@
+module ClangAtomics [system]
+{
+  header "ClangAtomics.h"
+  export *
+}
