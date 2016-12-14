@@ -229,6 +229,16 @@ class OptimisticLinkQueueTests: QQTests
   {
     QueueInitEmptyTest(OptimisticLinkQueue<Thing>.self, newElement: Thing())
   }
+
+  func testMT()
+  {
+    MultiThreadedBenchmark(OptimisticLinkQueue<Datum>.self)
+  }
+
+  func testPerformanceMT()
+  {
+    QueuePerformanceTestMultiThreaded(type: OptimisticLinkQueue<Datum>.self)
+  }
 }
 
 class UnsafeLinkQueueTests: QQTests

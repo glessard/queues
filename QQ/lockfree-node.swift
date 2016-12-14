@@ -7,8 +7,8 @@
 //
 
 private let linkOffset1 = MemoryLayout<UnsafeMutableRawPointer>.stride
-private let linkOffset2 = MemoryLayout<UnsafeMutableRawPointer>.stride + MemoryLayout<TaggedPointer<LockFreeNode<Int>>>.stride
-private let dataOffset =  MemoryLayout<UnsafeMutableRawPointer>.stride + 2*MemoryLayout<TaggedPointer<LockFreeNode<Int>>>.stride
+private let linkOffset2 = MemoryLayout<UnsafeMutableRawPointer>.stride + MemoryLayout<AtomicTP<LockFreeNode<Int>>>.stride
+private let dataOffset =  MemoryLayout<UnsafeMutableRawPointer>.stride + 2*MemoryLayout<AtomicTP<LockFreeNode<Int>>>.stride
 
 struct LockFreeNode<Element>: OSAtomicNode
 {
@@ -24,7 +24,9 @@ struct LockFreeNode<Element>: OSAtomicNode
     let size = dataOffset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: 16)
     storage.bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1).initialize(to: nil, count: 1)
-    (storage+linkOffset1).bindMemory(to: TaggedPointer<LockFreeNode<Element>>.self, capacity: 2)
+    (storage+linkOffset1).bindMemory(to: AtomicTP<LockFreeNode<Element>>.self, capacity: 2)
+    (storage+linkOffset1).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee.initialize()
+    (storage+linkOffset2).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee.initialize()
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
@@ -33,7 +35,9 @@ struct LockFreeNode<Element>: OSAtomicNode
     let size = dataOffset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: 16)
     storage.bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1).initialize(to: nil, count: 1)
-    (storage+linkOffset1).bindMemory(to: TaggedPointer<LockFreeNode<Element>>.self, capacity: 2)
+    (storage+linkOffset1).bindMemory(to: AtomicTP<LockFreeNode<Element>>.self, capacity: 2)
+    (storage+linkOffset1).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee.initialize()
+    (storage+linkOffset2).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee.initialize()
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1).initialize(to: element)
   }
 
@@ -43,27 +47,23 @@ struct LockFreeNode<Element>: OSAtomicNode
     storage.deallocate(bytes: size, alignedTo: 16)
   }
 
-  var pointer: UnsafeMutablePointer<LockFreeNode<Element>> {
+  var prev: UnsafeMutablePointer<AtomicTP<LockFreeNode<Element>>> {
     get {
-      return storage.assumingMemoryBound(to: LockFreeNode<Element>.self)
+      return (storage+linkOffset1).assumingMemoryBound(to: (AtomicTP<LockFreeNode<Element>>).self)
     }
   }
 
-  var prev: UnsafeMutablePointer<TaggedPointer<LockFreeNode<Element>>> {
+  var next: UnsafeMutablePointer<AtomicTP<LockFreeNode<Element>>> {
     get {
-      return (storage+linkOffset1).assumingMemoryBound(to: (TaggedPointer<LockFreeNode<Element>>).self)
-    }
-  }
-
-  var next: UnsafeMutablePointer<TaggedPointer<LockFreeNode<Element>>> {
-    get {
-      return (storage+linkOffset2).assumingMemoryBound(to: (TaggedPointer<LockFreeNode<Element>>).self)
+      return (storage+linkOffset2).assumingMemoryBound(to: (AtomicTP<LockFreeNode<Element>>).self)
     }
   }
 
   func initialize(to element: Element)
   {
     storage.assumingMemoryBound(to: (UnsafeMutableRawPointer?).self).pointee = nil
+    (storage+linkOffset1).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee.initialize()
+    (storage+linkOffset2).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee.initialize()
     (storage+dataOffset).assumingMemoryBound(to: Element.self).initialize(to: element)
   }
 
@@ -72,7 +72,6 @@ struct LockFreeNode<Element>: OSAtomicNode
     (storage+dataOffset).assumingMemoryBound(to: Element.self).deinitialize()
   }
 
-  @discardableResult
   func read() -> Element
   {
     return (storage+dataOffset).assumingMemoryBound(to: Element.self).pointee

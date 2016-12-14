@@ -22,40 +22,41 @@
 
 final public class OptimisticLinkQueue<T>: QueueType
 {
-  private var head = TaggedPointer<LockFreeNode<T>>()
-  private var tail = TaggedPointer<LockFreeNode<T>>()
+  private var head = AtomicTP<LockFreeNode<T>>()
+  private var tail = AtomicTP<LockFreeNode<T>>()
 
   public init()
   {
     let node = LockFreeNode<T>()
-    head = TaggedPointer(node, tag: 1)
-    tail = TaggedPointer(node, tag: 1)
+    head.store(TaggedPointer(node, tag: 1))
+    tail.store(TaggedPointer(node, tag: 1))
   }
 
   deinit
   {
     // empty the queue
-    while let node = head.pointee
+    while let node = head.load().pointee
     {
-      node.next.pointee.pointee?.deinitialize()
-      head = node.next.pointee
+      node.next.pointee.load().pointee?.deinitialize()
+      head.store(node.next.pointee.load())
       node.deallocate()
     }
   }
 
-  public var isEmpty: Bool { return head == tail }
+  public var isEmpty: Bool { return head.load() == tail.load() }
 
   public var count: Int {
-    if head == tail { return 0 }
+    if head.load() == tail.load() { return 0 }
 
     // make sure the `next` pointers are in order
-    fixlist(tail: tail, head: head)
+    fixlist(tail: tail.load(), head: head.load())
 
     var i = 0
-    var node = head.pointee?.next
-    while let current = node?.pointee
+    let current = head.load().pointee!
+    var pointer = current.next.pointee.load()
+    while let current = pointer.pointee
     { // Iterate along the linked nodes while counting
-      node = current.pointee?.next
+      pointer = current.next.pointee.load()
       i += 1
     }
     return i
@@ -64,21 +65,18 @@ final public class OptimisticLinkQueue<T>: QueueType
   public func enqueue(_ newElement: T)
   {
     let node = LockFreeNode(initializedWith: newElement)
-    node.next.pointee = TaggedPointer()
 
     while true
     {
-      let tail = self.tail
-      if let tailNode = tail.pointee
-      {
-        let tag  = tail.tag
-        node.prev.pointee = TaggedPointer(tailNode, tag: tag+1)
-        if self.tail.CAS(old: tail, new: node)
-        {
-          let next = TaggedPointer(node, tag: tag)
-          tailNode.next.pointee = next
-          break
-        }
+      let tail = self.tail.load()
+      let tailNode = tail.pointee!
+      let prev = TaggedPointer(tailNode, updatingTagFrom: tail)
+      node.prev.pointee.store(prev)
+      if self.tail.CAS(old: tail, new: node)
+      { // success, update the old tail's next link
+        let next = TaggedPointer(node, tag: tail.tag)
+        tailNode.next.pointee.store(next)
+        break
       }
     }
   }
@@ -87,28 +85,27 @@ final public class OptimisticLinkQueue<T>: QueueType
   {
     while true
     {
-      let head = self.head
-      let tail = self.tail
+      let head = self.head.load()
+      let tail = self.tail.load()
 
-      if let firstNext = head.pointee?.next.pointee,
-         head == self.head
+      if let second = head.pointee?.next.pointee.load(),
+         head == self.head.load()
       {
         if head != tail
-        {
-          if firstNext.tag != head.tag
-          {
+        { // queue is not empty
+          if second.tag != head.tag
+          { // an enqueue missed its final linking operation
             fixlist(tail: tail, head: head)
             continue
           }
-          if let element = firstNext.pointee?.read()
+          let newhead = second.pointee!
+          let element = newhead.read() // must happen before deinitialize in another thread
+          if self.head.CAS(old: head, new: newhead)
           {
-            if self.head.CAS(old: head, new: firstNext.pointee!)
-            {
-              firstNext.pointee?.deinitialize()
-              let oldhead = head.pointee!
-              oldhead.deallocate()
-              return element
-            }
+            newhead.deinitialize()
+            let oldhead = head.pointee!
+            oldhead.deallocate()
+            return element
           }
         }
         return nil
@@ -119,13 +116,14 @@ final public class OptimisticLinkQueue<T>: QueueType
   private func fixlist(tail oldtail: TaggedPointer<LockFreeNode<T>>, head oldhead: TaggedPointer<LockFreeNode<T>>)
   {
     var current = oldtail
-    while oldhead == self.head && current != oldhead
+    while oldhead == self.head.load() && current != oldhead
     {
       if let curNode = current.pointee,
-         let currentPrev = curNode.prev.pointee.pointee
+         let currentPrev = curNode.prev.pointee.load().pointee
       {
-        currentPrev.next.pointee = TaggedPointer(curNode, tag: current.tag-1)
-        current = TaggedPointer(currentPrev, tag: current.tag-1)
+        let tag = current.tag &- 1
+        currentPrev.next.pointee.store(TaggedPointer(curNode, tag: tag))
+        current = TaggedPointer(currentPrev, tag: tag)
       }
     }
   }
