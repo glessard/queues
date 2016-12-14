@@ -6,11 +6,22 @@
 //  Copyright (c) 2015 Guillaume Lessard. All rights reserved.
 //
 
-import Darwin.C.stdlib
+import func Darwin.C.stdlib.arc4random
 
-open class Thing
+protocol TestItem
 {
-  open var id = arc4random()
+  var id: UInt32 { get }
+  init()
+}
 
-  public init() { }
+class Thing: TestItem
+{
+  let id = arc4random()
+  required init() { }
+}
+
+struct Datum: TestItem
+{
+  let id = arc4random()
+  init() { }
 }
