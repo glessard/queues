@@ -16,7 +16,7 @@ import ClangAtomics
 
 struct AtomicTP<T: OSAtomicNode>
 {
-  private var atom: Atomic64
+  @_versioned internal var atom: Atomic64
 
   init()
   {
@@ -39,7 +39,7 @@ struct AtomicTP<T: OSAtomicNode>
   @inline(__always)
   mutating func load() -> TaggedPointer<T>
   {
-    let value = unsafeBitCast(Read64(&atom, memory_order_seq_cst), to: UInt64.self)
+    let value = UInt64(bitPattern: Read64(&atom, memory_order_seq_cst))
     return TaggedPointer(rawValue: value)
   }
 
@@ -56,14 +56,14 @@ struct TaggedPointer<T: OSAtomicNode>: Equatable
 {
   private var value: UInt64
 
-  fileprivate var int: Int64 { return unsafeBitCast(value, to: Int64.self) }
+  @_versioned internal var int: Int64 { return Int64(bitPattern: value) }
 
 //  init()
 //  {
 //    value = 0
 //  }
 
-  fileprivate init(rawValue: UInt64)
+  @_versioned internal init(rawValue: UInt64)
   {
     value = rawValue
   }
@@ -76,7 +76,7 @@ struct TaggedPointer<T: OSAtomicNode>: Equatable
   init(_ node: T, tag: UInt64)
   {
     #if arch(x86_64) || arch(arm64)
-      value = unsafeBitCast(node.storage, to: UInt64.self) & 0x0000_ffff_ffff_ffff + tag << 48
+      value = UInt64(UInt(bitPattern: node.storage)) & 0x0000_ffff_ffff_ffff + tag << 48
     #else
       value = UInt64(unsafeBitCast(pointer, UInt32.self)) + tag << 32
     #endif
