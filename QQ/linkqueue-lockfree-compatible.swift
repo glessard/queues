@@ -19,6 +19,8 @@
 
 final public class LockFreeCompatibleQueue<T>: QueueType
 {
+  public typealias Element = T
+
   private var head = AtomicTP<LockFreeNode<UnsafeMutablePointer<T>>>()
   private var tail = AtomicTP<LockFreeNode<UnsafeMutablePointer<T>>>()
 

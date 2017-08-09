@@ -8,6 +8,8 @@
 
 final public class UnsafeFastQueue<T>: QueueType
 {
+  public typealias Element = T
+
   private var head: QueueNode<T>? = nil
   private var tail: QueueNode<T>! = nil
 

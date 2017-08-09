@@ -8,6 +8,8 @@
 
 final public class FastOSQueue<T>: QueueType
 {
+  public typealias Element = T
+
   private let queue = AtomicQueue<QueueNode<T>>()
   private let pool = AtomicStack<QueueNode<T>>()
 

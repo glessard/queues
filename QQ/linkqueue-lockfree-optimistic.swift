@@ -22,6 +22,8 @@
 
 final public class OptimisticLinkQueue<T>: QueueType
 {
+  public typealias Element = T
+
   private var head = AtomicTP<LockFreeNode<T>>()
   private var tail = AtomicTP<LockFreeNode<T>>()
 

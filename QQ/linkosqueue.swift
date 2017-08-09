@@ -8,6 +8,8 @@
 
 final public class LinkOSQueue<T>: QueueType
 {
+  public typealias Element = T
+
   private let queue = AtomicQueue<QueueNode<T>>()
 
   public init() { }
