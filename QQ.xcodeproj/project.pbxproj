@@ -37,6 +37,8 @@
 		03678C2B1A61239C00F4B44B /* fastosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C291A61239C00F4B44B /* fastosqueue.swift */; };
 		036939B91A5EFB3500F4B44B /* queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036939B81A5EFB3500F4B44B /* queue.swift */; };
 		036939BA1A5EFB3500F4B44B /* queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036939B81A5EFB3500F4B44B /* queue.swift */; };
+		03857DB51F548FFB00F4B44B /* queuenode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FE12D81EA85DB400F4B44B /* queuenode.swift */; };
+		03857DB61F54900D00F4B44B /* lockfree-node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035AB2491D7FD0D000F4B44B /* lockfree-node.swift */; };
 		038ACC791BA0E54200F4B44B /* taggedpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC781BA0E54200F4B44B /* taggedpointer.swift */; };
 		038ACC7A1BA0E5A300F4B44B /* taggedpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC781BA0E54200F4B44B /* taggedpointer.swift */; };
 		038ACC7D1BA0ECA500F4B44B /* fastqueue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */; };
@@ -459,9 +461,11 @@
 				035AB2481D7FD09A00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */,
 				035A985B1A53B0B000F4B44B /* queuetype.swift in Sources */,
 				035DB97D1BA6946D00F4B44B /* linkqueue-unsafe.swift in Sources */,
+				03857DB51F548FFB00F4B44B /* queuenode.swift in Sources */,
 				03678C2B1A61239C00F4B44B /* fastosqueue.swift in Sources */,
 				036939BA1A5EFB3500F4B44B /* queue.swift in Sources */,
 				03678C121A60963700F4B44B /* osatomicqueue.swift in Sources */,
+				03857DB61F54900D00F4B44B /* lockfree-node.swift in Sources */,
 				035DB97A1BA3947300F4B44B /* queue-unsafe.swift in Sources */,
 				038ACC7E1BA0ED4A00F4B44B /* fastqueue-unsafe.swift in Sources */,
 				03E4CC1D1AF75B9800F4B44B /* fast2lockqueue.swift in Sources */,
