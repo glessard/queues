@@ -41,8 +41,8 @@
 		038ACC7A1BA0E5A300F4B44B /* taggedpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC781BA0E54200F4B44B /* taggedpointer.swift */; };
 		038ACC7D1BA0ECA500F4B44B /* fastqueue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */; };
 		038ACC7E1BA0ED4A00F4B44B /* fastqueue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */; };
-		03CED87C1E01059400F4B44B /* ClangAtomics.c in Sources */ = {isa = PBXBuildFile; fileRef = 03CED8791E01059400F4B44B /* ClangAtomics.c */; };
-		03CED87D1E01059400F4B44B /* ClangAtomics.h in Headers */ = {isa = PBXBuildFile; fileRef = 03CED87A1E01059400F4B44B /* ClangAtomics.h */; };
+		03CED87C1E01059400F4B44B /* CAtomics.c in Sources */ = {isa = PBXBuildFile; fileRef = 03CED8791E01059400F4B44B /* CAtomics.c */; };
+		03CED87D1E01059400F4B44B /* CAtomics.h in Headers */ = {isa = PBXBuildFile; fileRef = 03CED87A1E01059400F4B44B /* CAtomics.h */; };
 		03CED8831E01C43D00F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC2E1AF8A38300F4B44B /* fastqueue-lockfree-optimistic.swift */; };
 		03CED8841E01C92E00F4B44B /* linkqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */; };
 		03CED8851E01F39A00F4B44B /* fastqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B14A0C1AEB05FF00F4B44B /* fastqueue-lockfree.swift */; };
@@ -101,8 +101,8 @@
 		038ACC781BA0E54200F4B44B /* taggedpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = taggedpointer.swift; sourceTree = "<group>"; };
 		038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "fastqueue-unsafe.swift"; sourceTree = "<group>"; };
 		03B14A0C1AEB05FF00F4B44B /* fastqueue-lockfree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "fastqueue-lockfree.swift"; sourceTree = "<group>"; };
-		03CED8791E01059400F4B44B /* ClangAtomics.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ClangAtomics.c; sourceTree = "<group>"; };
-		03CED87A1E01059400F4B44B /* ClangAtomics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClangAtomics.h; sourceTree = "<group>"; };
+		03CED8791E01059400F4B44B /* CAtomics.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CAtomics.c; sourceTree = "<group>"; };
+		03CED87A1E01059400F4B44B /* CAtomics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAtomics.h; sourceTree = "<group>"; };
 		03CED87B1E01059400F4B44B /* module.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.map; sourceTree = "<group>"; };
 		03CED8861E01F5F300F4B44B /* linkqueue-lockfree-compatible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "linkqueue-lockfree-compatible.swift"; sourceTree = "<group>"; };
 		03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "linkqueue-lockfree.swift"; sourceTree = "<group>"; };
@@ -239,11 +239,12 @@
 		03CED8781E01059400F4B44B /* ClangAtomics */ = {
 			isa = PBXGroup;
 			children = (
-				03CED8791E01059400F4B44B /* ClangAtomics.c */,
-				03CED87A1E01059400F4B44B /* ClangAtomics.h */,
+				03CED8791E01059400F4B44B /* CAtomics.c */,
+				03CED87A1E01059400F4B44B /* CAtomics.h */,
 				03CED87B1E01059400F4B44B /* module.map */,
 			);
-			path = ClangAtomics;
+			name = ClangAtomics;
+			path = CAtomics;
 			sourceTree = "<group>";
 		};
 		03E4E2701C55E6FD00F4B44B /* Lock-free Queues */ = {
@@ -287,7 +288,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03CED87D1E01059400F4B44B /* ClangAtomics.h in Headers */,
+				03CED87D1E01059400F4B44B /* CAtomics.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -423,7 +424,7 @@
 				038ACC7D1BA0ECA500F4B44B /* fastqueue-unsafe.swift in Sources */,
 				03678C2A1A61239C00F4B44B /* fastosqueue.swift in Sources */,
 				035A98471A539D7300F4B44B /* queuetype.swift in Sources */,
-				03CED87C1E01059400F4B44B /* ClangAtomics.c in Sources */,
+				03CED87C1E01059400F4B44B /* CAtomics.c in Sources */,
 				035A984A1A53A04300F4B44B /* linkqueue.swift in Sources */,
 				03CED8871E01F5F300F4B44B /* linkqueue-lockfree-compatible.swift in Sources */,
 				035DB9791BA3943400F4B44B /* queue-unsafe.swift in Sources */,
@@ -530,6 +531,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/CAtomics;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -579,6 +581,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
+				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/CAtomics;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 4.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -602,7 +605,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tffenterprises.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/ClangAtomics;
 			};
 			name = Debug;
 		};
@@ -622,7 +624,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tffenterprises.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/ClangAtomics;
 			};
 			name = Release;
 		};
