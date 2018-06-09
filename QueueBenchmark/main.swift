@@ -30,7 +30,7 @@ print("\(dt/iterations) ns per iteration")
 var queue1ref = Queue(ref)
 
 then = mach_absolute_time()
-for i in 1...iterations
+for _ in 1...iterations
 {
   _ = queue1ref.dequeue()
   queue1ref.enqueue(ref)
@@ -55,7 +55,7 @@ print("\(dt/iterations) ns per iteration")
 var lqueueref = LinkQueue(ref)
 
 then = mach_absolute_time()
-for i in 1...iterations
+for _ in 1...iterations
 {
   _ = lqueueref.dequeue()
   lqueueref.enqueue(ref)
@@ -80,7 +80,7 @@ print("\(dt/iterations) ns per iteration")
 var fqueueref = FastQueue(ref)
 
 then = mach_absolute_time()
-for i in 1...iterations
+for _ in 1...iterations
 {
   _ = fqueueref.dequeue()
   fqueueref.enqueue(ref)
@@ -103,7 +103,7 @@ print("\(dt/iterations) ns per iteration")
 var tllqueueref = Link2LockQueue(ref)
 
 then = mach_absolute_time()
-for i in 1...iterations
+for _ in 1...iterations
 {
   _ = tllqueueref.dequeue()
   tllqueueref.enqueue(ref)
@@ -126,7 +126,7 @@ print("\(dt/iterations) ns per iteration")
 var tlfqueueref = Fast2LockQueue(ref)
 
 then = mach_absolute_time()
-for i in 1...iterations
+for _ in 1...iterations
 {
   _ = tlfqueueref.dequeue()
   tlfqueueref.enqueue(ref)
@@ -151,7 +151,7 @@ print("\(dt/iterations) ns per iteration")
 
 var losqueueref = LinkOSQueue(ref)
 then = mach_absolute_time()
-for i in 1...iterations
+for _ in 1...iterations
 {
   _ = losqueueref.dequeue()
   losqueueref.enqueue(ref)
@@ -175,7 +175,7 @@ print("\(dt/iterations) ns per iteration")
 var fosqueueref = FastOSQueue(ref)
 
 then = mach_absolute_time()
-for i in 1...iterations
+for _ in 1...iterations
 {
   _ = fosqueueref.dequeue()
   fosqueueref.enqueue(ref)
@@ -201,7 +201,7 @@ print("\(dt/iterations) ns per iteration")
 var unsaferefqueue = UnsafeQueue(ref)
 
 then = mach_absolute_time()
-for i in 1...iterations
+for _ in 1...iterations
 {
   _ = unsaferefqueue.dequeue()
   unsaferefqueue.enqueue(ref)
@@ -225,7 +225,7 @@ print("\(dt/iterations) ns per iteration")
 var ureflinkqueue = UnsafeLinkQueue(ref)
 
 then = mach_absolute_time()
-for i in 1...iterations
+for _ in 1...iterations
 {
   _ = ureflinkqueue.dequeue()
   ureflinkqueue.enqueue(ref)
@@ -249,7 +249,7 @@ print("\(dt/iterations) ns per iteration")
 var ureffastqueue = UnsafeFastQueue(ref)
 
 then = mach_absolute_time()
-for i in 1...iterations
+for _ in 1...iterations
 {
   _ = ureffastqueue.dequeue()
   ureffastqueue.enqueue(ref)

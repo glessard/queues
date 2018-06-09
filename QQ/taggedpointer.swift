@@ -6,7 +6,7 @@
 //  Copyright © 2015 Guillaume Lessard. All rights reserved.
 //
 
-import ClangAtomics
+import CAtomics
 
 /// Int64 as tagged pointer, as a strategy to overcome the ABA problem in
 /// synchronization algorithms based on atomic compare-and-swap operations.
@@ -16,30 +16,30 @@ import ClangAtomics
 
 struct AtomicTP<T: OSAtomicNode>
 {
-  @_versioned internal var atom: Atomic64
+  @_versioned internal var atom: CAtomicsUInt64
 
   init()
   {
-    atom = Atomic64()
-    Store64(0, &atom, memory_order_relaxed)
+    atom = CAtomicsUInt64()
+    CAtomicsUInt64Init(0, &atom)
   }
 
   @inline(__always)
   mutating func store(_ p: TaggedPointer<T>)
   {
-    Store64(p.int, &atom, memory_order_seq_cst)
+    CAtomicsUInt64Store(p.int, &atom, .sequential)
   }
 
   @inline(__always)
   mutating func initialize()
   {
-    Store64(0, &atom, memory_order_relaxed)
+    CAtomicsUInt64Store(0, &atom, .relaxed)
   }
 
   @inline(__always)
   mutating func load() -> TaggedPointer<T>
   {
-    let value = UInt64(bitPattern: Read64(&atom, memory_order_seq_cst))
+    let value = CAtomicsUInt64Load(&atom, .sequential)
     return TaggedPointer(rawValue: value)
   }
 
@@ -48,7 +48,7 @@ struct AtomicTP<T: OSAtomicNode>
   {
     let new = TaggedPointer(new, updatingTagFrom: old).int
     var old = old.int
-    return CAS64(&old, new, &atom, memory_order_seq_cst, memory_order_relaxed)
+    return CAtomicsUInt64StrongCAS(&old, new, &atom, .sequential, .relaxed)
   }
 }
 
@@ -56,7 +56,7 @@ struct TaggedPointer<T: OSAtomicNode>: Equatable
 {
   private var value: UInt64
 
-  @_versioned internal var int: Int64 { return Int64(bitPattern: value) }
+  @_versioned internal var int: UInt64 { return value }
 
 //  init()
 //  {

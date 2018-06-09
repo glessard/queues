@@ -1,0 +1,5 @@
+module CAtomics [system]
+{
+  header "CAtomics.h"
+  export *
+}

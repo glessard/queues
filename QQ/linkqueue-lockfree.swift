@@ -19,6 +19,8 @@
 
 final public class LockFreeLinkQueue<T>: QueueType
 {
+  public typealias Element = T
+
   private var head = AtomicTP<LockFreeNode<T>>()
   private var tail = AtomicTP<LockFreeNode<T>>()
 

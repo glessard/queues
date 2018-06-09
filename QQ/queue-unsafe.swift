@@ -10,6 +10,8 @@
 
 final public class UnsafeQueue<T>: QueueType
 {
+  public typealias Element = T
+
   private var head: Node<T>? = nil
   private var tail: Node<T>! = nil
 

@@ -20,7 +20,7 @@ struct QueueNode<Element>: OSAtomicNode
   init()
   {
     let size = offset + MemoryLayout<Element>.stride
-    storage = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: 16)
+    storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
     storage.bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1).pointee = nil
     (storage+offset).bindMemory(to: Element.self, capacity: 1)
   }
@@ -28,15 +28,14 @@ struct QueueNode<Element>: OSAtomicNode
   init(initializedWith element: Element)
   {
     let size = offset + MemoryLayout<Element>.stride
-    storage = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: 16)
+    storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
     storage.bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1).pointee = nil
     (storage+offset).bindMemory(to: Element.self, capacity: 1).initialize(to: element)
   }
 
   func deallocate()
   {
-    let size = offset + MemoryLayout<Element>.stride
-    storage.deallocate(bytes: size, alignedTo: MemoryLayout<UnsafeMutableRawPointer>.alignment)
+    storage.deallocate()
   }
 
   var next: QueueNode? {
@@ -60,7 +59,7 @@ struct QueueNode<Element>: OSAtomicNode
 
   func deinitialize()
   {
-    (storage+offset).assumingMemoryBound(to: Element.self).deinitialize()
+    (storage+offset).assumingMemoryBound(to: Element.self).deinitialize(count: 1)
   }
 
   @discardableResult

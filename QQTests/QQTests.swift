@@ -17,7 +17,9 @@ class QQTests: XCTestCase
 
   func QueueTestCount<Q: QueueType>(_: Q.Type, element: Q.Element)
   {
-    let q: Q = [element, element]
+    let q = Q()
+    q.enqueue(element)
+    q.enqueue(element)
     var c = 2
     guard q.count == c else
     {

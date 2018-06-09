@@ -17,6 +17,8 @@ import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 
 final public class Queue<T>: QueueType
 {
+  public typealias Element = T
+
   private var head: Node<T>? = nil
   private var tail: Node<T>! = nil
 

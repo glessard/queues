@@ -37,12 +37,14 @@
 		03678C2B1A61239C00F4B44B /* fastosqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03678C291A61239C00F4B44B /* fastosqueue.swift */; };
 		036939B91A5EFB3500F4B44B /* queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036939B81A5EFB3500F4B44B /* queue.swift */; };
 		036939BA1A5EFB3500F4B44B /* queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036939B81A5EFB3500F4B44B /* queue.swift */; };
+		03857DB51F548FFB00F4B44B /* queuenode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FE12D81EA85DB400F4B44B /* queuenode.swift */; };
+		03857DB61F54900D00F4B44B /* lockfree-node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035AB2491D7FD0D000F4B44B /* lockfree-node.swift */; };
 		038ACC791BA0E54200F4B44B /* taggedpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC781BA0E54200F4B44B /* taggedpointer.swift */; };
 		038ACC7A1BA0E5A300F4B44B /* taggedpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC781BA0E54200F4B44B /* taggedpointer.swift */; };
 		038ACC7D1BA0ECA500F4B44B /* fastqueue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */; };
 		038ACC7E1BA0ED4A00F4B44B /* fastqueue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */; };
-		03CED87C1E01059400F4B44B /* ClangAtomics.c in Sources */ = {isa = PBXBuildFile; fileRef = 03CED8791E01059400F4B44B /* ClangAtomics.c */; };
-		03CED87D1E01059400F4B44B /* ClangAtomics.h in Headers */ = {isa = PBXBuildFile; fileRef = 03CED87A1E01059400F4B44B /* ClangAtomics.h */; };
+		03CED87C1E01059400F4B44B /* CAtomics.c in Sources */ = {isa = PBXBuildFile; fileRef = 03CED8791E01059400F4B44B /* CAtomics.c */; };
+		03CED87D1E01059400F4B44B /* CAtomics.h in Headers */ = {isa = PBXBuildFile; fileRef = 03CED87A1E01059400F4B44B /* CAtomics.h */; };
 		03CED8831E01C43D00F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC2E1AF8A38300F4B44B /* fastqueue-lockfree-optimistic.swift */; };
 		03CED8841E01C92E00F4B44B /* linkqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */; };
 		03CED8851E01F39A00F4B44B /* fastqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B14A0C1AEB05FF00F4B44B /* fastqueue-lockfree.swift */; };
@@ -101,8 +103,8 @@
 		038ACC781BA0E54200F4B44B /* taggedpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = taggedpointer.swift; sourceTree = "<group>"; };
 		038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "fastqueue-unsafe.swift"; sourceTree = "<group>"; };
 		03B14A0C1AEB05FF00F4B44B /* fastqueue-lockfree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "fastqueue-lockfree.swift"; sourceTree = "<group>"; };
-		03CED8791E01059400F4B44B /* ClangAtomics.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ClangAtomics.c; sourceTree = "<group>"; };
-		03CED87A1E01059400F4B44B /* ClangAtomics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClangAtomics.h; sourceTree = "<group>"; };
+		03CED8791E01059400F4B44B /* CAtomics.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CAtomics.c; sourceTree = "<group>"; };
+		03CED87A1E01059400F4B44B /* CAtomics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAtomics.h; sourceTree = "<group>"; };
 		03CED87B1E01059400F4B44B /* module.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.map; sourceTree = "<group>"; };
 		03CED8861E01F5F300F4B44B /* linkqueue-lockfree-compatible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "linkqueue-lockfree-compatible.swift"; sourceTree = "<group>"; };
 		03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "linkqueue-lockfree.swift"; sourceTree = "<group>"; };
@@ -239,11 +241,12 @@
 		03CED8781E01059400F4B44B /* ClangAtomics */ = {
 			isa = PBXGroup;
 			children = (
-				03CED8791E01059400F4B44B /* ClangAtomics.c */,
-				03CED87A1E01059400F4B44B /* ClangAtomics.h */,
+				03CED8791E01059400F4B44B /* CAtomics.c */,
+				03CED87A1E01059400F4B44B /* CAtomics.h */,
 				03CED87B1E01059400F4B44B /* module.map */,
 			);
-			path = ClangAtomics;
+			name = ClangAtomics;
+			path = CAtomics;
 			sourceTree = "<group>";
 		};
 		03E4E2701C55E6FD00F4B44B /* Lock-free Queues */ = {
@@ -287,7 +290,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03CED87D1E01059400F4B44B /* ClangAtomics.h in Headers */,
+				03CED87D1E01059400F4B44B /* CAtomics.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,16 +357,16 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "Guillaume Lessard";
 				TargetAttributes = {
 					035A98261A539CF600F4B44B = {
 						CreatedOnToolsVersion = 6.1.1;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 0900;
 					};
 					035A98311A539CF600F4B44B = {
 						CreatedOnToolsVersion = 6.1.1;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 0900;
 					};
 					035A98531A53B0A500F4B44B = {
 						CreatedOnToolsVersion = 6.1.1;
@@ -423,7 +426,7 @@
 				038ACC7D1BA0ECA500F4B44B /* fastqueue-unsafe.swift in Sources */,
 				03678C2A1A61239C00F4B44B /* fastosqueue.swift in Sources */,
 				035A98471A539D7300F4B44B /* queuetype.swift in Sources */,
-				03CED87C1E01059400F4B44B /* ClangAtomics.c in Sources */,
+				03CED87C1E01059400F4B44B /* CAtomics.c in Sources */,
 				035A984A1A53A04300F4B44B /* linkqueue.swift in Sources */,
 				03CED8871E01F5F300F4B44B /* linkqueue-lockfree-compatible.swift in Sources */,
 				035DB9791BA3943400F4B44B /* queue-unsafe.swift in Sources */,
@@ -458,9 +461,11 @@
 				035AB2481D7FD09A00F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */,
 				035A985B1A53B0B000F4B44B /* queuetype.swift in Sources */,
 				035DB97D1BA6946D00F4B44B /* linkqueue-unsafe.swift in Sources */,
+				03857DB51F548FFB00F4B44B /* queuenode.swift in Sources */,
 				03678C2B1A61239C00F4B44B /* fastosqueue.swift in Sources */,
 				036939BA1A5EFB3500F4B44B /* queue.swift in Sources */,
 				03678C121A60963700F4B44B /* osatomicqueue.swift in Sources */,
+				03857DB61F54900D00F4B44B /* lockfree-node.swift in Sources */,
 				035DB97A1BA3947300F4B44B /* queue-unsafe.swift in Sources */,
 				038ACC7E1BA0ED4A00F4B44B /* fastqueue-unsafe.swift in Sources */,
 				03E4CC1D1AF75B9800F4B44B /* fast2lockqueue.swift in Sources */,
@@ -490,14 +495,22 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -524,8 +537,9 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/CAtomics;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -539,14 +553,22 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -567,8 +589,9 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
+				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/CAtomics;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 4.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -590,7 +613,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tffenterprises.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/ClangAtomics;
 			};
 			name = Debug;
 		};
@@ -610,7 +632,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tffenterprises.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/ClangAtomics;
 			};
 			name = Release;
 		};
