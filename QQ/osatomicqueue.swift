@@ -40,7 +40,7 @@ struct AtomicQueue<Node: OSAtomicNode>
     let size = MemoryLayout<OpaquePointer>.size
     let count = 3
 
-    let h = UnsafeMutableRawPointer.allocate(bytes: count*size, alignedTo: 16)
+    let h = UnsafeMutableRawPointer.allocate(byteCount: count*size, alignment: 16)
     for i in 0..<count
     {
       h.storeBytes(of: nil, toByteOffset: i*size, as: Optional<OpaquePointer>.self)
@@ -66,7 +66,7 @@ struct AtomicQueue<Node: OSAtomicNode>
 
   func release()
   {
-    UnsafeMutableRawPointer(head).deallocate(bytes: 3*MemoryLayout<OpaquePointer>.size, alignedTo: 16)
+    UnsafeMutableRawPointer(head).deallocate()
   }
 
   func enqueue(_ node: Node)
@@ -107,7 +107,7 @@ struct AtomicStack<Node: OSAtomicNode>
     let size = MemoryLayout<OpaquePointer>.size
     let count = 2
 
-    let h = UnsafeMutableRawPointer.allocate(bytes: count*size, alignedTo: 16)
+    let h = UnsafeMutableRawPointer.allocate(byteCount: count*size, alignment: 16)
     for i in 0..<count
     {
       h.storeBytes(of: nil, toByteOffset: i*size, as: Optional<OpaquePointer>.self)
@@ -118,7 +118,7 @@ struct AtomicStack<Node: OSAtomicNode>
 
   func release()
   {
-    UnsafeMutableRawPointer(head).deallocate(bytes: 2*MemoryLayout<OpaquePointer>.size, alignedTo: 16)
+    UnsafeMutableRawPointer(head).deallocate()
   }
 
   func push(_ node: Node)

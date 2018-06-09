@@ -22,8 +22,8 @@ struct LockFreeNode<Element>: OSAtomicNode
   init()
   {
     let size = dataOffset + MemoryLayout<Element>.stride
-    storage = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: 16)
-    storage.bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1).initialize(to: nil, count: 1)
+    storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
+    storage.bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1).initialize(repeating: nil, count: 1)
     (storage+linkOffset1).bindMemory(to: AtomicTP<LockFreeNode<Element>>.self, capacity: 2)
     (storage+linkOffset1).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee.initialize()
     (storage+linkOffset2).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee.initialize()
@@ -33,8 +33,8 @@ struct LockFreeNode<Element>: OSAtomicNode
   init(initializedWith element: Element)
   {
     let size = dataOffset + MemoryLayout<Element>.stride
-    storage = UnsafeMutableRawPointer.allocate(bytes: size, alignedTo: 16)
-    storage.bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1).initialize(to: nil, count: 1)
+    storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
+    storage.bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1).initialize(repeating: nil, count: 1)
     (storage+linkOffset1).bindMemory(to: AtomicTP<LockFreeNode<Element>>.self, capacity: 2)
     (storage+linkOffset1).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee.initialize()
     (storage+linkOffset2).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee.initialize()
@@ -43,8 +43,7 @@ struct LockFreeNode<Element>: OSAtomicNode
 
   func deallocate()
   {
-    let size = dataOffset + MemoryLayout<Element>.stride
-    storage.deallocate(bytes: size, alignedTo: 16)
+    storage.deallocate()
   }
 
   var prev: UnsafeMutablePointer<AtomicTP<LockFreeNode<Element>>> {
@@ -69,7 +68,7 @@ struct LockFreeNode<Element>: OSAtomicNode
 
   func deinitialize()
   {
-    (storage+dataOffset).assumingMemoryBound(to: Element.self).deinitialize()
+    (storage+dataOffset).assumingMemoryBound(to: Element.self).deinitialize(count: 1)
   }
 
   func read() -> Element

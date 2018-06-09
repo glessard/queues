@@ -120,7 +120,7 @@ final public class LockFreeCompatibleQueue<T>: QueueType
               newhead.deinitialize()
               oldnode.deallocate()
               let element = pointer.move()
-              pointer.deallocate(capacity: 1)
+              pointer.deallocate()
               return element
             }
           }
