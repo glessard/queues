@@ -16,30 +16,29 @@ import CAtomics
 
 struct AtomicTP<T: OSAtomicNode>
 {
-  @_versioned internal var atom: CAtomicsUInt64
+  @_versioned internal var atom = AtomicUInt64()
 
   init()
   {
-    atom = CAtomicsUInt64()
-    CAtomicsUInt64Init(0, &atom)
+    atom.initialize(0)
   }
 
   @inline(__always)
   mutating func store(_ p: TaggedPointer<T>)
   {
-    CAtomicsUInt64Store(p.int, &atom, .sequential)
+    atom.store(p.int, .sequential)
   }
 
   @inline(__always)
   mutating func initialize()
   {
-    CAtomicsUInt64Store(0, &atom, .relaxed)
+    atom.store(0, .relaxed)
   }
 
   @inline(__always)
   mutating func load() -> TaggedPointer<T>
   {
-    let value = CAtomicsUInt64Load(&atom, .sequential)
+    let value = atom.load(.sequential)
     return TaggedPointer(rawValue: value)
   }
 
@@ -47,8 +46,7 @@ struct AtomicTP<T: OSAtomicNode>
   mutating func CAS(old: TaggedPointer<T>, new: T) -> Bool
   {
     let new = TaggedPointer(new, updatingTagFrom: old).int
-    var old = old.int
-    return CAtomicsUInt64StrongCAS(&old, new, &atom, .sequential, .relaxed)
+    return atom.CAS(old.int, new, .strong, .sequential)
   }
 }
 
