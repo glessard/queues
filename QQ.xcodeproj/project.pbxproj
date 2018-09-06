@@ -13,6 +13,7 @@
 		03223F171A64560600F4B44B /* LinkQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F161A64560600F4B44B /* LinkQueueTests.swift */; };
 		03223F201A645BA900F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
 		03223F211A645BFD00F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
+		033E190B2141E95100F4B44B /* CAtomics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033E19032141E90300F4B44B /* CAtomics.framework */; };
 		035A98471A539D7300F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
 		035A984A1A53A04300F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
 		035A984D1A53A49000F4B44B /* QueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A984C1A53A49000F4B44B /* QueueTests.swift */; };
@@ -55,6 +56,55 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		033E18FE2141E90300F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 031CA33E20DBDC0400F4B44B;
+			remoteInfo = Atomics;
+		};
+		033E19002141E90300F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 031CA34720DBDC0400F4B44B;
+			remoteInfo = AtomicsTests;
+		};
+		033E19022141E90300F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 031CA35D20DBDCAD00F4B44B;
+			remoteInfo = CAtomics;
+		};
+		033E19042141E90300F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 031CA36520DBDCAE00F4B44B;
+			remoteInfo = CAtomicsTests;
+		};
+		033E19062141E90300F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0382B62620DC4A2B00F4B44B;
+			remoteInfo = AtomicsTestApp;
+		};
+		033E19082141E90300F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0382B63920DC4A2D00F4B44B;
+			remoteInfo = AtomicsTestAppTests;
+		};
+		033E190C2141E98E00F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 031CA35C20DBDCAD00F4B44B;
+			remoteInfo = CAtomics;
+		};
 		035A98341A539CF600F4B44B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 035A981E1A539CF600F4B44B /* Project object */;
@@ -82,6 +132,7 @@
 		031DEDED1B17ADFB00F4B44B /* link2lockqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = link2lockqueue.swift; sourceTree = "<group>"; };
 		03223F161A64560600F4B44B /* LinkQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkQueueTests.swift; sourceTree = "<group>"; };
 		03223F1E1A645B8800F4B44B /* thing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = thing.swift; path = QQTests/thing.swift; sourceTree = SOURCE_ROOT; };
+		033E18F52141E90300F4B44B /* Atomics.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Atomics.xcodeproj; path = Dependencies/Atomics/Xcode/Atomics.xcodeproj; sourceTree = "<group>"; };
 		035A98271A539CF600F4B44B /* QQ.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = QQ.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		035A982B1A539CF600F4B44B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		035A98321A539CF600F4B44B /* QQTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QQTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -118,6 +169,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				033E190B2141E95100F4B44B /* CAtomics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,13 +190,43 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		033E18F42141E8FD00F4B44B /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				033E18F52141E90300F4B44B /* Atomics.xcodeproj */,
+			);
+			name = Dependencies;
+			sourceTree = "<group>";
+		};
+		033E18F62141E90300F4B44B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				033E18FF2141E90300F4B44B /* Atomics.framework */,
+				033E19012141E90300F4B44B /* AtomicsTests.xctest */,
+				033E19032141E90300F4B44B /* CAtomics.framework */,
+				033E19052141E90300F4B44B /* CAtomicsTests.xctest */,
+				033E19072141E90300F4B44B /* AtomicsTestApp.app */,
+				033E19092141E90300F4B44B /* AtomicsTestAppTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		033E190A2141E95100F4B44B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		035A981D1A539CF600F4B44B = {
 			isa = PBXGroup;
 			children = (
 				035A98291A539CF600F4B44B /* QQ */,
 				035A98361A539CF600F4B44B /* QQTests */,
 				035A98551A53B0A500F4B44B /* QueueBenchmark */,
+				033E18F42141E8FD00F4B44B /* Dependencies */,
 				035A98281A539CF600F4B44B /* Products */,
+				033E190A2141E95100F4B44B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -309,6 +391,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				033E190D2141E98E00F4B44B /* PBXTargetDependency */,
 			);
 			name = QQ;
 			productName = QQ;
@@ -384,6 +467,12 @@
 			mainGroup = 035A981D1A539CF600F4B44B;
 			productRefGroup = 035A98281A539CF600F4B44B /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 033E18F62141E90300F4B44B /* Products */;
+					ProjectRef = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				035A98261A539CF600F4B44B /* QQ */,
@@ -392,6 +481,51 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		033E18FF2141E90300F4B44B /* Atomics.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Atomics.framework;
+			remoteRef = 033E18FE2141E90300F4B44B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		033E19012141E90300F4B44B /* AtomicsTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = AtomicsTests.xctest;
+			remoteRef = 033E19002141E90300F4B44B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		033E19032141E90300F4B44B /* CAtomics.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = CAtomics.framework;
+			remoteRef = 033E19022141E90300F4B44B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		033E19052141E90300F4B44B /* CAtomicsTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = CAtomicsTests.xctest;
+			remoteRef = 033E19042141E90300F4B44B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		033E19072141E90300F4B44B /* AtomicsTestApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = AtomicsTestApp.app;
+			remoteRef = 033E19062141E90300F4B44B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		033E19092141E90300F4B44B /* AtomicsTestAppTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = AtomicsTestAppTests.xctest;
+			remoteRef = 033E19082141E90300F4B44B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		035A98251A539CF600F4B44B /* Resources */ = {
@@ -479,6 +613,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		033E190D2141E98E00F4B44B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CAtomics;
+			targetProxy = 033E190C2141E98E00F4B44B /* PBXContainerItemProxy */;
+		};
 		035A98351A539CF600F4B44B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 035A98261A539CF600F4B44B /* QQ */;
