@@ -16,7 +16,7 @@ import CAtomics
 
 struct AtomicTP<T: OSAtomicNode>
 {
-  @_versioned internal var atom = AtomicUInt64()
+  private var atom = AtomicUInt64()
 
   init()
   {
@@ -54,14 +54,9 @@ struct TaggedPointer<T: OSAtomicNode>: Equatable
 {
   private var value: UInt64
 
-  @_versioned internal var int: UInt64 { return value }
+  fileprivate var int: UInt64 { return value }
 
-//  init()
-//  {
-//    value = 0
-//  }
-
-  @_versioned internal init(rawValue: UInt64)
+  init(rawValue: UInt64)
   {
     value = rawValue
   }
@@ -79,10 +74,6 @@ struct TaggedPointer<T: OSAtomicNode>: Equatable
       value = UInt64(unsafeBitCast(pointer, UInt32.self)) + tag << 32
     #endif
   }
-
-//  var isEmpty: Bool {
-//    return value == 0
-//  }
 
   var pointer: UnsafeMutableRawPointer? {
     #if arch(x86_64) || arch(arm64)
