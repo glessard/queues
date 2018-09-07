@@ -113,9 +113,9 @@ final public class LockFreeCompatibleQueue<T>: QueueType
           else
           { // no need to deal with tail
             // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
-            let newhead = second!
-            let pointer = newhead.read() // must happen before deinitialize in another thread
-            if head.CAS(old: oldhead, new: newhead)
+            if let newhead = second,
+               let pointer = newhead.read(), // must happen before deinitialize in another thread
+               self.head.CAS(old: oldhead, new: newhead)
             {
               newhead.deinitialize()
               oldnode.deallocate()

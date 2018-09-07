@@ -71,7 +71,7 @@ struct LockFreeNode<Element>: OSAtomicNode
     (storage+dataOffset).assumingMemoryBound(to: Element.self).deinitialize(count: 1)
   }
 
-  func read() -> Element
+  func read() -> Element?
   {
     return (storage+dataOffset).assumingMemoryBound(to: Element.self).pointee
   }

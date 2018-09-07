@@ -121,9 +121,9 @@ final public class LockFreeFastQueue<T>: QueueType
           else
           { // no need to deal with tail
             // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
-            let newhead = second!
-            let element = newhead.read() // must happen before deinitialize in another thread
-            if head.CAS(old: oldhead, new: newhead)
+            if let newhead = second,
+               let element = newhead.read(), // must happen before deinitialize in another thread
+               head.CAS(old: oldhead, new: newhead)
             {
               newhead.deinitialize()
               pool.push(oldnode)

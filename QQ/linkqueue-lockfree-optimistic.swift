@@ -100,9 +100,9 @@ final public class OptimisticLinkQueue<T>: QueueType
             fixlist(tail: tail, head: head)
             continue
           }
-          let newhead = second.pointee!
-          let element = newhead.read() // must happen before deinitialize in another thread
-          if self.head.CAS(old: head, new: newhead)
+          if let newhead = second.pointee,
+             let element = newhead.read(), // must happen before deinitialize in another thread
+             self.head.CAS(old: head, new: newhead)
           {
             newhead.deinitialize()
             let oldhead = head.pointee!
