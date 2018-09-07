@@ -34,21 +34,26 @@ final public class LockFreeLinkQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while let node = head.load().pointee
+    while let node = head.load()?.pointee
     {
-      node.next.pointee.load().pointee?.deinitialize()
-      head.store(node.next.pointee.load())
-      node.deallocate()
+      defer { node.deallocate() }
+
+      if let next = node.next.pointee.load()
+      {
+        next.pointee.deinitialize()
+        head.store(next)
+      }
+      else { break }
     }
   }
 
-  public var isEmpty: Bool { return head.load().pointer == tail.load().pointer }
+  public var isEmpty: Bool { return head.load()?.pointer == tail.load()?.pointer }
 
   public var count: Int {
     var i = 0
-    let current = head.load().pointee!
+    let current = head.load()!.pointee
     var pointer = current.next.pointee.load()
-    while let current = pointer.pointee
+    while let current = pointer?.pointee
     { // Iterate along the linked nodes while counting
       pointer = current.next.pointee.load()
       i += 1
@@ -62,27 +67,24 @@ final public class LockFreeLinkQueue<T>: QueueType
 
     while true
     {
-      let oldtail = tail.load()
-      if let tailnode = oldtail.pointee
-      {
-        let oldnext = tailnode.next.pointee.load()
+      let oldtail = self.tail.load()!
+      let oldnext = oldtail.pointee.next.pointee.load()
 
-        if oldtail == tail.load()
+        if oldtail == self.tail.load()
         { // was tail pointing to the last node?
-          if oldnext.pointer == nil
+          if oldnext == nil
           { // try to link the new node to the end of the list
-            if tailnode.next.pointee.CAS(old: oldnext, new: node)
+            if oldtail.pointee.next.pointee.CAS(old: oldnext, new: node)
             { // success. try to have tail point to the inserted node.
-              _ = tail.CAS(old: oldtail, new: node)
+              _ = self.tail.CAS(old: oldtail, new: node)
               break
             }
           }
           else
           { // tail wasn't pointing to the actual last node; try to fix it.
-            _ = tail.CAS(old: oldtail, new: oldnext.pointee!)
+            _ = self.tail.CAS(old: oldtail, new: oldnext!.pointee)
           }
         }
-      }
     }
   }
 
@@ -90,23 +92,21 @@ final public class LockFreeLinkQueue<T>: QueueType
   {
     while true
     {
-      let oldhead = head.load()
-      let oldtail = tail.load()
+      let oldhead = self.head.load()!
+      let oldtail = self.tail.load()!
 
-      if let oldnode = oldhead.pointee
-      {
-        let second = oldnode.next.pointee.load().pointee
+        let second = oldhead.pointee.next.pointee.load()?.pointee
 
-        if oldhead == head.load()
+        if oldhead == self.head.load()
         {
-          if oldnode.storage == oldtail.pointer
+          if oldhead.pointer == oldtail.pointer
           { // queue empty, or tail is behind
             if second == nil
             { // queue is empty
               return nil
             }
             // tail was behind the actual last node; try to advance it.
-            _ = tail.CAS(old: oldtail, new: second!)
+            _ = self.tail.CAS(old: oldtail, new: second!)
           }
           else
           { // no need to deal with tail
@@ -116,12 +116,11 @@ final public class LockFreeLinkQueue<T>: QueueType
                self.head.CAS(old: oldhead, new: newhead)
             {
               newhead.deinitialize()
-              oldnode.deallocate()
+              oldhead.pointee.deallocate()
               return element
             }
           }
         }
-      }
     }
   }
 }

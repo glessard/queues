@@ -33,17 +33,25 @@ struct AtomicTP<T: OSAtomicNode>
   }
 
   @inline(__always)
-  mutating func load() -> TaggedPointer<T>
+  mutating func load() -> TaggedPointer<T>?
   {
     let value = atom.load(.sequential)
     return TaggedPointer(rawValue: value)
   }
 
   @inline(__always)
-  mutating func CAS(old: TaggedPointer<T>, new: T) -> Bool
+  mutating func CAS(old: TaggedPointer<T>?, new: T) -> Bool
   {
-    let new = TaggedPointer(new, incrementingTag: old)
-    return atom.CAS(old.int, new.int, .strong, .sequential)
+    if let old = old
+    {
+      let new = TaggedPointer(new, incrementingTag: old)
+      return atom.CAS(old.int, new.int, .strong, .sequential)
+    }
+    else
+    {
+      let new = TaggedPointer(new, tag: 1)
+      return atom.CAS(0, new.int, .strong, .sequential)
+    }
   }
 }
 
@@ -53,8 +61,9 @@ struct TaggedPointer<T: OSAtomicNode>: Equatable
 
   fileprivate var int: UInt64 { return value }
 
-  fileprivate init(rawValue: UInt64)
+  fileprivate init?(rawValue: UInt64)
   {
+    if rawValue == 0 { return nil }
     value = rawValue
   }
 
@@ -82,20 +91,16 @@ struct TaggedPointer<T: OSAtomicNode>: Equatable
     #endif
   }
 
-  var pointer: UnsafeMutableRawPointer? {
+  var pointer: UnsafeMutableRawPointer {
     #if arch(x86_64) || arch(arm64)
-      return UnsafeMutableRawPointer(bitPattern: UInt(value & 0x0000_ffff_ffff_ffff))
+      return UnsafeMutableRawPointer(bitPattern: UInt(value & 0x0000_ffff_ffff_ffff))!
     #else // 32-bit architecture
-      return UnsafeMutableRawPointer(bitPattern: UInt(value & 0xffff_ffff))
+      return UnsafeMutableRawPointer(bitPattern: UInt(value & 0xffff_ffff))!
     #endif
   }
 
-  var pointee: T? {
-    if let bytes = self.pointer
-    {
-      return T(storage: bytes)
-    }
-    return nil
+  var pointee: T {
+    return T(storage: self.pointer)
   }
 
   var tag: UInt64 {
