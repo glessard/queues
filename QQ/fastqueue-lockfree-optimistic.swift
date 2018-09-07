@@ -39,11 +39,16 @@ final public class OptimisticFastQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while let node = head.load().pointee
+    while let node = head.load()?.pointee
     {
-      node.next.pointee.load().pointee?.deinitialize()
-      head.store(node.next.pointee.load())
-      node.deallocate()
+      defer { node.deallocate() }
+
+      if let next = node.next.pointee.load()
+      {
+        next.pointee.deinitialize()
+        head.store(next)
+      }
+      else { break }
     }
 
     // drain the pool
@@ -60,12 +65,12 @@ final public class OptimisticFastQueue<T>: QueueType
     if head.load() == tail.load() { return 0 }
 
     // make sure the `next` pointers are in order
-    fixlist(tail: tail.load(), head: head.load())
+    fixlist(tail: tail.load()!, head: head.load()!)
 
     var i = 0
-    let current = head.load().pointee!
+    let current = head.load()!.pointee
     var pointer = current.next.pointee.load()
-    while let current = pointer.pointee
+    while let current = pointer?.pointee
     { // Iterate along the linked nodes while counting
       pointer = current.next.pointee.load()
       i += 1
@@ -80,14 +85,13 @@ final public class OptimisticFastQueue<T>: QueueType
 
     while true
     {
-      let tail = self.tail.load()
-      let tailNode = tail.pointee!
-      let prev = TaggedPointer(tailNode, incrementingTag: tail)
+      let tail = self.tail.load()!
+      let prev = TaggedPointer(tail.pointee, incrementingTag: tail)
       node.prev.pointee.store(prev)
       if self.tail.CAS(old: tail, new: node)
       { // success, update the old tail's next link
         let next = TaggedPointer(node, usingTag: tail)
-        tailNode.next.pointee.store(next)
+        tail.pointee.next.pointee.store(next)
         break
       }
     }
@@ -97,26 +101,25 @@ final public class OptimisticFastQueue<T>: QueueType
   {
     while true
     {
-      let head = self.head.load()
-      let tail = self.tail.load()
+      let head = self.head.load()!
+      let tail = self.tail.load()!
+      let next = head.pointee.next.pointee.load()
 
-      if let second = head.pointee?.next.pointee.load(),
-        head == self.head.load()
+      if head == self.head.load()
       {
         if head != tail
         { // queue is not empty
-          if second.tag != head.tag
+          if next?.tag != head.tag
           { // an enqueue missed its final linking operation
             fixlist(tail: tail, head: head)
             continue
           }
-          if let newhead = second.pointee,
+          if let newhead = next?.pointee,
              let element = newhead.read(), // must happen before deinitialize in another thread
              self.head.CAS(old: head, new: newhead)
           {
             newhead.deinitialize()
-            let oldhead = head.pointee!
-            pool.push(oldhead)
+            pool.push(head.pointee)
             return element
           }
         }
@@ -130,11 +133,10 @@ final public class OptimisticFastQueue<T>: QueueType
     var current = oldtail
     while oldhead == self.head.load() && current != oldhead
     {
-      if let curNode = current.pointee,
-        let currentPrev = curNode.prev.pointee.load().pointee
+      if let currentPrev = current.pointee.prev.pointee.load()?.pointee
       {
         let tag = current.tag &- 1
-        currentPrev.next.pointee.store(TaggedPointer(curNode, tag: tag))
+        currentPrev.next.pointee.store(TaggedPointer(current.pointee, tag: tag))
         current = TaggedPointer(currentPrev, tag: tag)
       }
     }
