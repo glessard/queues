@@ -13,6 +13,7 @@
 		03223F171A64560600F4B44B /* LinkQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F161A64560600F4B44B /* LinkQueueTests.swift */; };
 		03223F201A645BA900F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
 		03223F211A645BFD00F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
+		033E190B2141E95100F4B44B /* CAtomics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033E19032141E90300F4B44B /* CAtomics.framework */; };
 		035A98471A539D7300F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
 		035A984A1A53A04300F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
 		035A984D1A53A49000F4B44B /* QueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A984C1A53A49000F4B44B /* QueueTests.swift */; };
@@ -43,8 +44,6 @@
 		038ACC7A1BA0E5A300F4B44B /* taggedpointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC781BA0E54200F4B44B /* taggedpointer.swift */; };
 		038ACC7D1BA0ECA500F4B44B /* fastqueue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */; };
 		038ACC7E1BA0ED4A00F4B44B /* fastqueue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */; };
-		03CED87C1E01059400F4B44B /* CAtomics.c in Sources */ = {isa = PBXBuildFile; fileRef = 03CED8791E01059400F4B44B /* CAtomics.c */; };
-		03CED87D1E01059400F4B44B /* CAtomics.h in Headers */ = {isa = PBXBuildFile; fileRef = 03CED87A1E01059400F4B44B /* CAtomics.h */; };
 		03CED8831E01C43D00F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC2E1AF8A38300F4B44B /* fastqueue-lockfree-optimistic.swift */; };
 		03CED8841E01C92E00F4B44B /* linkqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */; };
 		03CED8851E01F39A00F4B44B /* fastqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B14A0C1AEB05FF00F4B44B /* fastqueue-lockfree.swift */; };
@@ -55,6 +54,55 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		033E18FE2141E90300F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 031CA33E20DBDC0400F4B44B;
+			remoteInfo = Atomics;
+		};
+		033E19002141E90300F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 031CA34720DBDC0400F4B44B;
+			remoteInfo = AtomicsTests;
+		};
+		033E19022141E90300F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 031CA35D20DBDCAD00F4B44B;
+			remoteInfo = CAtomics;
+		};
+		033E19042141E90300F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 031CA36520DBDCAE00F4B44B;
+			remoteInfo = CAtomicsTests;
+		};
+		033E19062141E90300F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0382B62620DC4A2B00F4B44B;
+			remoteInfo = AtomicsTestApp;
+		};
+		033E19082141E90300F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0382B63920DC4A2D00F4B44B;
+			remoteInfo = AtomicsTestAppTests;
+		};
+		033E190C2141E98E00F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 031CA35C20DBDCAD00F4B44B;
+			remoteInfo = CAtomics;
+		};
 		035A98341A539CF600F4B44B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 035A981E1A539CF600F4B44B /* Project object */;
@@ -82,6 +130,7 @@
 		031DEDED1B17ADFB00F4B44B /* link2lockqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = link2lockqueue.swift; sourceTree = "<group>"; };
 		03223F161A64560600F4B44B /* LinkQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkQueueTests.swift; sourceTree = "<group>"; };
 		03223F1E1A645B8800F4B44B /* thing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = thing.swift; path = QQTests/thing.swift; sourceTree = SOURCE_ROOT; };
+		033E18F52141E90300F4B44B /* Atomics.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Atomics.xcodeproj; path = Dependencies/Atomics/Xcode/Atomics.xcodeproj; sourceTree = "<group>"; };
 		035A98271A539CF600F4B44B /* QQ.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = QQ.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		035A982B1A539CF600F4B44B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		035A98321A539CF600F4B44B /* QQTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QQTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -103,9 +152,6 @@
 		038ACC781BA0E54200F4B44B /* taggedpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = taggedpointer.swift; sourceTree = "<group>"; };
 		038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "fastqueue-unsafe.swift"; sourceTree = "<group>"; };
 		03B14A0C1AEB05FF00F4B44B /* fastqueue-lockfree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "fastqueue-lockfree.swift"; sourceTree = "<group>"; };
-		03CED8791E01059400F4B44B /* CAtomics.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CAtomics.c; sourceTree = "<group>"; };
-		03CED87A1E01059400F4B44B /* CAtomics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAtomics.h; sourceTree = "<group>"; };
-		03CED87B1E01059400F4B44B /* module.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.map; sourceTree = "<group>"; };
 		03CED8861E01F5F300F4B44B /* linkqueue-lockfree-compatible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "linkqueue-lockfree-compatible.swift"; sourceTree = "<group>"; };
 		03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "linkqueue-lockfree.swift"; sourceTree = "<group>"; };
 		03E4CC1B1AF7563300F4B44B /* fast2lockqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = fast2lockqueue.swift; sourceTree = "<group>"; };
@@ -118,6 +164,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				033E190B2141E95100F4B44B /* CAtomics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,13 +185,43 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		033E18F42141E8FD00F4B44B /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				033E18F52141E90300F4B44B /* Atomics.xcodeproj */,
+			);
+			name = Dependencies;
+			sourceTree = "<group>";
+		};
+		033E18F62141E90300F4B44B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				033E18FF2141E90300F4B44B /* Atomics.framework */,
+				033E19012141E90300F4B44B /* AtomicsTests.xctest */,
+				033E19032141E90300F4B44B /* CAtomics.framework */,
+				033E19052141E90300F4B44B /* CAtomicsTests.xctest */,
+				033E19072141E90300F4B44B /* AtomicsTestApp.app */,
+				033E19092141E90300F4B44B /* AtomicsTestAppTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		033E190A2141E95100F4B44B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		035A981D1A539CF600F4B44B = {
 			isa = PBXGroup;
 			children = (
 				035A98291A539CF600F4B44B /* QQ */,
 				035A98361A539CF600F4B44B /* QQTests */,
 				035A98551A53B0A500F4B44B /* QueueBenchmark */,
+				033E18F42141E8FD00F4B44B /* Dependencies */,
 				035A98281A539CF600F4B44B /* Products */,
+				033E190A2141E95100F4B44B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -215,7 +292,6 @@
 			children = (
 				03678C101A60963700F4B44B /* osatomicqueue.swift */,
 				038ACC781BA0E54200F4B44B /* taggedpointer.swift */,
-				03CED8781E01059400F4B44B /* ClangAtomics */,
 				03FE12D81EA85DB400F4B44B /* queuenode.swift */,
 			);
 			name = "OSAtomic Helpers";
@@ -236,17 +312,6 @@
 				035A98461A539D7300F4B44B /* queuetype.swift */,
 			);
 			name = Definitions;
-			sourceTree = "<group>";
-		};
-		03CED8781E01059400F4B44B /* ClangAtomics */ = {
-			isa = PBXGroup;
-			children = (
-				03CED8791E01059400F4B44B /* CAtomics.c */,
-				03CED87A1E01059400F4B44B /* CAtomics.h */,
-				03CED87B1E01059400F4B44B /* module.map */,
-			);
-			name = ClangAtomics;
-			path = CAtomics;
 			sourceTree = "<group>";
 		};
 		03E4E2701C55E6FD00F4B44B /* Lock-free Queues */ = {
@@ -290,7 +355,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03CED87D1E01059400F4B44B /* CAtomics.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,6 +373,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				033E190D2141E98E00F4B44B /* PBXTargetDependency */,
 			);
 			name = QQ;
 			productName = QQ;
@@ -384,6 +449,12 @@
 			mainGroup = 035A981D1A539CF600F4B44B;
 			productRefGroup = 035A98281A539CF600F4B44B /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 033E18F62141E90300F4B44B /* Products */;
+					ProjectRef = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				035A98261A539CF600F4B44B /* QQ */,
@@ -392,6 +463,51 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		033E18FF2141E90300F4B44B /* Atomics.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Atomics.framework;
+			remoteRef = 033E18FE2141E90300F4B44B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		033E19012141E90300F4B44B /* AtomicsTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = AtomicsTests.xctest;
+			remoteRef = 033E19002141E90300F4B44B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		033E19032141E90300F4B44B /* CAtomics.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = CAtomics.framework;
+			remoteRef = 033E19022141E90300F4B44B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		033E19052141E90300F4B44B /* CAtomicsTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = CAtomicsTests.xctest;
+			remoteRef = 033E19042141E90300F4B44B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		033E19072141E90300F4B44B /* AtomicsTestApp.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = AtomicsTestApp.app;
+			remoteRef = 033E19062141E90300F4B44B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		033E19092141E90300F4B44B /* AtomicsTestAppTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = AtomicsTestAppTests.xctest;
+			remoteRef = 033E19082141E90300F4B44B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		035A98251A539CF600F4B44B /* Resources */ = {
@@ -426,7 +542,6 @@
 				038ACC7D1BA0ECA500F4B44B /* fastqueue-unsafe.swift in Sources */,
 				03678C2A1A61239C00F4B44B /* fastosqueue.swift in Sources */,
 				035A98471A539D7300F4B44B /* queuetype.swift in Sources */,
-				03CED87C1E01059400F4B44B /* CAtomics.c in Sources */,
 				035A984A1A53A04300F4B44B /* linkqueue.swift in Sources */,
 				03CED8871E01F5F300F4B44B /* linkqueue-lockfree-compatible.swift in Sources */,
 				035DB9791BA3943400F4B44B /* queue-unsafe.swift in Sources */,
@@ -479,6 +594,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		033E190D2141E98E00F4B44B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CAtomics;
+			targetProxy = 033E190C2141E98E00F4B44B /* PBXContainerItemProxy */;
+		};
 		035A98351A539CF600F4B44B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 035A98261A539CF600F4B44B /* QQ */;
