@@ -70,21 +70,21 @@ final public class LockFreeLinkQueue<T>: QueueType
       let oldtail = self.tail.load()!
       let oldnext = oldtail.pointee.next.pointee.load()
 
-        if oldtail == self.tail.load()
-        { // was tail pointing to the last node?
-          if oldnext == nil
-          { // try to link the new node to the end of the list
-            if oldtail.pointee.next.pointee.CAS(old: oldnext, new: node)
-            { // success. try to have tail point to the inserted node.
-              _ = self.tail.CAS(old: oldtail, new: node)
-              break
-            }
-          }
-          else
-          { // tail wasn't pointing to the actual last node; try to fix it.
-            _ = self.tail.CAS(old: oldtail, new: oldnext!.pointee)
+      if oldtail == self.tail.load()
+      { // was tail pointing to the last node?
+        if oldnext == nil
+        { // try to link the new node to the end of the list
+          if oldtail.pointee.next.pointee.CAS(old: oldnext, new: node)
+          { // success. try to have tail point to the inserted node.
+            _ = self.tail.CAS(old: oldtail, new: node)
+            break
           }
         }
+        else
+        { // tail wasn't pointing to the actual last node; try to fix it.
+          _ = self.tail.CAS(old: oldtail, new: oldnext!.pointee)
+        }
+      }
     }
   }
 
@@ -95,32 +95,32 @@ final public class LockFreeLinkQueue<T>: QueueType
       let oldhead = self.head.load()!
       let oldtail = self.tail.load()!
 
-        let second = oldhead.pointee.next.pointee.load()?.pointee
+      let second = oldhead.pointee.next.pointee.load()?.pointee
 
-        if oldhead == self.head.load()
-        {
-          if oldhead.pointer == oldtail.pointer
-          { // queue empty, or tail is behind
-            if second == nil
-            { // queue is empty
-              return nil
-            }
-            // tail was behind the actual last node; try to advance it.
-            _ = self.tail.CAS(old: oldtail, new: second!)
+      if oldhead == self.head.load()
+      {
+        if oldhead.pointer == oldtail.pointer
+        { // queue empty, or tail is behind
+          if second == nil
+          { // queue is empty
+            return nil
           }
-          else
-          { // no need to deal with tail
-            // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
-            if let newhead = second,
-               let element = newhead.read(), // must happen before deinitialize in another thread
-               self.head.CAS(old: oldhead, new: newhead)
-            {
-              newhead.deinitialize()
-              oldhead.pointee.deallocate()
-              return element
-            }
+          // tail was behind the actual last node; try to advance it.
+          _ = self.tail.CAS(old: oldtail, new: second!)
+        }
+        else
+        { // no need to deal with tail
+          // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
+          if let newhead = second,
+             let element = newhead.read(), // must happen before deinitialize in another thread
+             self.head.CAS(old: oldhead, new: newhead)
+          {
+            newhead.deinitialize()
+            oldhead.pointee.deallocate()
+            return element
           }
         }
+      }
     }
   }
 }
