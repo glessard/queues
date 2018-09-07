@@ -42,8 +42,8 @@ struct AtomicTP<T: OSAtomicNode>
   @inline(__always)
   mutating func CAS(old: TaggedPointer<T>, new: T) -> Bool
   {
-    let new = TaggedPointer(new, updatingTagFrom: old).int
-    return atom.CAS(old.int, new, .strong, .sequential)
+    let new = TaggedPointer(new, incrementingTag: old)
+    return atom.CAS(old.int, new.int, .strong, .sequential)
   }
 }
 
@@ -53,12 +53,22 @@ struct TaggedPointer<T: OSAtomicNode>: Equatable
 
   fileprivate var int: UInt64 { return value }
 
-  init(rawValue: UInt64)
+  fileprivate init(rawValue: UInt64)
   {
     value = rawValue
   }
 
-  init(_ node: T, updatingTagFrom old: TaggedPointer)
+  init(_ node: T)
+  {
+    self.init(node, tag: 1)
+  }
+
+  init(_ node: T, usingTag other: TaggedPointer)
+  {
+    self.init(node, tag: other.tag)
+  }
+
+  init(_ node: T, incrementingTag old: TaggedPointer)
   {
     self.init(node, tag: old.tag&+1)
   }
@@ -66,9 +76,9 @@ struct TaggedPointer<T: OSAtomicNode>: Equatable
   init(_ node: T, tag: UInt64)
   {
     #if arch(x86_64) || arch(arm64)
-      value = UInt64(UInt(bitPattern: node.storage)) & 0x0000_ffff_ffff_ffff + tag << 48
+      value = UInt64(UInt(bitPattern: node.storage)) + (tag & 0x7fff) << 48
     #else
-      value = UInt64(unsafeBitCast(pointer, UInt32.self)) + tag << 32
+      value = UInt64(UInt(bitPattern: node.storage)) + (tag & 0x7fff) << 32
     #endif
   }
 

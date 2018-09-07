@@ -32,8 +32,8 @@ final public class OptimisticFastQueue<T>: QueueType
   public init()
   {
     let node = LockFreeNode<T>()
-    head.store(TaggedPointer(node, tag: 1))
-    tail.store(TaggedPointer(node, tag: 1))
+    head.store(TaggedPointer(node))
+    tail.store(TaggedPointer(node))
   }
 
   deinit
@@ -82,11 +82,11 @@ final public class OptimisticFastQueue<T>: QueueType
     {
       let tail = self.tail.load()
       let tailNode = tail.pointee!
-      let prev = TaggedPointer(tailNode, updatingTagFrom: tail)
+      let prev = TaggedPointer(tailNode, incrementingTag: tail)
       node.prev.pointee.store(prev)
       if self.tail.CAS(old: tail, new: node)
       { // success, update the old tail's next link
-        let next = TaggedPointer(node, tag: tail.tag)
+        let next = TaggedPointer(node, usingTag: tail)
         tailNode.next.pointee.store(next)
         break
       }

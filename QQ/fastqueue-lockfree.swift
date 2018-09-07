@@ -29,8 +29,8 @@ final public class LockFreeFastQueue<T>: QueueType
   public init()
   {
     let node = LockFreeNode<T>()
-    head.store(TaggedPointer(node, tag: 0))
-    tail.store(TaggedPointer(node, tag: 0))
+    head.store(TaggedPointer(node))
+    tail.store(TaggedPointer(node))
   }
 
   deinit
