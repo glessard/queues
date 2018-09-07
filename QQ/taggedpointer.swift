@@ -8,11 +8,8 @@
 
 import CAtomics
 
-/// Int64 as tagged pointer, as a strategy to overcome the ABA problem in
+/// UInt64 as tagged pointer, as a strategy to overcome the ABA problem in
 /// synchronization algorithms based on atomic compare-and-swap operations.
-///
-/// The implementation uses Int64 as the base type in order to easily
-/// work with OSAtomicCompareAndSwap in Swift.
 
 struct AtomicTP<T: OSAtomicNode>
 {
