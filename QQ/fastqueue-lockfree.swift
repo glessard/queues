@@ -36,11 +36,16 @@ final public class LockFreeFastQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while let node = head.load().pointee
+    while let node = head.load()?.node
     {
-      node.next.pointee.load().pointee?.deinitialize()
-      head.store(node.next.pointee.load())
-      node.deallocate()
+      defer { node.deallocate() }
+
+      if let next = node.next.pointee.load()
+      {
+        next.node.deinitialize()
+        head.store(next)
+      }
+      else { break }
     }
 
     // drain the pool
@@ -51,13 +56,13 @@ final public class LockFreeFastQueue<T>: QueueType
     pool.release()
   }
 
-  public var isEmpty: Bool { return head.load().pointer == tail.load().pointer }
+  public var isEmpty: Bool { return head.load()?.pointer == tail.load()?.pointer }
 
   public var count: Int {
     var i = 0
-    let current = head.load().pointee!
+    let current = head.load()!.node
     var pointer = current.next.pointee.load()
-    while let current = pointer.pointee
+    while let current = pointer?.node
     { // Iterate along the linked nodes while counting
       pointer = current.next.pointee.load()
       i += 1
@@ -72,24 +77,21 @@ final public class LockFreeFastQueue<T>: QueueType
 
     while true
     {
-      let oldtail = tail.load()
-      if let tailnode = oldtail.pointee
-      {
-        let oldnext = tailnode.next.pointee.load()
+      let tail = self.tail.load()!
+      let next = tail.node.next.pointee.load()
 
-        if oldtail == tail.load()
-        { // was tail pointing to the last node?
-          if oldnext.pointer == nil
-          { // try to link the new node to the end of the list
-            if tailnode.next.pointee.CAS(old: oldnext, new: node)
-            { // success. try to have tail point to the inserted node.
-              _ = tail.CAS(old: oldtail, new: node)
-              break
-            }
-          }
-          else
-          { // tail wasn't pointing to the actual last node; try to fix it.
-            _ = tail.CAS(old: oldtail, new: oldnext.pointee!)
+      if tail == self.tail.load()
+      { // was tail pointing to the last node?
+        if let next = next
+        { // tail wasn't pointing to the actual last node; try to fix it.
+          _ = self.tail.CAS(old: tail, new: next.node)
+        }
+        else
+        { // try to link the new node to the end of the list
+          if tail.node.next.pointee.CAS(old: nil, new: node)
+          { // success. try to have tail point to the inserted node.
+            _ = self.tail.CAS(old: tail, new: node)
+            break
           }
         }
       }
@@ -100,35 +102,33 @@ final public class LockFreeFastQueue<T>: QueueType
   {
     while true
     {
-      let oldhead = head.load()
-      let oldtail = tail.load()
+      let head = self.head.load()!
+      let tail = self.tail.load()!
+      let next = head.node.next.pointee.load()?.node
 
-      if let oldnode = oldhead.pointee
+      if head == self.head.load()
       {
-        let second = oldnode.next.pointee.load().pointee
-
-        if oldhead == head.load()
-        {
-          if oldnode.storage == oldtail.pointer
-          { // queue empty, or tail is behind
-            if second == nil
-            { // queue is empty
-              return nil
-            }
-            // tail was behind the actual last node; try to advance it.
-            _ = tail.CAS(old: oldtail, new: second!)
+        if head.pointer == tail.pointer
+        { // either the queue is empty, or the tail is lagging behind
+          if let next = next
+          { // tail was behind the actual last node; try to advance it.
+            _ = self.tail.CAS(old: tail, new: next)
           }
           else
-          { // no need to deal with tail
-            // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
-            let newhead = second!
-            let element = newhead.read() // must happen before deinitialize in another thread
-            if head.CAS(old: oldhead, new: newhead)
-            {
-              newhead.deinitialize()
-              pool.push(oldnode)
-              return element
-            }
+          { // queue is empty
+            return nil
+          }
+        }
+        else
+        { // no need to deal with tail
+          // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
+          if let newhead = next,
+             let element = newhead.read(), // must happen before deinitialize in another thread
+             self.head.CAS(old: head, new: newhead)
+          {
+            newhead.deinitialize()
+            pool.push(head.node)
+            return element
           }
         }
       }
