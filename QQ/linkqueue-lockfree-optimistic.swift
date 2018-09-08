@@ -37,13 +37,13 @@ final public class OptimisticLinkQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while let node = head.load()?.pointee
+    while let node = head.load()?.node
     {
       defer { node.deallocate() }
 
       if let next = node.next.pointee.load()
       {
-        next.pointee.deinitialize()
+        next.node.deinitialize()
         head.store(next)
       }
       else { break }
@@ -59,9 +59,9 @@ final public class OptimisticLinkQueue<T>: QueueType
     fixlist(tail: tail.load()!, head: head.load()!)
 
     var i = 0
-    let current = head.load()!.pointee
+    let current = head.load()!.node
     var pointer = current.next.pointee.load()
-    while let current = pointer?.pointee
+    while let current = pointer?.node
     { // Iterate along the linked nodes while counting
       pointer = current.next.pointee.load()
       i += 1
@@ -76,12 +76,12 @@ final public class OptimisticLinkQueue<T>: QueueType
     while true
     {
       let tail = self.tail.load()!
-      let prev = TaggedPointer(tail.pointee, incrementingTag: tail)
+      let prev = TaggedPointer(tail.node, incrementingTag: tail)
       node.prev.pointee.store(prev)
       if self.tail.CAS(old: tail, new: node)
       { // success, update the old tail's next link
         let next = TaggedPointer(node, usingTag: tail)
-        tail.pointee.next.pointee.store(next)
+        tail.node.next.pointee.store(next)
         break
       }
     }
@@ -93,7 +93,7 @@ final public class OptimisticLinkQueue<T>: QueueType
     {
       let head = self.head.load()!
       let tail = self.tail.load()!
-      let next = head.pointee.next.pointee.load()
+      let next = head.node.next.pointee.load()
 
       if head == self.head.load()
       {
@@ -104,12 +104,12 @@ final public class OptimisticLinkQueue<T>: QueueType
             fixlist(tail: tail, head: head)
             continue
           }
-          if let newhead = next?.pointee,
+          if let newhead = next?.node,
              let element = newhead.read(), // must happen before deinitialize in another thread
              self.head.CAS(old: head, new: newhead)
           {
             newhead.deinitialize()
-            head.pointee.deallocate()
+            head.node.deallocate()
             return element
           }
         }
@@ -123,10 +123,10 @@ final public class OptimisticLinkQueue<T>: QueueType
     var current = oldtail
     while oldhead == self.head.load()! && current != oldhead
     {
-      if let currentPrev = current.pointee.prev.pointee.load()?.pointee
+      if let currentPrev = current.node.prev.pointee.load()?.node
       {
         let tag = current.tag &- 1
-        currentPrev.next.pointee.store(TaggedPointer(current.pointee, tag: tag))
+        currentPrev.next.pointee.store(TaggedPointer(current.node, tag: tag))
         current = TaggedPointer(currentPrev, tag: tag)
       }
     }

@@ -99,7 +99,7 @@ struct TaggedPointer<Node: OSAtomicNode>: Equatable
     #endif
   }
 
-  var pointee: Node {
+  var node: Node {
     return Node(storage: self.pointer)
   }
 

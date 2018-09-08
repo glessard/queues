@@ -36,13 +36,13 @@ final public class LockFreeFastQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while let node = head.load()?.pointee
+    while let node = head.load()?.node
     {
       defer { node.deallocate() }
 
       if let next = node.next.pointee.load()
       {
-        next.pointee.deinitialize()
+        next.node.deinitialize()
         head.store(next)
       }
       else { break }
@@ -60,9 +60,9 @@ final public class LockFreeFastQueue<T>: QueueType
 
   public var count: Int {
     var i = 0
-    let current = head.load()!.pointee
+    let current = head.load()!.node
     var pointer = current.next.pointee.load()
-    while let current = pointer?.pointee
+    while let current = pointer?.node
     { // Iterate along the linked nodes while counting
       pointer = current.next.pointee.load()
       i += 1
@@ -78,17 +78,17 @@ final public class LockFreeFastQueue<T>: QueueType
     while true
     {
       let tail = self.tail.load()!
-      let next = tail.pointee.next.pointee.load()
+      let next = tail.node.next.pointee.load()
 
       if tail == self.tail.load()
       { // was tail pointing to the last node?
         if let next = next
         { // tail wasn't pointing to the actual last node; try to fix it.
-          _ = self.tail.CAS(old: tail, new: next.pointee)
+          _ = self.tail.CAS(old: tail, new: next.node)
         }
         else
         { // try to link the new node to the end of the list
-          if tail.pointee.next.pointee.CAS(old: nil, new: node)
+          if tail.node.next.pointee.CAS(old: nil, new: node)
           { // success. try to have tail point to the inserted node.
             _ = self.tail.CAS(old: tail, new: node)
             break
@@ -104,7 +104,7 @@ final public class LockFreeFastQueue<T>: QueueType
     {
       let head = self.head.load()!
       let tail = self.tail.load()!
-      let next = head.pointee.next.pointee.load()?.pointee
+      let next = head.node.next.pointee.load()?.node
 
       if head == self.head.load()
       {
@@ -127,7 +127,7 @@ final public class LockFreeFastQueue<T>: QueueType
              self.head.CAS(old: head, new: newhead)
           {
             newhead.deinitialize()
-            pool.push(head.pointee)
+            pool.push(head.node)
             return element
           }
         }
