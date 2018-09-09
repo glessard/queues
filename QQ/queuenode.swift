@@ -27,10 +27,8 @@ struct QueueNode<Element>: OSAtomicNode
 
   init(initializedWith element: Element)
   {
-    let size = offset + MemoryLayout<Element>.stride
-    storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
-    storage.bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1).pointee = nil
-    (storage+offset).bindMemory(to: Element.self, capacity: 1).initialize(to: element)
+    self.init()
+    (storage+offset).assumingMemoryBound(to: Element.self).initialize(to: element)
   }
 
   func deallocate()
