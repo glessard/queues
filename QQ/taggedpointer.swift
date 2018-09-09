@@ -21,9 +21,9 @@ struct AtomicTP<Node: OSAtomicNode>
   }
 
   @inline(__always)
-  mutating func store(_ p: TaggedPointer<Node>)
+  mutating func store(_ p: TaggedPointer<Node>, order: StoreMemoryOrder = .sequential)
   {
-    atom.store(p.int, .sequential)
+    atom.store(p.int, order)
   }
 
   @inline(__always)
@@ -33,24 +33,24 @@ struct AtomicTP<Node: OSAtomicNode>
   }
 
   @inline(__always)
-  mutating func load() -> TaggedPointer<Node>?
+  mutating func load(order: LoadMemoryOrder = .sequential) -> TaggedPointer<Node>?
   {
-    let value = atom.load(.sequential)
+    let value = atom.load(order)
     return TaggedPointer(rawValue: value)
   }
 
   @inline(__always)
-  mutating func CAS(old: TaggedPointer<Node>?, new: Node) -> Bool
+  mutating func CAS(old: TaggedPointer<Node>?, new: Node, type: CASType = .strong, order: MemoryOrder = .sequential) -> Bool
   {
     if let old = old
     {
       let new = TaggedPointer(new, incrementingTag: old)
-      return atom.CAS(old.int, new.int, .strong, .sequential)
+      return atom.CAS(old.int, new.int, type, order)
     }
     else
     {
       let new = TaggedPointer(new)
-      return atom.CAS(0, new.int, .strong, .sequential)
+      return atom.CAS(0, new.int, type, order)
     }
   }
 }
