@@ -68,21 +68,17 @@ final public class LockFreeLinkQueue<T>: QueueType
     while true
     {
       let tail = self.tail.load()!
-      let next = tail.node.next.pointee.load()
 
-      if tail == self.tail.load()
-      { // was tail pointing to the last node?
-        if let next = next
-        { // tail wasn't pointing to the actual last node; try to fix it.
-          _ = self.tail.CAS(old: tail, new: next.node)
-        }
-        else
-        { // try to link the new node to the end of the list
-          if tail.node.next.pointee.CAS(old: nil, new: node)
-          { // success. try to have tail point to the inserted node.
-            _ = self.tail.CAS(old: tail, new: node)
-            break
-          }
+      if let next = tail.node.next.pointee.load()?.node
+      { // tail wasn't pointing to the actual last node; try to fix it.
+        _ = self.tail.CAS(old: tail, new: next)
+      }
+      else
+      { // try to link the new node to the end of the list
+        if tail.node.next.pointee.CAS(old: nil, new: node)
+        { // success. try to have tail point to the inserted node.
+          _ = self.tail.CAS(old: tail, new: node)
+          break
         }
       }
     }
