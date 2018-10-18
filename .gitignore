@@ -21,3 +21,6 @@ DerivedData
 contents.xcworkspacedata
 .build
 Packages
+
+/QQ.xcodeproj/project.xcworkspace/xcuserdata
+/QQ.xcodeproj/xcuserdata
