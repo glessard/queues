@@ -210,6 +210,30 @@ dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with references")
 
 
+print("ArrayQueue:")
+var arrayqueue = ArrayQueue(iterations)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  _ = arrayqueue.dequeue()
+  arrayqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration")
+
+var arrayrefqueue = ArrayQueue(ref)
+
+then = mach_absolute_time()
+for _ in 1...iterations
+{
+  _ = arrayrefqueue.dequeue()
+  arrayrefqueue.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration with references")
+
+
 print("UnsafeLinkQueue:")
 var ulinkqueue = UnsafeLinkQueue(iterations)
 

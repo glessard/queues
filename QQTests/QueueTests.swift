@@ -92,3 +92,42 @@ class UnsafeQueueTests: QQTests
     QueueInitEmptyTest(UnsafeQueue<Thing>.self, newElement: Thing())
   }
 }
+
+class UnsafeArrayQueueTests: QQTests
+{
+  func testQueueCount()
+  {
+    QueueTestCount(ArrayQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(ArrayQueue<UInt64>.self)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(ArrayQueue<Thing>.self)
+  }
+
+//  This is obviously where an Array would fall down...
+//  func testPerformanceFill()
+//  {
+//    QueuePerformanceTestFill(ArrayQueue<Thing>.self)
+//  }
+
+  func testPerformanceSpin()
+  {
+    QueuePerformanceTestSpin(ArrayQueue<Thing>.self)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(ArrayQueue<Thing>.self)
+  }
+
+  func testEmpty()
+  {
+    QueueInitEmptyTest(ArrayQueue<Thing>.self, newElement: Thing())
+  }
+}

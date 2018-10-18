@@ -14,6 +14,8 @@
 		03223F201A645BA900F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
 		03223F211A645BFD00F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
 		033E190B2141E95100F4B44B /* CAtomics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033E19032141E90300F4B44B /* CAtomics.framework */; };
+		034B8C6D2178AA2B00F4B44B /* queue-array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034B8C6C2178AA2B00F4B44B /* queue-array.swift */; };
+		034B8C732178ABB000F4B44B /* queue-array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034B8C6C2178AA2B00F4B44B /* queue-array.swift */; };
 		035A98471A539D7300F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
 		035A984A1A53A04300F4B44B /* linkqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98491A53A04300F4B44B /* linkqueue.swift */; };
 		035A984D1A53A49000F4B44B /* QueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A984C1A53A49000F4B44B /* QueueTests.swift */; };
@@ -131,6 +133,7 @@
 		03223F161A64560600F4B44B /* LinkQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkQueueTests.swift; sourceTree = "<group>"; };
 		03223F1E1A645B8800F4B44B /* thing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = thing.swift; path = QQTests/thing.swift; sourceTree = SOURCE_ROOT; };
 		033E18F52141E90300F4B44B /* Atomics.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Atomics.xcodeproj; path = Dependencies/Atomics/Xcode/Atomics.xcodeproj; sourceTree = "<group>"; };
+		034B8C6C2178AA2B00F4B44B /* queue-array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "queue-array.swift"; sourceTree = "<group>"; };
 		035A98271A539CF600F4B44B /* QQ.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = QQ.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		035A982B1A539CF600F4B44B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		035A98321A539CF600F4B44B /* QQTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QQTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -342,6 +345,7 @@
 			isa = PBXGroup;
 			children = (
 				035DB9781BA3943400F4B44B /* queue-unsafe.swift */,
+				034B8C6C2178AA2B00F4B44B /* queue-array.swift */,
 				035DB97B1BA633B200F4B44B /* linkqueue-unsafe.swift */,
 				038ACC7C1BA0ECA500F4B44B /* fastqueue-unsafe.swift */,
 			);
@@ -552,6 +556,7 @@
 				03E4CC1C1AF7563300F4B44B /* fast2lockqueue.swift in Sources */,
 				03CED8851E01F39A00F4B44B /* fastqueue-lockfree.swift in Sources */,
 				036939B91A5EFB3500F4B44B /* queue.swift in Sources */,
+				034B8C6D2178AA2B00F4B44B /* queue-array.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -585,6 +590,7 @@
 				038ACC7E1BA0ED4A00F4B44B /* fastqueue-unsafe.swift in Sources */,
 				03E4CC1D1AF75B9800F4B44B /* fast2lockqueue.swift in Sources */,
 				03223F201A645BA900F4B44B /* thing.swift in Sources */,
+				034B8C732178ABB000F4B44B /* queue-array.swift in Sources */,
 				035DB9631BA1F33400F4B44B /* link2lockqueue.swift in Sources */,
 				038ACC7A1BA0E5A300F4B44B /* taggedpointer.swift in Sources */,
 				030F58D81A5B62CF00F4B44B /* fastqueue.swift in Sources */,
@@ -659,7 +665,7 @@
 				SDKROOT = macosx;
 				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/CAtomics;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -711,7 +717,7 @@
 				SDKROOT = macosx;
 				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/CAtomics;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
