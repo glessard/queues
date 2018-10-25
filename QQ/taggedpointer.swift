@@ -27,9 +27,9 @@ struct AtomicTP<Node: OSAtomicNode>
   }
 
   @inline(__always)
-  mutating func initialize()
+  mutating func initialize(value: TaggedPointer<Node>? = nil)
   {
-    atom.store(0, .relaxed)
+    atom.initialize(value?.int ?? 0)
   }
 
   @inline(__always)

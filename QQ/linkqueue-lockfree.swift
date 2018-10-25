@@ -27,8 +27,8 @@ final public class LockFreeLinkQueue<T>: QueueType
   public init()
   {
     let node = LockFreeNode<T>()
-    head.store(TaggedPointer(node), order: .release)
-    tail.store(TaggedPointer(node), order: .release)
+    head.initialize(value: TaggedPointer(node))
+    tail.initialize(value: TaggedPointer(node))
   }
 
   deinit
