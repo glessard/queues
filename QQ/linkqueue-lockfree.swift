@@ -92,27 +92,30 @@ final public class LockFreeLinkQueue<T>: QueueType
       let tail = self.tail.load(order: .relaxed)!
       let next = head.node.next.pointee.load(order: .acquire)?.node
 
-      if head.pointer == tail.pointer
-      { // either the queue is empty, or the tail is lagging behind
-        if let next = next
-        { // tail was behind the actual last node; try to advance it.
-          _ = self.tail.CAS(old: tail, new: next, type: .strong, order: .release)
+      if head == self.head.load(order: .acquire)
+      {
+        if head.pointer == tail.pointer
+        { // either the queue is empty, or the tail is lagging behind
+          if let next = next
+          { // tail was behind the actual last node; try to advance it.
+            _ = self.tail.CAS(old: tail, new: next, type: .strong, order: .release)
+          }
+          else
+          { // queue is empty
+            return nil
+          }
         }
         else
-        { // queue is empty
-          return nil
-        }
-      }
-      else
-      { // no need to deal with tail
-        // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
-        if let newhead = next,
-           let element = newhead.read(), // must happen before deinitialize in another thread
-           self.head.CAS(old: head, new: newhead, type: .weak, order: .release)
-        {
-          newhead.deinitialize()
-          head.node.deallocate()
-          return element
+        { // no need to deal with tail
+          // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
+          if let newhead = next,
+             let element = newhead.read(), // must happen before deinitialize in another thread
+             self.head.CAS(old: head, new: newhead, type: .weak, order: .release)
+          {
+            newhead.deinitialize()
+            head.node.deallocate()
+            return element
+          }
         }
       }
     }
