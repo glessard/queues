@@ -27,8 +27,8 @@ final public class LockFreeCompatibleQueue<T>: QueueType
   public init()
   {
     let node = LockFreeNode<UnsafeMutablePointer<T>>()
-    head.store(TaggedPointer(node))
-    tail.store(TaggedPointer(node))
+    head.initialize(value: TaggedPointer(node))
+    tail.initialize(value: TaggedPointer(node))
   }
 
   deinit
@@ -69,22 +69,18 @@ final public class LockFreeCompatibleQueue<T>: QueueType
 
     while true
     {
-      let tail = self.tail.load()!
-      let next = tail.node.next.pointee.load()
+      let tail = self.tail.load(order: .acquire)!
 
-      if tail == self.tail.load()
-      { // was tail pointing to the last node?
-        if let next = next
-        { // tail wasn't pointing to the actual last node; try to fix it.
-          _ = self.tail.CAS(old: tail, new: next.node)
-        }
-        else
-        { // try to link the new node to the end of the list
-          if tail.node.next.pointee.CAS(old: nil, new: node)
-          { // success. try to have tail point to the inserted node.
-            _ = self.tail.CAS(old: tail, new: node)
-            break
-          }
+      if let next = tail.node.next.pointee.load(order: .acquire)?.node
+      { // tail wasn't pointing to the actual last node; try to fix it.
+        _ = self.tail.CAS(old: tail, new: next, type: .strong, order: .release)
+      }
+      else
+      { // try to link the new node to the end of the list
+        if tail.node.next.pointee.CAS(old: nil, new: node, type: .weak, order: .release)
+        { // success. try to have tail point to the inserted node.
+          _ = self.tail.CAS(old: tail, new: node, type: .strong, order: .release)
+          break
         }
       }
     }
@@ -94,17 +90,17 @@ final public class LockFreeCompatibleQueue<T>: QueueType
   {
     while true
     {
-      let head = self.head.load()!
-      let tail = self.tail.load()!
-      let next = head.node.next.pointee.load()?.node
+      let head = self.head.load(order: .acquire)!
+      let tail = self.tail.load(order: .relaxed)!
+      let next = head.node.next.pointee.load(order: .acquire)?.node
 
-      if head == self.head.load()
+      if head == self.head.load(order: .acquire)
       {
         if head.pointer == tail.pointer
         { // either the queue is empty, or the tail is lagging behind
           if let next = next
           { // tail was behind the actual last node; try to advance it.
-            _ = self.tail.CAS(old: tail, new: next)
+            _ = self.tail.CAS(old: tail, new: next, type: .strong, order: .release)
           }
           else
           { // queue is empty
@@ -116,7 +112,7 @@ final public class LockFreeCompatibleQueue<T>: QueueType
           // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
           if let newhead = next,
              let pointer = newhead.read(), // must happen before deinitialize in another thread
-             self.head.CAS(old: head, new: newhead)
+             self.head.CAS(old: head, new: newhead, type: .weak, order: .release)
           {
             newhead.deinitialize()
             head.node.deallocate()
