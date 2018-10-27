@@ -164,13 +164,6 @@ class QQTests: XCTestCase
     XCTAssert(dequeueCount == enqueueCount)
   }
 
-  func QueuePerformanceTestMultiThreaded<Q: QueueType>(type: Q.Type) where Q.Element: TestItem
-  {
-    self.measure() {
-      self.MTBenchmark(type, threads: 7, iterations: 1_000_000)
-    }
-  }
-
   func MultiThreadedBenchmark<Q: QueueType>(_ type: Q.Type) where Q.Element: TestItem
   {
     let workers  = [3,5,7,11,19]
@@ -212,5 +205,46 @@ class QQTests: XCTestCase
     }
     let dt = mach_absolute_time() - start
     return numericCast(dt)/numericCast(i)
+  }
+
+  func QueuePerformanceTestMultiThreaded<Q: QueueType>(type: Q.Type) where Q.Element: TestItem
+  {
+    let producers = ProcessInfo.processInfo.activeProcessorCount - 1
+    let iterations = 1_000_000/producers
+
+    self.measure() {
+      self.MultiThreadedSingleConsumerBenchmark(type, producers: 7, iterations: iterations)
+    }
+  }
+
+  func MultiThreadedSingleConsumerBenchmark<Q: QueueType>(_ type: Q.Type, producers: Int, iterations: Int)
+    where Q.Element: TestItem
+  {
+    let producers = ProcessInfo.processInfo.activeProcessorCount - 1
+    let iterations = 1_000_000/producers
+
+    let e = expectation(description: #function)
+    let queue = Q(Q.Element())
+//    let start = mach_absolute_time()
+    DispatchQueue.global(qos: .userInitiated).async {
+      var i: UInt64 = 0
+      while i < (producers*iterations)
+      {
+        if let _ = queue.dequeue()
+        {
+          i += 1
+        }
+      }
+//      let dt = mach_absolute_time() - start
+//      print(dt/i)
+      e.fulfill()
+    }
+
+    DispatchQueue.concurrentPerform(iterations: producers) {
+      _ in
+      for _ in 0..<iterations { queue.enqueue(Q.Element()) }
+    }
+
+    waitForExpectations(timeout: 5)
   }
 }
