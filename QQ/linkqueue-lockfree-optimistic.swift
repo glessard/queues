@@ -53,18 +53,20 @@ final public class OptimisticLinkQueue<T>: QueueType
   public var isEmpty: Bool { return head.load() == tail.load() }
 
   public var count: Int {
-    if head.load() == tail.load() { return 0 }
+    let tail = self.tail.load()!
+    let head = self.head.load()!
+    if head == tail { return 0 }
 
     // make sure the `next` pointers are in order
-    fixlist(tail: tail.load()!, head: head.load()!)
+    fixlist(tail: tail, head: head)
 
     var i = 0
-    let current = head.load()!.node
-    var pointer = current.next.pointee.load()
-    while let current = pointer?.node
+    var next = head.node.next.pointee.load()
+    while let current = next?.node
     { // Iterate along the linked nodes while counting
-      pointer = current.next.pointee.load()
+      next = current.next.pointee.load()
       i += 1
+      if current == tail.node { break }
     }
     return i
   }

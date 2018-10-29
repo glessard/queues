@@ -21,11 +21,13 @@ final public class UnsafeQueue<T>: QueueType
 
   public var count: Int {
     var i = 0
+    let tail = self.tail
     var node = head
-    while let n = node
+    while let current = node
     { // Iterate along the linked nodes while counting
-      node = n.next
+      node = current.next
       i += 1
+      if current === tail { break }
     }
     return i
   }
