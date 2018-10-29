@@ -21,25 +21,31 @@ final public class Fast2LockQueue<T>: QueueType
 {
   public typealias Element = T
 
-  private var head: QueueNode<T>? = nil
-  private var tail: QueueNode<T>! = nil
+  private var head: QueueNode<T>
+  private var tail: QueueNode<T>
 
   private var hlock = OS_SPINLOCK_INIT
   private var tlock = OS_SPINLOCK_INIT
 
   private let pool = AtomicStack<QueueNode<T>>()
 
-  public init() { }
+  public init()
+  {
+    tail = QueueNode()
+    head = tail
+  }
 
   deinit
   {
     // empty the queue
-    while let node = head
+    var next = head.next
+    while let node = next
     {
-      node.next?.deinitialize()
-      head = node.next
+      next = node.next
+      node.deinitialize()
       node.deallocate()
     }
+    head.deallocate()
 
     // drain the pool
     while let node = pool.pop()
@@ -50,11 +56,11 @@ final public class Fast2LockQueue<T>: QueueType
     pool.release()
   }
 
-  public var isEmpty: Bool { return head?.storage == tail.storage }
+  public var isEmpty: Bool { return head.storage == tail.storage }
 
   public var count: Int {
     var i = 0
-    var node = head?.next
+    var node = head.next
     while let current = node
     { // Iterate along the linked nodes while counting
       node = current.next
@@ -69,25 +75,16 @@ final public class Fast2LockQueue<T>: QueueType
     node.initialize(to: newElement)
 
     OSSpinLockLock(&tlock)
-    if head == nil
-    { // This is the initial element
-      tail = node
-      head = QueueNode()
-      head!.next = tail
-    }
-    else
-    {
-      tail.next = node
-      tail = node
-    }
+    tail.next = node
+    tail = node
     OSSpinLockUnlock(&tlock)
   }
 
   public func dequeue() -> T?
   {
     OSSpinLockLock(&hlock)
-    if let oldhead = head,
-       let next = oldhead.next
+    let oldhead = head
+    if let next = head.next
     {
       head = next
       let element = next.move()
