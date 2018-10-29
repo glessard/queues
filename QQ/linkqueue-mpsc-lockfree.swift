@@ -27,8 +27,8 @@ final public class MPSCLinkQueue<T>: QueueType
 {
   public typealias Element = T
 
-  private var head = AtomicNonNullMutableRawPointer()
-  private var tail = AtomicNonNullMutableRawPointer()
+  private var head = AtomicCacheAlignedMutableRawPointer()
+  private var tail = AtomicCacheAlignedMutableRawPointer()
 
   public init()
   { // set up an initial dummy node
@@ -129,7 +129,7 @@ final public class MPSCLinkQueue<T>: QueueType
 
 // Extensions used to deal with the queue's head and tail pointers
 
-extension AtomicNonNullMutableRawPointer
+extension AtomicCacheAlignedMutableRawPointer
 {
   mutating fileprivate func initialize<T>(node: Node<T>)
   {
