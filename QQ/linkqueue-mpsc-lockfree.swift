@@ -39,17 +39,14 @@ final public class MPSCLinkQueue<T>: QueueType
 
   deinit {
     // empty the queue
-    var node: Node<T>
-    while true
+    let head: Node<T> = self.head.loadNode(order: .acquire)
+    var next = head.loadNextNode(order: .acquire)
+    while let node = next
     {
-      node = head.loadNode(order: .acquire)
-      defer { node.deallocate() }
-
-      guard let next = node.loadNextNode(order: .acquire)
-        else { break }
-
-      head.store(node: next, order: .release)
+      next = node.loadNextNode(order: .acquire)
+      node.deallocate()
     }
+    head.deallocate()
   }
 
   public var isEmpty: Bool { return head.load(.relaxed) == tail.load(.relaxed) }
