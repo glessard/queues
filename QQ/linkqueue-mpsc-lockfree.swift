@@ -153,50 +153,58 @@ extension AtomicCacheAlignedMutableRawPointer
   }
 }
 
-private let nextOffset = 0
-private let dataOffset = nextOffset + MemoryLayout<AtomicMutableRawPointer>.stride
-
 private struct Node<Element>: OSAtomicNode, Equatable
 {
   let storage: UnsafeMutableRawPointer
+
+  static private var nextOffset: Int { return 0 }
+  static private var dataOffset: Int {
+    return (MemoryLayout<AtomicMutableRawPointer>.alignment > MemoryLayout<Element?>.alignment) ?
+      MemoryLayout<AtomicMutableRawPointer>.stride : MemoryLayout<Element?>.stride
+  }
+
+  private var next: UnsafeMutablePointer<AtomicMutableRawPointer> {
+    return (storage+Node.nextOffset).assumingMemoryBound(to: AtomicMutableRawPointer.self)
+  }
+
+  private var data: UnsafeMutablePointer<Element?> {
+    return (storage+Node.dataOffset).assumingMemoryBound(to: (Element?).self)
+  }
 
   init(storage: UnsafeMutableRawPointer)
   {
     self.storage = storage
   }
 
-  private init()
+  private init(private: Void = ())
   {
-    let size = dataOffset + MemoryLayout<Element?>.stride
-    storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
-    (storage+nextOffset).bindMemory(to: AtomicMutableRawPointer.self, capacity: 1)
-    (storage+nextOffset).assumingMemoryBound(to: AtomicMutableRawPointer.self).pointee = AtomicMutableRawPointer()
-    (storage+nextOffset).assumingMemoryBound(to: AtomicMutableRawPointer.self).pointee.initialize(nil)
-    (storage+dataOffset).bindMemory(to: (Element?).self, capacity: 1)
+    let alignment = max(MemoryLayout<AtomicMutableRawPointer>.alignment, MemoryLayout<Element?>.alignment)
+    let bytecount = Node.dataOffset + MemoryLayout<Element?>.stride
+    storage = UnsafeMutableRawPointer.allocate(byteCount: bytecount, alignment: alignment)
+    (storage+Node.nextOffset).bindMemory(to: AtomicMutableRawPointer.self, capacity: 1)
+    (storage+Node.dataOffset).bindMemory(to: (Element?).self, capacity: 1)
   }
 
-  init(none: Element? = nil)
+  init()
   {
-    self.init()
-    (storage+dataOffset).assumingMemoryBound(to: (Element?).self).initialize(to: nil)
+    self.init(private: ())
+    next.pointee = AtomicMutableRawPointer()
+    next.pointee.initialize(nil)
+    data.initialize(to: nil)
   }
 
   init(_ element: Element)
   {
-    self.init()
-    (storage+dataOffset).assumingMemoryBound(to: (Element?).self).initialize(to: element)
+    self.init(private: ())
+    next.pointee = AtomicMutableRawPointer()
+    next.pointee.initialize(nil)
+    data.initialize(to: element)
   }
 
   func deallocate()
   {
-    (storage+dataOffset).assumingMemoryBound(to: (Element?).self).deinitialize(count: 1)
+    data.deinitialize(count: 1)
     storage.deallocate()
-  }
-
-  private var next: UnsafeMutablePointer<AtomicMutableRawPointer> {
-    get {
-      return (storage+nextOffset).assumingMemoryBound(to: AtomicMutableRawPointer.self)
-    }
   }
 
   func loadNextNode(order: LoadMemoryOrder = .acquire) -> Node?
@@ -212,8 +220,8 @@ private struct Node<Element>: OSAtomicNode, Equatable
 
   func move() -> Element?
   {
-    let element = (storage+dataOffset).assumingMemoryBound(to: (Element?).self).pointee
-    (storage+dataOffset).assumingMemoryBound(to: (Element?).self).pointee = nil
+    let element = data.move()
+    data.initialize(to: nil)
     return element
   }
 }
