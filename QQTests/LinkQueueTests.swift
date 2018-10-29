@@ -240,10 +240,10 @@ class LockFreeCompatibleQueueTests: QQTests
     QueueInitEmptyTest(LockFreeCompatibleQueue<Thing>.self, newElement: Thing())
   }
 
-  func testMT()
-  {
-    MultiThreadedBenchmark(LockFreeCompatibleQueue<Thing>.self)
-  }
+//  func testMT()
+//  {
+//    MultiThreadedBenchmark(LockFreeCompatibleQueue<Thing>.self)
+//  }
 
   func testPerformanceMT()
   {
