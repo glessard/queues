@@ -51,12 +51,13 @@ final public class LockFreeCompatibleQueue<T>: QueueType
 
   public var count: Int {
     var i = 0
-    let current = head.load()!.node
-    var pointer = current.next.pointee.load()
-    while let current = pointer?.node
+    let tail = self.tail.load()!.node
+    var next = head.load()!.node.next.pointee.load()
+    while let current = next?.node
     { // Iterate along the linked nodes while counting
-      pointer = current.next.pointee.load()
+      next = current.next.pointee.load()
       i += 1
+      if current == tail { break }
     }
     return i
   }

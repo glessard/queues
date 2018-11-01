@@ -45,11 +45,13 @@ final public class FastQueue<T>: QueueType
 
   public var count: Int {
     var i = 0
+    let tail = self.tail
     var node = head
     while let current = node
     { // Iterate along the linked nodes while counting
       node = current.next
       i += 1
+      if current == tail { break }
     }
     return i
   }
