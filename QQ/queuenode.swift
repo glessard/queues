@@ -8,7 +8,7 @@
 
 private let offset = MemoryLayout<UnsafeMutableRawPointer>.stride
 
-struct QueueNode<Element>: OSAtomicNode
+struct QueueNode<Element>: OSAtomicNode, Equatable
 {
   let storage: UnsafeMutableRawPointer
 

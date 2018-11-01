@@ -10,7 +10,7 @@ private let nextOffset = MemoryLayout<UnsafeMutableRawPointer>.stride
 private let prevOffset = nextOffset + MemoryLayout<AtomicTP<LockFreeNode<Int>>>.stride
 private let dataOffset = prevOffset + MemoryLayout<AtomicTP<LockFreeNode<Int>>>.stride
 
-struct LockFreeNode<Element>: OSAtomicNode
+struct LockFreeNode<Element>: OSAtomicNode, Equatable
 {
   let storage: UnsafeMutableRawPointer
 
