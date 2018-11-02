@@ -27,14 +27,14 @@ final public class MPSCLinkQueue<T>: QueueType
 {
   public typealias Element = T
 
-  private var head = AtomicCacheAlignedMutableRawPointer()
-  private var tail = AtomicCacheAlignedMutableRawPointer()
+  private var head: AtomicCacheLineAlignedMutableRawPointer
+  private var tail: AtomicCacheLineAlignedMutableRawPointer
 
   public init()
   { // set up an initial dummy node
     let node = Node<T>()
-    head.initialize(node: node)
-    tail.initialize(node: node)
+    head = AtomicCacheLineAlignedMutableRawPointer(node.storage)
+    tail = AtomicCacheLineAlignedMutableRawPointer(node.storage)
   }
 
   deinit {
@@ -126,7 +126,7 @@ final public class MPSCLinkQueue<T>: QueueType
 
 // Extensions used to deal with the queue's head and tail pointers
 
-extension AtomicCacheAlignedMutableRawPointer
+extension AtomicCacheLineAlignedMutableRawPointer
 {
   mutating fileprivate func initialize<T>(node: Node<T>)
   {
@@ -156,12 +156,12 @@ private struct Node<Element>: OSAtomicNode, Equatable
 
   static private var nextOffset: Int { return 0 }
   static private var dataOffset: Int {
-    return (MemoryLayout<AtomicMutableRawPointer>.alignment > MemoryLayout<Element?>.alignment) ?
-      MemoryLayout<AtomicMutableRawPointer>.stride : MemoryLayout<Element?>.stride
+    return (MemoryLayout<AtomicOptionalMutableRawPointer>.alignment > MemoryLayout<Element?>.alignment) ?
+      MemoryLayout<AtomicOptionalMutableRawPointer>.stride : MemoryLayout<Element?>.stride
   }
 
-  private var next: UnsafeMutablePointer<AtomicMutableRawPointer> {
-    return (storage+Node.nextOffset).assumingMemoryBound(to: AtomicMutableRawPointer.self)
+  private var next: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
+    return (storage+Node.nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
   }
 
   private var data: UnsafeMutablePointer<Element?> {
@@ -175,17 +175,17 @@ private struct Node<Element>: OSAtomicNode, Equatable
 
   private init(private: Void = ())
   {
-    let alignment = max(MemoryLayout<AtomicMutableRawPointer>.alignment, MemoryLayout<Element?>.alignment)
+    let alignment = max(MemoryLayout<AtomicOptionalMutableRawPointer>.alignment, MemoryLayout<Element?>.alignment)
     let bytecount = Node.dataOffset + MemoryLayout<Element?>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: bytecount, alignment: alignment)
-    (storage+Node.nextOffset).bindMemory(to: AtomicMutableRawPointer.self, capacity: 1)
+    (storage+Node.nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
     (storage+Node.dataOffset).bindMemory(to: (Element?).self, capacity: 1)
   }
 
   init()
   {
     self.init(private: ())
-    next.pointee = AtomicMutableRawPointer()
+    next.pointee = AtomicOptionalMutableRawPointer()
     next.pointee.initialize(nil)
     data.initialize(to: nil)
   }
@@ -193,7 +193,7 @@ private struct Node<Element>: OSAtomicNode, Equatable
   init(_ element: Element)
   {
     self.init(private: ())
-    next.pointee = AtomicMutableRawPointer()
+    next.pointee = AtomicOptionalMutableRawPointer()
     next.pointee.initialize(nil)
     data.initialize(to: element)
   }
