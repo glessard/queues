@@ -9,6 +9,13 @@
 /* Begin PBXBuildFile section */
 		030F58D71A5B5EA500F4B44B /* fastqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030F58D61A5B5EA500F4B44B /* fastqueue.swift */; };
 		030F58D81A5B62CF00F4B44B /* fastqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030F58D61A5B5EA500F4B44B /* fastqueue.swift */; };
+		031D174E218BCD6F00F4B44B /* linkqueue-spsc-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031D174D218BCD6F00F4B44B /* linkqueue-spsc-lockfree.swift */; };
+		031D1757218BD5C800F4B44B /* linkqueue-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */; };
+		031D1758218BD5C800F4B44B /* linkqueue-mpsc-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035B5500218296EB00F4B44B /* linkqueue-mpsc-lockfree.swift */; };
+		031D1759218BD5C800F4B44B /* linkqueue-spsc-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031D174D218BCD6F00F4B44B /* linkqueue-spsc-lockfree.swift */; };
+		031D175D218BD8B700F4B44B /* fastqueue-spsc-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031D175C218BD8B700F4B44B /* fastqueue-spsc-lockfree.swift */; };
+		031D175E218BD8B700F4B44B /* fastqueue-spsc-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031D175C218BD8B700F4B44B /* fastqueue-spsc-lockfree.swift */; };
+		031D1766218BDA9F00F4B44B /* CAtomics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033E19032141E90300F4B44B /* CAtomics.framework */; };
 		031DEDEE1B17ADFB00F4B44B /* link2lockqueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDED1B17ADFB00F4B44B /* link2lockqueue.swift */; };
 		03223F171A64560600F4B44B /* LinkQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F161A64560600F4B44B /* LinkQueueTests.swift */; };
 		03223F201A645BA900F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
@@ -58,6 +65,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		031D1764218BDA9600F4B44B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 031CA35C20DBDCAD00F4B44B;
+			remoteInfo = CAtomics;
+		};
 		033E18FE2141E90300F4B44B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
@@ -130,6 +144,8 @@
 
 /* Begin PBXFileReference section */
 		030F58D61A5B5EA500F4B44B /* fastqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = fastqueue.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		031D174D218BCD6F00F4B44B /* linkqueue-spsc-lockfree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "linkqueue-spsc-lockfree.swift"; sourceTree = "<group>"; };
+		031D175C218BD8B700F4B44B /* fastqueue-spsc-lockfree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "fastqueue-spsc-lockfree.swift"; sourceTree = "<group>"; };
 		031DEDEA1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "linkqueue-lockfree-optimistic.swift"; sourceTree = "<group>"; };
 		031DEDED1B17ADFB00F4B44B /* link2lockqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = link2lockqueue.swift; sourceTree = "<group>"; };
 		03223F161A64560600F4B44B /* LinkQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkQueueTests.swift; sourceTree = "<group>"; };
@@ -186,6 +202,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				031D1766218BDA9F00F4B44B /* CAtomics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,6 +345,8 @@
 				035AB2491D7FD0D000F4B44B /* lockfree-node.swift */,
 				03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */,
 				035B5500218296EB00F4B44B /* linkqueue-mpsc-lockfree.swift */,
+				031D174D218BCD6F00F4B44B /* linkqueue-spsc-lockfree.swift */,
+				031D175C218BD8B700F4B44B /* fastqueue-spsc-lockfree.swift */,
 				03CED8861E01F5F300F4B44B /* linkqueue-lockfree-compatible.swift */,
 				03B14A0C1AEB05FF00F4B44B /* fastqueue-lockfree.swift */,
 				031DEDEA1B17AD4D00F4B44B /* linkqueue-lockfree-optimistic.swift */,
@@ -419,6 +438,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				031D1765218BDA9600F4B44B /* PBXTargetDependency */,
 			);
 			name = QueueBenchmark;
 			productName = QueueBenchmark;
@@ -542,6 +562,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				03678C111A60963700F4B44B /* osatomicqueue.swift in Sources */,
+				031D174E218BCD6F00F4B44B /* linkqueue-spsc-lockfree.swift in Sources */,
 				035AB2471D7FD09900F4B44B /* linkqueue-lockfree-optimistic.swift in Sources */,
 				038ACC791BA0E54200F4B44B /* taggedpointer.swift in Sources */,
 				035B5501218296EB00F4B44B /* linkqueue-mpsc-lockfree.swift in Sources */,
@@ -559,6 +580,7 @@
 				035AB24A1D7FD0D000F4B44B /* lockfree-node.swift in Sources */,
 				03CED8841E01C92E00F4B44B /* linkqueue-lockfree.swift in Sources */,
 				031DEDEE1B17ADFB00F4B44B /* link2lockqueue.swift in Sources */,
+				031D175D218BD8B700F4B44B /* fastqueue-spsc-lockfree.swift in Sources */,
 				03CED8831E01C43D00F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */,
 				03E4CC1C1AF7563300F4B44B /* fast2lockqueue.swift in Sources */,
 				03CED8851E01F39A00F4B44B /* fastqueue-lockfree.swift in Sources */,
@@ -597,9 +619,13 @@
 				035DB97A1BA3947300F4B44B /* queue-unsafe.swift in Sources */,
 				038ACC7E1BA0ED4A00F4B44B /* fastqueue-unsafe.swift in Sources */,
 				03E4CC1D1AF75B9800F4B44B /* fast2lockqueue.swift in Sources */,
+				031D1757218BD5C800F4B44B /* linkqueue-lockfree.swift in Sources */,
+				031D1758218BD5C800F4B44B /* linkqueue-mpsc-lockfree.swift in Sources */,
 				03223F201A645BA900F4B44B /* thing.swift in Sources */,
 				034B8C732178ABB000F4B44B /* queue-array.swift in Sources */,
+				031D175E218BD8B700F4B44B /* fastqueue-spsc-lockfree.swift in Sources */,
 				035DB9631BA1F33400F4B44B /* link2lockqueue.swift in Sources */,
+				031D1759218BD5C800F4B44B /* linkqueue-spsc-lockfree.swift in Sources */,
 				038ACC7A1BA0E5A300F4B44B /* taggedpointer.swift in Sources */,
 				030F58D81A5B62CF00F4B44B /* fastqueue.swift in Sources */,
 			);
@@ -608,6 +634,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		031D1765218BDA9600F4B44B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CAtomics;
+			targetProxy = 031D1764218BDA9600F4B44B /* PBXContainerItemProxy */;
+		};
 		033E190D2141E98E00F4B44B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = CAtomics;
