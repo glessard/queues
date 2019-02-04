@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
+import CAtomics
+
 /// Lock-free queue
 ///
 /// Note that this algorithm is not designed for tri-state memory as used in Swift.
@@ -23,50 +25,55 @@
 final public class OptimisticLinkQueue<T>: QueueType
 {
   public typealias Element = T
+  typealias Node = LockFreeNode<T>
 
-  private var head = AtomicTP<LockFreeNode<T>>()
-  private var tail = AtomicTP<LockFreeNode<T>>()
+  private var head = AtomicTaggedMutableRawPointer()
+  private var tail = AtomicTaggedMutableRawPointer()
 
   public init()
   {
-    let node = LockFreeNode<T>()
-    head.store(TaggedPointer(node))
-    tail.store(TaggedPointer(node))
+    let node = Node()
+    let tmrp = TaggedMutableRawPointer(node.storage)
+    head.initialize(tmrp)
+    tail.initialize(tmrp)
   }
 
   deinit
   {
     // empty the queue
-    while let node = head.load()?.node
+    while true
     {
+      let node = Node(storage: head.load(.relaxed).ptr)
       defer { node.deallocate() }
 
-      if let next = node.next.pointee.load()
+      let next = node.next.pointee.load(.relaxed)
+      if let node = Node(storage: next.ptr)
       {
-        next.node.deinitialize()
-        head.store(next)
+        node.deinitialize()
+        let next = TaggedMutableRawPointer(node.storage, tag: next.tag)
+        head.store(next, .relaxed)
       }
       else { break }
     }
   }
 
-  public var isEmpty: Bool { return head.load() == tail.load() }
+  public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
 
   public var count: Int {
-    let tail = self.tail.load()!
-    let head = self.head.load()!
+    let tail = self.tail.load(.relaxed)
+    let head = self.head.load(.relaxed)
     if head == tail { return 0 }
 
     // make sure the `next` pointers are in order
     fixlist(tail: tail, head: head)
 
     var i = 0
-    var next = head.node.next.pointee.load()
-    while let current = next?.node
+    var next = Node(storage: head.ptr).next.pointee.load(.relaxed).ptr
+    while let current = Node(storage: next)
     { // Iterate along the linked nodes while counting
-      next = current.next.pointee.load()
+      next = current.next.pointee.load(.relaxed).ptr
       i += 1
-      if current == tail.node { break }
+      if current.storage == tail.ptr { break }
     }
     return i
   }
@@ -77,13 +84,14 @@ final public class OptimisticLinkQueue<T>: QueueType
 
     while true
     {
-      let tail = self.tail.load()!
-      let prev = TaggedPointer(tail.node, incrementingTag: tail)
-      node.prev.pointee.store(prev)
-      if self.tail.CAS(old: tail, new: node)
+      let tail = self.tail.load(.acquire)
+      let prev = TaggedOptionalMutableRawPointer(tail.ptr, tag: tail.tag &+ 1)
+      node.prev.pointee.store(prev, .release)
+      let next = TaggedMutableRawPointer(node.storage, tag: tail.tag &+ 1)
+      if self.tail.CAS(tail, next, .weak, .release)
       { // success, update the old tail's next link
-        let next = TaggedPointer(node, usingTag: tail)
-        tail.node.next.pointee.store(next)
+        let next = TaggedOptionalMutableRawPointer(node.storage, tag: tail.tag)
+        Node(storage: tail.ptr).next.pointee.store(next, .release)
         break
       }
     }
@@ -93,26 +101,29 @@ final public class OptimisticLinkQueue<T>: QueueType
   {
     while true
     {
-      let head = self.head.load()!
-      let tail = self.tail.load()!
-      let next = head.node.next.pointee.load()
+      let head = self.head.load(.acquire)
+      let tail = self.tail.load(.relaxed)
+      let next = Node(storage: head.ptr).next.pointee.load(.acquire)
 
-      if head == self.head.load()
+      if head == self.head.load(.acquire)
       {
         if head != tail
         { // queue is not empty
-          if next?.tag != head.tag
+          if next.tag != head.tag
           { // an enqueue missed its final linking operation
             fixlist(tail: tail, head: head)
             continue
           }
-          if let newhead = next?.node,
-             let element = newhead.read(), // must happen before deinitialize in another thread
-             self.head.CAS(old: head, new: newhead)
+          if let node = Node(storage: next.ptr),
+             let element = node.read() // must happen before deinitialize in another thread
           {
-            newhead.deinitialize()
-            head.node.deallocate()
-            return element
+            let newhead = TaggedMutableRawPointer(node.storage, tag: head.tag &+ 1)
+            if self.head.CAS(head, newhead, .weak, .release)
+            {
+              node.deinitialize()
+              Node(storage: head.ptr).deallocate()
+              return element
+            }
           }
         }
         return nil
@@ -120,16 +131,17 @@ final public class OptimisticLinkQueue<T>: QueueType
     }
   }
 
-  private func fixlist(tail oldtail: TaggedPointer<LockFreeNode<T>>, head oldhead: TaggedPointer<LockFreeNode<T>>)
+  private func fixlist(tail oldtail: TaggedMutableRawPointer, head oldhead: TaggedMutableRawPointer)
   {
     var current = oldtail
-    while oldhead == self.head.load()! && current != oldhead
+    while oldhead == self.head.load(.relaxed) && current != oldhead
     {
-      if let currentPrev = current.node.prev.pointee.load()?.node
+      let currentNode = Node(storage: current.ptr)
+      if let currentPrev = Node(storage: currentNode.prev.pointee.load(.relaxed).ptr)
       {
         let tag = current.tag &- 1
-        currentPrev.next.pointee.store(TaggedPointer(current.node, tag: tag))
-        current = TaggedPointer(currentPrev, tag: tag)
+        currentPrev.next.pointee.store(TaggedOptionalMutableRawPointer(current.ptr, tag: tag), .relaxed)
+        current = TaggedMutableRawPointer(currentPrev.storage, tag: tag)
       }
     }
   }

@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
+import CAtomics
+
 /// Lock-free queue with node recycling
 ///
 /// Note that this algorithm is not designed for tri-state memory as used in Swift.
@@ -20,30 +22,35 @@
 final public class LockFreeFastQueue<T>: QueueType
 {
   public typealias Element = T
+  typealias Node = LockFreeNode<T>
 
-  private var head = AtomicTP<LockFreeNode<T>>()
-  private var tail = AtomicTP<LockFreeNode<T>>()
+  private var head = AtomicTaggedMutableRawPointer()
+  private var tail = AtomicTaggedMutableRawPointer()
 
-  private let pool = AtomicStack<LockFreeNode<T>>()
+  private let pool = AtomicStack<Node>()
 
   public init()
   {
-    let node = LockFreeNode<T>()
-    head.initialize(value: TaggedPointer(node))
-    tail.initialize(value: TaggedPointer(node))
+    let node = Node()
+    let tmrp = TaggedMutableRawPointer(node.storage)
+    head.initialize(tmrp)
+    tail.initialize(tmrp)
   }
 
   deinit
   {
     // empty the queue
-    while let node = head.load()?.node
+    while true
     {
+      let node = Node(storage: head.load(.relaxed).ptr)
       defer { node.deallocate() }
 
-      if let next = node.next.pointee.load()
+      let next = node.next.pointee.load(.relaxed)
+      if let node = Node(storage: next.ptr)
       {
-        next.node.deinitialize()
-        head.store(next)
+        node.deinitialize()
+        let tagged = TaggedMutableRawPointer(node.storage, tag: next.tag)
+        head.store(tagged, .relaxed)
       }
       else { break }
     }
@@ -56,15 +63,15 @@ final public class LockFreeFastQueue<T>: QueueType
     pool.release()
   }
 
-  public var isEmpty: Bool { return head.load()?.pointer == tail.load()?.pointer }
+  public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
 
   public var count: Int {
     var i = 0
-    let tail = self.tail.load()!.node
-    var next = head.load()!.node.next.pointee.load()
-    while let current = next?.node
+    let tail = Node(storage: self.tail.load(.relaxed).ptr)
+    var next = Node(storage: self.head.load(.relaxed).ptr).next.pointee.load(.relaxed).ptr
+    while let current = Node(storage: next)
     { // Iterate along the linked nodes while counting
-      next = current.next.pointee.load()
+      next = current.next.pointee.load(.relaxed).ptr
       i += 1
       if current == tail { break }
     }
@@ -78,17 +85,23 @@ final public class LockFreeFastQueue<T>: QueueType
 
     while true
     {
-      let tail = self.tail.load(order: .acquire)!
+      let tail = self.tail.load(.acquire)
+      let tailNode = Node(storage: tail.ptr)
 
-      if let next = tail.node.next.pointee.load(order: .acquire)?.node
+      let next = tailNode.next.pointee.load(.acquire)
+      if let nextNode = Node(storage: next.ptr)
       { // tail wasn't pointing to the actual last node; try to fix it.
-        _ = self.tail.CAS(old: tail, new: next, type: .strong, order: .release)
+        let next = TaggedMutableRawPointer(nextNode.storage, tag: next.tag &+ 1)
+        _ = self.tail.CAS(tail, next, .strong, .release)
       }
       else
       { // try to link the new node to the end of the list
-        if tail.node.next.pointee.CAS(old: nil, new: node, type: .weak, order: .release)
+        let baseNode = TaggedOptionalMutableRawPointer()
+        let nextNode = TaggedOptionalMutableRawPointer(node.storage, tag: next.tag &+ 1)
+        if tailNode.next.pointee.CAS(baseNode, nextNode, .weak, .release)
         { // success. try to have tail point to the inserted node.
-          _ = self.tail.CAS(old: tail, new: node, type: .strong, order: .release)
+          let newTail = TaggedMutableRawPointer(node.storage, tag: tail.tag &+ 1)
+          _ = self.tail.CAS(tail, newTail, .strong, .release)
           break
         }
       }
@@ -99,17 +112,18 @@ final public class LockFreeFastQueue<T>: QueueType
   {
     while true
     {
-      let head = self.head.load(order: .acquire)!
-      let tail = self.tail.load(order: .relaxed)!
-      let next = head.node.next.pointee.load(order: .acquire)?.node
+      let head = self.head.load(.acquire)
+      let tail = self.tail.load(.relaxed)
+      let next = Node(storage: head.ptr).next.pointee.load(.acquire)
 
-      if head == self.head.load(order: .acquire)
+      if head == self.head.load(.acquire)
       {
-        if head.pointer == tail.pointer
+        if head.ptr == tail.ptr
         { // either the queue is empty, or the tail is lagging behind
-          if let next = next
+          if let nextPtr = next.ptr
           { // tail was behind the actual last node; try to advance it.
-            _ = self.tail.CAS(old: tail, new: next, type: .strong, order: .release)
+            let newTail = TaggedMutableRawPointer(nextPtr, tag: tail.tag &+ 1)
+            _ = self.tail.CAS(tail, newTail, .strong, .release)
           }
           else
           { // queue is empty
@@ -119,13 +133,16 @@ final public class LockFreeFastQueue<T>: QueueType
         else
         { // no need to deal with tail
           // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
-          if let newhead = next,
-             let element = newhead.read(), // must happen before deinitialize in another thread
-             self.head.CAS(old: head, new: newhead, type: .weak, order: .release)
+          if let node = Node(storage: next.ptr),
+             let element = node.read() // must happen before deinitialize in another thread
           {
-            newhead.deinitialize()
-            pool.push(head.node)
-            return element
+            let newhead = TaggedMutableRawPointer(node.storage, tag: head.tag &+ 1)
+            if self.head.CAS(head, newhead, .weak, .release)
+            {
+              node.deinitialize()
+              pool.push(Node(storage: head.ptr))
+              return element
+            }
           }
         }
       }

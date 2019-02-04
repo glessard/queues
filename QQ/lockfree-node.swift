@@ -6,9 +6,11 @@
 //  Copyright © 2016 Guillaume Lessard. All rights reserved.
 //
 
-private let nextOffset = MemoryLayout<UnsafeMutableRawPointer>.stride
-private let prevOffset = nextOffset + MemoryLayout<AtomicTP<LockFreeNode<Int>>>.stride
-private let dataOffset = prevOffset + MemoryLayout<AtomicTP<LockFreeNode<Int>>>.stride
+import CAtomics
+
+private let nextOffset = MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride
+private let prevOffset = nextOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride
+private let dataOffset = prevOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride
 
 struct LockFreeNode<Element>: OSAtomicNode, Equatable
 {
@@ -19,14 +21,20 @@ struct LockFreeNode<Element>: OSAtomicNode, Equatable
     self.storage = storage
   }
 
+  init?(storage: UnsafeMutableRawPointer?)
+  {
+    guard let storage = storage else { return nil }
+    self.storage = storage
+  }
+
   init()
   {
     let size = dataOffset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
     storage.bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1).initialize(repeating: nil, count: 1)
-    (storage+nextOffset).bindMemory(to: AtomicTP<LockFreeNode<Element>>.self, capacity: 2)
-    (storage+nextOffset).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee = AtomicTP<LockFreeNode<Element>>()
-    (storage+prevOffset).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee = AtomicTP<LockFreeNode<Element>>()
+    (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 2)
+    (storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self).pointee = AtomicTaggedOptionalMutableRawPointer()
+    (storage+prevOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self).pointee = AtomicTaggedOptionalMutableRawPointer()
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
@@ -41,23 +49,24 @@ struct LockFreeNode<Element>: OSAtomicNode, Equatable
     storage.deallocate()
   }
 
-  var prev: UnsafeMutablePointer<AtomicTP<LockFreeNode<Element>>> {
+  var prev: UnsafeMutablePointer<AtomicTaggedOptionalMutableRawPointer> {
     get {
-      return (storage+nextOffset).assumingMemoryBound(to: (AtomicTP<LockFreeNode<Element>>).self)
+      return (storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
     }
   }
 
-  var next: UnsafeMutablePointer<AtomicTP<LockFreeNode<Element>>> {
+  var next: UnsafeMutablePointer<AtomicTaggedOptionalMutableRawPointer> {
     get {
-      return (storage+prevOffset).assumingMemoryBound(to: (AtomicTP<LockFreeNode<Element>>).self)
+      return (storage+prevOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
     }
   }
 
   func initialize(to element: Element)
   {
     storage.assumingMemoryBound(to: (UnsafeMutableRawPointer?).self).pointee = nil
-    (storage+nextOffset).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee.initialize()
-    (storage+prevOffset).assumingMemoryBound(to: AtomicTP<LockFreeNode<Element>>.self).pointee.initialize()
+    let tmrp = TaggedOptionalMutableRawPointer(nil, tag: 0)
+    (storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self).pointee.initialize(tmrp)
+    (storage+prevOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self).pointee.initialize(tmrp)
     (storage+dataOffset).assumingMemoryBound(to: Element.self).initialize(to: element)
   }
 
