@@ -116,3 +116,11 @@ struct TaggedPointer<Node: OSAtomicNode>: Equatable
     return lhs.value == rhs.value
   }
 }
+
+extension TaggedMutableRawPointer: Equatable
+{
+  public static func ==(lhs: TaggedMutableRawPointer, rhs: TaggedMutableRawPointer) -> Bool
+  {
+    return (lhs.ptr == rhs.ptr) && (lhs.tag == rhs.tag)
+  }
+}
