@@ -20,6 +20,7 @@
 		03223F171A64560600F4B44B /* LinkQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F161A64560600F4B44B /* LinkQueueTests.swift */; };
 		03223F201A645BA900F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
 		03223F211A645BFD00F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
+		032A5E1121C307F700F4B44B /* linkqueue-unmanaged-lockfree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 032A5E1021C307F700F4B44B /* linkqueue-unmanaged-lockfree.swift */; };
 		033E190B2141E95100F4B44B /* CAtomics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033E19032141E90300F4B44B /* CAtomics.framework */; };
 		034B8C6D2178AA2B00F4B44B /* queue-array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034B8C6C2178AA2B00F4B44B /* queue-array.swift */; };
 		034B8C732178ABB000F4B44B /* queue-array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034B8C6C2178AA2B00F4B44B /* queue-array.swift */; };
@@ -150,6 +151,7 @@
 		031DEDED1B17ADFB00F4B44B /* link2lockqueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = link2lockqueue.swift; sourceTree = "<group>"; };
 		03223F161A64560600F4B44B /* LinkQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkQueueTests.swift; sourceTree = "<group>"; };
 		03223F1E1A645B8800F4B44B /* thing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = thing.swift; path = QQTests/thing.swift; sourceTree = SOURCE_ROOT; };
+		032A5E1021C307F700F4B44B /* linkqueue-unmanaged-lockfree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "linkqueue-unmanaged-lockfree.swift"; sourceTree = "<group>"; };
 		033E18F52141E90300F4B44B /* Atomics.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Atomics.xcodeproj; path = Dependencies/Atomics/Xcode/Atomics.xcodeproj; sourceTree = "<group>"; };
 		034B8C6C2178AA2B00F4B44B /* queue-array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "queue-array.swift"; sourceTree = "<group>"; };
 		035A98271A539CF600F4B44B /* QQ.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = QQ.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -344,6 +346,7 @@
 			children = (
 				035AB2491D7FD0D000F4B44B /* lockfree-node.swift */,
 				03DB472E1B4D546700F4B44B /* linkqueue-lockfree.swift */,
+				032A5E1021C307F700F4B44B /* linkqueue-unmanaged-lockfree.swift */,
 				035B5500218296EB00F4B44B /* linkqueue-mpsc-lockfree.swift */,
 				031D174D218BCD6F00F4B44B /* linkqueue-spsc-lockfree.swift */,
 				031D175C218BD8B700F4B44B /* fastqueue-spsc-lockfree.swift */,
@@ -579,6 +582,7 @@
 				035DB9791BA3943400F4B44B /* queue-unsafe.swift in Sources */,
 				035AB24A1D7FD0D000F4B44B /* lockfree-node.swift in Sources */,
 				03CED8841E01C92E00F4B44B /* linkqueue-lockfree.swift in Sources */,
+				032A5E1121C307F700F4B44B /* linkqueue-unmanaged-lockfree.swift in Sources */,
 				031DEDEE1B17ADFB00F4B44B /* link2lockqueue.swift in Sources */,
 				031D175D218BD8B700F4B44B /* fastqueue-spsc-lockfree.swift in Sources */,
 				03CED8831E01C43D00F4B44B /* fastqueue-lockfree-optimistic.swift in Sources */,

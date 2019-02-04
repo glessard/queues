@@ -1,9 +1,9 @@
 //
-//  linkqueue-lockfree-compatible.swift
+//  linkqueue-lockfree.swift
 //  QQ
 //
-//  Created by Guillaume Lessard on 2016-12-14.
-//  Copyright (c) 2016 Guillaume Lessard. All rights reserved.
+//  Created by Guillaume Lessard on 2014-08-16.
+//  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
 import CAtomics
@@ -19,10 +19,10 @@ import CAtomics
 /// in Principles of Distributed Computing '96 (PODC96)
 /// See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 
-final public class LockFreeCompatibleQueue<T>: QueueType
+final public class LockFreeLinkReferenceQueue<T: AnyObject>: QueueType
 {
   public typealias Element = T
-  typealias Node = LockFreeNode<UnsafeMutablePointer<T>>
+  typealias Node = LockFreeNode<Unmanaged<T>>
 
   private var head = AtomicTaggedMutableRawPointer()
   private var tail = AtomicTaggedMutableRawPointer()
@@ -71,9 +71,8 @@ final public class LockFreeCompatibleQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let pointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
-    pointer.initialize(to: newElement)
-    let node = LockFreeNode(initializedWith: pointer)
+    let u = Unmanaged.passRetained(newElement)
+    let node = LockFreeNode(initializedWith: u)
 
     while true
     {
@@ -126,16 +125,14 @@ final public class LockFreeCompatibleQueue<T>: QueueType
         { // no need to deal with tail
           // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
           if let node = Node(storage: next.ptr),
-             let pointer = node.read() // must happen before deinitialize in another thread
+            let element = node.read() // must happen before deinitialize in another thread
           {
             let newhead = TaggedMutableRawPointer(node.storage, tag: head.tag &+ 1)
             if self.head.CAS(head, newhead, .weak, .release)
             {
               node.deinitialize()
               Node(storage: head.ptr).deallocate()
-              let element = pointer.move()
-              pointer.deallocate()
-              return element
+              return element.takeRetainedValue()
             }
           }
         }

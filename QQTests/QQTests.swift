@@ -169,8 +169,8 @@ class QQTests: XCTestCase
     let workers  = [3,5,7,11,19]
     let iterations = 1_000_000
 
-    workers.forEach {
-      threads in
+    for threads in workers
+    {
       let avg = MTBenchmark(type, threads: threads, iterations: iterations)
       print("\(threads):\t\(avg)")
     }
