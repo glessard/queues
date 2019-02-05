@@ -55,7 +55,6 @@ class AtomicStack<T: StackNode>
       let linked = node.link.pointee.load(.relaxed)
       newHead = TaggedOptionalMutableRawPointer(linked, tag: oldHead.tag &+ 1)
     } while !self.head.loadCAS(&oldHead, newHead, .weak, .acquire, .acquire)
-    node.link.pointee.store(nil, .relaxed)
     return node
   }
 }
