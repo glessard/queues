@@ -9,8 +9,9 @@
 final public class LinkOSQueue<T>: QueueType
 {
   public typealias Element = T
+  typealias Node = QueueNode<T>
 
-  private let queue = OSAtomicQueue<QueueNode<T>>()
+  private let queue = OSAtomicQueue<Node>()
 
   public init() { }
 
@@ -36,7 +37,7 @@ final public class LinkOSQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node = QueueNode(initializedWith: newElement)
+    let node = Node(initializedWith: newElement)
 
     queue.enqueue(node)
   }

@@ -9,11 +9,12 @@
 final public class UnsafeFastQueue<T>: QueueType
 {
   public typealias Element = T
+  typealias Node = QueueNode<T>
 
-  private var head: QueueNode<T>? = nil
-  private var tail: QueueNode<T>! = nil
+  private var head: Node? = nil
+  private var tail: Node! = nil
 
-  private let pool = AtomicStack<QueueNode<T>>()
+  private let pool = AtomicStack<Node>()
 
   public init() { }
 
@@ -43,10 +44,19 @@ final public class UnsafeFastQueue<T>: QueueType
     return i
   }
 
+  private func node(with element: T) -> Node
+  {
+    if let reused = pool.pop()
+    {
+      reused.initialize(to: element)
+      return reused
+    }
+    return Node(initializedWith: element)
+  }
+
   public func enqueue(_ newElement: T)
   {
-    let node = pool.pop() ?? QueueNode()
-    node.initialize(to: newElement)
+    let node = self.node(with: newElement)
 
     if head == nil
     {

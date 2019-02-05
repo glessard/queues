@@ -71,10 +71,19 @@ final public class LockFreeFastQueue<T>: QueueType
     return i
   }
 
+  private func node(with element: T) -> Node
+  {
+    if let reused = pool.pop()
+    {
+      reused.initialize(to: element)
+      return reused
+    }
+    return Node(initializedWith: element)
+  }
+
   public func enqueue(_ newElement: T)
   {
-    let node = pool.pop() ?? LockFreeNode()
-    node.initialize(to: newElement)
+    let node = self.node(with: newElement)
 
     while true
     {
