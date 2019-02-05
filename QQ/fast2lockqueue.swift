@@ -31,7 +31,7 @@ final public class Fast2LockQueue<T>: QueueType
 
   public init()
   {
-    tail = QueueNode()
+    tail = QueueNode.dummy
     head = tail
   }
 

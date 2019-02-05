@@ -34,8 +34,8 @@ final public class OptimisticFastQueue<T>: QueueType
 
   public init()
   {
-    let node = Node()
-    let tmrp = TaggedMutableRawPointer(node.storage)
+    let node = Node.dummy
+    let tmrp = TaggedMutableRawPointer(node.storage, tag: 1)
     head.initialize(tmrp)
     tail.initialize(tmrp)
   }

@@ -34,7 +34,7 @@ final public class Link2LockQueue<T>: QueueType, Sequence, IteratorProtocol
 
   public init()
   {
-    tail = QueueNode()
+    tail = QueueNode.dummy
     head = tail
   }
 
