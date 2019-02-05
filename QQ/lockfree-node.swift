@@ -8,13 +8,19 @@
 
 import CAtomics
 
-private let nextOffset = MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride
-private let prevOffset = nextOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride
-private let dataOffset = prevOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride
+private let linkOffset = 0
+private let prevOffset = linkOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.alignment
+private let nextOffset = prevOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride
 
-struct LockFreeNode<Element>: OSAtomicNode, Equatable
+struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
 {
   let storage: UnsafeMutableRawPointer
+
+  private var dataOffset: Int {
+    let a = MemoryLayout<Element>.alignment
+    let d = (nextOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride - a)/a
+    return a*d+a
+  }
 
   init(storage: UnsafeMutableRawPointer)
   {
@@ -27,21 +33,29 @@ struct LockFreeNode<Element>: OSAtomicNode, Equatable
     self.storage = storage
   }
 
-  init()
+  private init()
   {
-    let size = dataOffset + MemoryLayout<Element>.stride
-    storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
-    storage.bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1).initialize(repeating: nil, count: 1)
+    let alignment = max(MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.alignment, MemoryLayout<Element>.alignment)
+    let a = MemoryLayout<Element>.alignment
+    let d = (nextOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride - a)/a
+    let size = a*d+a + MemoryLayout<Element>.stride
+    storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
+    (storage+linkOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
+    link.pointee = AtomicOptionalMutableRawPointer(nil)
     (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 2)
-    (storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self).pointee = AtomicTaggedOptionalMutableRawPointer()
-    (storage+prevOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self).pointee = AtomicTaggedOptionalMutableRawPointer()
+    let tmrp = TaggedOptionalMutableRawPointer(nil, tag: 0)
+    next.pointee = AtomicTaggedOptionalMutableRawPointer(tmrp)
+    prev.pointee = AtomicTaggedOptionalMutableRawPointer(tmrp)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
+
+  static var dummy: LockFreeNode { return LockFreeNode() }
 
   init(initializedWith element: Element)
   {
     self.init()
-    (storage+dataOffset).assumingMemoryBound(to: Element.self).initialize(to: element)
+    let data = (storage+dataOffset).assumingMemoryBound(to: Element.self)
+    data.initialize(to: element)
   }
 
   func deallocate()
@@ -49,30 +63,39 @@ struct LockFreeNode<Element>: OSAtomicNode, Equatable
     storage.deallocate()
   }
 
+  var link: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
+    get {
+      return (storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+    }
+  }
+
   var prev: UnsafeMutablePointer<AtomicTaggedOptionalMutableRawPointer> {
     get {
-      return (storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
+      return (storage+prevOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
     }
   }
 
   var next: UnsafeMutablePointer<AtomicTaggedOptionalMutableRawPointer> {
     get {
-      return (storage+prevOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
+      return (storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
     }
   }
 
   func initialize(to element: Element)
   {
     storage.assumingMemoryBound(to: (UnsafeMutableRawPointer?).self).pointee = nil
+    link.pointee.store(nil, .relaxed)
     let tmrp = TaggedOptionalMutableRawPointer(nil, tag: 0)
-    (storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self).pointee.initialize(tmrp)
-    (storage+prevOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self).pointee.initialize(tmrp)
-    (storage+dataOffset).assumingMemoryBound(to: Element.self).initialize(to: element)
+    next.pointee.store(tmrp, .relaxed)
+    prev.pointee.store(tmrp, .relaxed)
+    let data = (storage+dataOffset).assumingMemoryBound(to: Element.self)
+    data.initialize(to: element)
   }
 
   func deinitialize()
   {
-    (storage+dataOffset).assumingMemoryBound(to: Element.self).deinitialize(count: 1)
+    let data = (storage+dataOffset).assumingMemoryBound(to: Element.self)
+    data.deinitialize(count: 1)
   }
 
   func read() -> Element?
