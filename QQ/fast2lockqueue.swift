@@ -46,14 +46,6 @@ final public class Fast2LockQueue<T>: QueueType
       node.deallocate()
     }
     head.deallocate()
-
-    // drain the pool
-    while let node = pool.pop()
-    {
-      node.deallocate()
-    }
-    // release the pool stack structure
-    pool.release()
   }
 
   public var isEmpty: Bool { return head.storage == tail.storage }

@@ -54,13 +54,6 @@ final public class LockFreeFastQueue<T>: QueueType
       }
       else { break }
     }
-
-    // drain the pool
-    while let node = pool.pop()
-    {
-      node.deallocate()
-    }
-    pool.release()
   }
 
   public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
