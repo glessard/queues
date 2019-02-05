@@ -10,7 +10,7 @@ final public class LinkOSQueue<T>: QueueType
 {
   public typealias Element = T
 
-  private let queue = AtomicQueue<QueueNode<T>>()
+  private let queue = OSAtomicQueue<QueueNode<T>>()
 
   public init() { }
 
