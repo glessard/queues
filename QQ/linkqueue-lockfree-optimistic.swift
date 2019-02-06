@@ -46,7 +46,7 @@ final public class OptimisticLinkQueue<T>: QueueType
       let node = Node(storage: head.load(.relaxed).ptr)
       defer { node.deallocate() }
 
-      let next = node.next.pointee.load(.relaxed)
+      let next = node.next.load(.relaxed)
       if let node = Node(storage: next.ptr)
       {
         node.deinitialize()
@@ -68,10 +68,10 @@ final public class OptimisticLinkQueue<T>: QueueType
     fixlist(tail: tail, head: head)
 
     var i = 0
-    var next = Node(storage: head.ptr).next.pointee.load(.relaxed).ptr
+    var next = Node(storage: head.ptr).next.load(.relaxed).ptr
     while let current = Node(storage: next)
     { // Iterate along the linked nodes while counting
-      next = current.next.pointee.load(.relaxed).ptr
+      next = current.next.load(.relaxed).ptr
       i += 1
       if current.storage == tail.ptr { break }
     }
@@ -86,12 +86,12 @@ final public class OptimisticLinkQueue<T>: QueueType
     {
       let tail = self.tail.load(.acquire)
       let prev = TaggedOptionalMutableRawPointer(tail.ptr, tag: tail.tag &+ 1)
-      node.prev.pointee.store(prev, .release)
+      node.prev.store(prev, .release)
       let next = TaggedMutableRawPointer(node.storage, tag: tail.tag &+ 1)
       if self.tail.CAS(tail, next, .weak, .release)
       { // success, update the old tail's next link
         let next = TaggedOptionalMutableRawPointer(node.storage, tag: tail.tag)
-        Node(storage: tail.ptr).next.pointee.store(next, .release)
+        Node(storage: tail.ptr).next.store(next, .release)
         break
       }
     }
@@ -103,7 +103,7 @@ final public class OptimisticLinkQueue<T>: QueueType
     {
       let head = self.head.load(.acquire)
       let tail = self.tail.load(.relaxed)
-      let next = Node(storage: head.ptr).next.pointee.load(.acquire)
+      let next = Node(storage: head.ptr).next.load(.acquire)
 
       if head == self.head.load(.acquire)
       {
@@ -137,10 +137,10 @@ final public class OptimisticLinkQueue<T>: QueueType
     while oldhead == self.head.load(.relaxed) && current != oldhead
     {
       let currentNode = Node(storage: current.ptr)
-      if let currentPrev = Node(storage: currentNode.prev.pointee.load(.relaxed).ptr)
+      if let currentPrev = Node(storage: currentNode.prev.load(.relaxed).ptr)
       {
         let tag = current.tag &- 1
-        currentPrev.next.pointee.store(TaggedOptionalMutableRawPointer(current.ptr, tag: tag), .relaxed)
+        currentPrev.next.store(TaggedOptionalMutableRawPointer(current.ptr, tag: tag), .relaxed)
         current = TaggedMutableRawPointer(currentPrev.storage, tag: tag)
       }
     }
