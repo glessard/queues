@@ -23,11 +23,12 @@ protocol StackNode: OSAtomicNode
 
 class AtomicStack<T: StackNode>
 {
-  private var head = AtomicTaggedOptionalMutableRawPointer()
+  private var head: AtomicTaggedOptionalMutableRawPointer
 
   init()
   {
-    head.initialize(TaggedOptionalMutableRawPointer(nil, tag: 0))
+    let node01 = TaggedOptionalMutableRawPointer(nil, tag: 1)
+    head = AtomicTaggedOptionalMutableRawPointer(node01)
   }
 
   deinit {
@@ -40,7 +41,7 @@ class AtomicStack<T: StackNode>
     var newHead: TaggedOptionalMutableRawPointer
     repeat {
       node.link.pointee.store(oldHead.ptr, .relaxed)
-      newHead = TaggedOptionalMutableRawPointer(node.storage, tag: oldHead.tag &+ 1)
+      newHead = oldHead.incremented(with: node.storage)
     } while !self.head.loadCAS(&oldHead, newHead, .weak, .release, .relaxed)
   }
 
@@ -52,8 +53,7 @@ class AtomicStack<T: StackNode>
     repeat {
       guard let storage = oldHead.ptr else { return nil }
       node = T(storage: storage)
-      let linked = node.link.pointee.load(.relaxed)
-      newHead = TaggedOptionalMutableRawPointer(linked, tag: oldHead.tag &+ 1)
+      newHead = oldHead.incremented(with: node.link.pointee.load(.relaxed))
     } while !self.head.loadCAS(&oldHead, newHead, .weak, .acquire, .acquire)
     return node
   }
