@@ -10,7 +10,7 @@ import CAtomics
 protocol StackNode: OSAtomicNode
 {
   func deallocate()
-  var link: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> { get }
+  var link: AtomicOptionalMutableRawPointer { get nonmutating set }
 }
 
 /// AtomicStack implements a free-element list using Treiber's algorithm
@@ -40,7 +40,7 @@ class AtomicStack<T: StackNode>
     var oldHead = self.head.load(.relaxed)
     var newHead: TaggedOptionalMutableRawPointer
     repeat {
-      node.link.pointee.store(oldHead.ptr, .relaxed)
+      node.link.store(oldHead.ptr, .relaxed)
       newHead = oldHead.incremented(with: node.storage)
     } while !self.head.loadCAS(&oldHead, newHead, .weak, .release, .relaxed)
   }
@@ -53,7 +53,7 @@ class AtomicStack<T: StackNode>
     repeat {
       guard let storage = oldHead.ptr else { return nil }
       node = T(storage: storage)
-      newHead = oldHead.incremented(with: node.link.pointee.load(.relaxed))
+      newHead = oldHead.incremented(with: node.link.load(.relaxed))
     } while !self.head.loadCAS(&oldHead, newHead, .weak, .acquire, .acquire)
     return node
   }

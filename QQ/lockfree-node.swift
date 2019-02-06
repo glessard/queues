@@ -44,7 +44,7 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
     let size = a*d+a + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+linkOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    link.pointee = AtomicOptionalMutableRawPointer(nil)
+    link = AtomicOptionalMutableRawPointer(nil)
     (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 2)
     next.pointee = AtomicTaggedOptionalMutableRawPointer(nullNode)
     prev.pointee = AtomicTaggedOptionalMutableRawPointer(nullNode)
@@ -64,8 +64,13 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
     storage.deallocate()
   }
 
-  var link: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
-    return (storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+  var link: AtomicOptionalMutableRawPointer {
+    unsafeAddress {
+      return UnsafePointer((storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self))
+    }
+    nonmutating unsafeMutableAddress {
+      return (storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+    }
   }
 
   var prev: UnsafeMutablePointer<AtomicTaggedOptionalMutableRawPointer> {
