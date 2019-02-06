@@ -9,8 +9,11 @@
 import CAtomics
 
 private let linkOffset = 0
-private let prevOffset = linkOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.alignment
+private let prevOffset = linkOffset + max(MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.alignment,
+                                          MemoryLayout<AtomicOptionalMutableRawPointer>.stride)
 private let nextOffset = prevOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride
+
+private let nullNode = TaggedOptionalMutableRawPointer(nil, tag: 0)
 
 struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
 {
@@ -43,9 +46,8 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
     (storage+linkOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
     link.pointee = AtomicOptionalMutableRawPointer(nil)
     (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 2)
-    let tmrp = TaggedOptionalMutableRawPointer(nil, tag: 0)
-    next.pointee = AtomicTaggedOptionalMutableRawPointer(tmrp)
-    prev.pointee = AtomicTaggedOptionalMutableRawPointer(tmrp)
+    next.pointee = AtomicTaggedOptionalMutableRawPointer(nullNode)
+    prev.pointee = AtomicTaggedOptionalMutableRawPointer(nullNode)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
@@ -80,9 +82,8 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
 
   func initialize(to element: Element)
   {
-    let tmrp = TaggedOptionalMutableRawPointer(nil, tag: 0)
-    next.pointee.store(tmrp, .relaxed)
-    prev.pointee.store(tmrp, .relaxed)
+    next.pointee.store(nullNode, .relaxed)
+    prev.pointee.store(nullNode, .relaxed)
     data.initialize(to: element)
   }
 

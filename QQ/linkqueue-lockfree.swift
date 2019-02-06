@@ -8,6 +8,8 @@
 
 import CAtomics
 
+private let nullNode = TaggedOptionalMutableRawPointer(nil, tag: 0)
+
 /// Lock-free queue
 ///
 /// Note that this algorithm is not designed for tri-state memory as used in Swift.
@@ -86,9 +88,8 @@ final public class LockFreeLinkQueue<T>: QueueType
       }
       else
       { // try to link the new node to the end of the list
-        let baseNode = TaggedOptionalMutableRawPointer()
         let nextNode = origNext.incremented(with: node.storage)
-        if tailNode.next.pointee.CAS(baseNode, nextNode, .weak, .release)
+        if tailNode.next.pointee.CAS(nullNode, nextNode, .weak, .release)
         { // success. try to have tail point to the inserted node.
           let tail = origTail.incremented(with: node.storage)
           _ = self.tail.CAS(origTail, tail, .strong, .release)
