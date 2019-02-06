@@ -9,9 +9,10 @@
 final public class FastOSQueue<T>: QueueType
 {
   public typealias Element = T
+  typealias Node = QueueNode<T>
 
-  private let queue = AtomicQueue<QueueNode<T>>()
-  private let pool = AtomicStack<QueueNode<T>>()
+  private let queue = OSAtomicQueue<Node>()
+  private let pool = OSAtomicStack<Node>()
 
   public init() { }
 
@@ -43,10 +44,19 @@ final public class FastOSQueue<T>: QueueType
     return queue.count
   }
 
+  private func node(with element: T) -> Node
+  {
+    if let reused = pool.pop()
+    {
+      reused.initialize(to: element)
+      return reused
+    }
+    return Node(initializedWith: element)
+  }
+
   public func enqueue(_ newElement: T)
   {
-    let node = pool.pop() ?? QueueNode()
-    node.initialize(to: newElement)
+    let node = self.node(with: newElement)
 
     queue.enqueue(node)
   }

@@ -34,8 +34,8 @@ final public class OptimisticFastQueue<T>: QueueType
 
   public init()
   {
-    let node = Node()
-    let tmrp = TaggedMutableRawPointer(node.storage)
+    let node = Node.dummy
+    let tmrp = TaggedMutableRawPointer(node.storage, tag: 1)
     head.initialize(tmrp)
     tail.initialize(tmrp)
   }
@@ -57,13 +57,6 @@ final public class OptimisticFastQueue<T>: QueueType
       }
       else { break }
     }
-
-    // drain the pool
-    while let node = pool.pop()
-    {
-      node.deallocate()
-    }
-    pool.release()
   }
 
   public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
@@ -87,10 +80,19 @@ final public class OptimisticFastQueue<T>: QueueType
     return i
   }
 
+  private func node(with element: T) -> Node
+  {
+    if let reused = pool.pop()
+    {
+      reused.initialize(to: element)
+      return reused
+    }
+    return Node(initializedWith: element)
+  }
+
   public func enqueue(_ newElement: T)
   {
-    let node = pool.pop() ?? LockFreeNode<T>()
-    node.initialize(to: newElement)
+    let node = self.node(with: newElement)
 
     while true
     {

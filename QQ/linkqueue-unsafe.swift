@@ -9,9 +9,10 @@
 final public class UnsafeLinkQueue<T>: QueueType
 {
   public typealias Element = T
+  typealias Node = QueueNode<T>
 
-  private var head: QueueNode<T>? = nil
-  private var tail: QueueNode<T>! = nil
+  private var head: Node? = nil
+  private var tail: Node! = nil
 
   public init() { }
 
@@ -42,7 +43,7 @@ final public class UnsafeLinkQueue<T>: QueueType
 
   public func enqueue(_ newElement: T)
   {
-    let node = QueueNode(initializedWith: newElement)
+    let node = Node(initializedWith: newElement)
 
     if head == nil
     {
