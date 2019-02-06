@@ -40,8 +40,7 @@ struct QueueNode<Element>: OSAtomicNode, StackNode, Equatable
     let alignment = max(MemoryLayout<Element>.alignment, MemoryLayout<UnsafeMutableRawPointer?>.alignment)
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+linkOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    link.pointee = AtomicOptionalMutableRawPointer()
-    link.pointee.initialize(nil)
+    link.pointee = AtomicOptionalMutableRawPointer(nil)
     (storage+nextOffset).bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1)
     nptr.pointee = nil
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
@@ -52,7 +51,6 @@ struct QueueNode<Element>: OSAtomicNode, StackNode, Equatable
   init(initializedWith element: Element)
   {
     self.init()
-    let data = (storage+dataOffset).assumingMemoryBound(to: Element.self)
     data.initialize(to: element)
   }
 
@@ -62,15 +60,11 @@ struct QueueNode<Element>: OSAtomicNode, StackNode, Equatable
   }
 
   var link: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
-    get {
-      return (storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
-    }
+    return (storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
   }
 
   private var nptr: UnsafeMutablePointer<UnsafeMutableRawPointer?> {
-    get {
-      return (storage+nextOffset).assumingMemoryBound(to: (UnsafeMutableRawPointer?).self)
-    }
+    return (storage+nextOffset).assumingMemoryBound(to: (UnsafeMutableRawPointer?).self)
   }
 
   var next: QueueNode? {
@@ -82,22 +76,24 @@ struct QueueNode<Element>: OSAtomicNode, StackNode, Equatable
     }
   }
 
+  private var data: UnsafeMutablePointer<Element> {
+    return (storage+dataOffset).assumingMemoryBound(to: Element.self)
+  }
+
   func initialize(to element: Element)
   {
-    link.pointee.store(nil, .relaxed)
     nptr.pointee = nil
-    let data = (storage+dataOffset).assumingMemoryBound(to: Element.self)
     data.initialize(to: element)
   }
 
   func deinitialize()
   {
-    (storage+dataOffset).assumingMemoryBound(to: Element.self).deinitialize(count: 1)
+    data.deinitialize(count: 1)
   }
 
   @discardableResult
   func move() -> Element
   {
-    return (storage+dataOffset).assumingMemoryBound(to: Element.self).move()
+    return data.move()
   }
 }

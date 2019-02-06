@@ -54,7 +54,6 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
   init(initializedWith element: Element)
   {
     self.init()
-    let data = (storage+dataOffset).assumingMemoryBound(to: Element.self)
     data.initialize(to: element)
   }
 
@@ -64,42 +63,36 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
   }
 
   var link: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
-    get {
-      return (storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
-    }
+    return (storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
   }
 
   var prev: UnsafeMutablePointer<AtomicTaggedOptionalMutableRawPointer> {
-    get {
-      return (storage+prevOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
-    }
+    return (storage+prevOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
   }
 
   var next: UnsafeMutablePointer<AtomicTaggedOptionalMutableRawPointer> {
-    get {
-      return (storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
-    }
+    return (storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
+  }
+
+  var data: UnsafeMutablePointer<Element> {
+    return (storage+dataOffset).assumingMemoryBound(to: Element.self)
   }
 
   func initialize(to element: Element)
   {
-    storage.assumingMemoryBound(to: (UnsafeMutableRawPointer?).self).pointee = nil
-    link.pointee.store(nil, .relaxed)
     let tmrp = TaggedOptionalMutableRawPointer(nil, tag: 0)
     next.pointee.store(tmrp, .relaxed)
     prev.pointee.store(tmrp, .relaxed)
-    let data = (storage+dataOffset).assumingMemoryBound(to: Element.self)
     data.initialize(to: element)
   }
 
   func deinitialize()
   {
-    let data = (storage+dataOffset).assumingMemoryBound(to: Element.self)
     data.deinitialize(count: 1)
   }
 
   func read() -> Element?
   {
-    return (storage+dataOffset).assumingMemoryBound(to: Element.self).pointee
+    return data.pointee
   }
 }
