@@ -103,7 +103,7 @@ final public class OptimisticFastQueue<T>: QueueType
 
     // success, update the old tail's next link
     let lastNext = TaggedOptionalMutableRawPointer(node.storage, tag: oldTail.tag)
-    Node(storage: oldTail.ptr).next.store(lastNext, .release)
+    Node(storage: oldTail.ptr).next.store(lastNext, .relaxed)
   }
 
   public func dequeue() -> T?
@@ -111,7 +111,7 @@ final public class OptimisticFastQueue<T>: QueueType
     while true
     {
       let head = self.head.load(.acquire)
-      let tail = self.tail.load(.relaxed)
+      let tail = self.tail.load(.acquire)
       let next = Node(storage: head.ptr).next.load(.acquire)
 
       if head == self.head.load(.acquire)
@@ -150,7 +150,7 @@ final public class OptimisticFastQueue<T>: QueueType
 
       let tag = current.tag &- 1
       let updated = TaggedOptionalMutableRawPointer(current.ptr, tag: tag)
-      previousNode.next.store(updated, .release)
+      previousNode.next.store(updated, .relaxed)
       current = TaggedMutableRawPointer(previousNode.storage, tag: tag)
     }
   }
