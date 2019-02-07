@@ -41,20 +41,17 @@ final public class OptimisticLinkQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while true
+    // delete from tail to head because the `prev` pointer is most reliable
+    let head = Node(storage: self.head.load(.acquire).ptr)
+    var last = Node(storage: self.tail.load(.acquire).ptr)
+    while last != head
     {
-      let node = Node(storage: head.load(.relaxed).ptr)
-      defer { node.deallocate() }
-
-      let next = node.next.load(.relaxed)
-      if let node = Node(storage: next.ptr)
-      {
-        node.deinitialize()
-        let next = TaggedMutableRawPointer(node.storage, tag: next.tag)
-        head.store(next, .relaxed)
-      }
-      else { break }
+      let prev = Node(storage: last.prev.ptr)
+      last.deinitialize()
+      last.deallocate()
+      last = prev
     }
+    head.deallocate()
   }
 
   public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
