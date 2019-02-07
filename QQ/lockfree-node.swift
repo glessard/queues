@@ -45,8 +45,9 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+linkOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
     link = AtomicOptionalMutableRawPointer(nil)
-    (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 2)
-    prev = AtomicTaggedOptionalMutableRawPointer(nullNode)
+    (storage+prevOffset).bindMemory(to: AtomicTaggedMutableRawPointer.self, capacity: 1)
+    prev = AtomicTaggedMutableRawPointer()
+    (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 1)
     next = AtomicTaggedOptionalMutableRawPointer(nullNode)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
@@ -66,25 +67,25 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
 
   var link: AtomicOptionalMutableRawPointer {
     @inlinable unsafeAddress {
-      return UnsafePointer((storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self))
+      return UnsafeRawPointer(storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }
     @inlinable nonmutating unsafeMutableAddress {
       return (storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }
   }
 
-  var prev: AtomicTaggedOptionalMutableRawPointer {
+  var prev: AtomicTaggedMutableRawPointer {
     @inlinable unsafeAddress {
-      return UnsafePointer((storage+prevOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self))
+      return UnsafeRawPointer(storage+prevOffset).assumingMemoryBound(to: AtomicTaggedMutableRawPointer.self)
     }
     @inlinable nonmutating unsafeMutableAddress {
-      return (storage+prevOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
+      return (storage+prevOffset).assumingMemoryBound(to: AtomicTaggedMutableRawPointer.self)
     }
   }
 
   var next: AtomicTaggedOptionalMutableRawPointer {
     @inlinable unsafeAddress {
-      return UnsafePointer((storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self))
+      return UnsafeRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
     }
     @inlinable nonmutating unsafeMutableAddress {
       return (storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
@@ -97,7 +98,6 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
 
   func initialize(to element: Element)
   {
-    prev.store(nullNode, .relaxed)
     next.store(nullNode, .relaxed)
     data.initialize(to: element)
   }

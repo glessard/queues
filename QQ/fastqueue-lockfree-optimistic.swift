@@ -97,9 +97,8 @@ final public class OptimisticFastQueue<T>: QueueType
     while true
     {
       let tail = self.tail.load(.acquire)
-      let prev = TaggedOptionalMutableRawPointer(tail.ptr, tag: tail.tag &+ 1)
-      node.prev.store(prev, .release)
-      let next = TaggedMutableRawPointer(node.storage, tag: tail.tag &+ 1)
+      node.prev.store(tail.incremented(), .release)
+      let next = tail.incremented(with: node.storage)
       if self.tail.CAS(tail, next, .weak, .release)
       { // success, update the old tail's next link
         let next = TaggedOptionalMutableRawPointer(node.storage, tag: tail.tag)
@@ -148,14 +147,13 @@ final public class OptimisticFastQueue<T>: QueueType
     var current = oldtail
     while oldhead == self.head.load(.relaxed) && current != oldhead
     {
-      let currentNode = Node(storage: current.ptr)
-      if let currentPrev = Node(storage: currentNode.prev.load(.acquire).ptr)
-      {
-        let tag = current.tag &- 1
-        let updated = TaggedOptionalMutableRawPointer(current.ptr, tag: tag)
-        currentPrev.next.store(updated, .release)
-        current = TaggedMutableRawPointer(currentPrev.storage, tag: tag)
-      }
+      let currentNode  = Node(storage: current.ptr)
+      let previousNode = Node(storage: currentNode.prev.load(.acquire).ptr)
+
+      let tag = current.tag &- 1
+      let updated = TaggedOptionalMutableRawPointer(current.ptr, tag: tag)
+      previousNode.next.store(updated, .release)
+      current = TaggedMutableRawPointer(previousNode.storage, tag: tag)
     }
   }
 }
