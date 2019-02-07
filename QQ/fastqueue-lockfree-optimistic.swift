@@ -94,18 +94,16 @@ final public class OptimisticFastQueue<T>: QueueType
   {
     let node = self.node(with: newElement)
 
-    while true
-    {
-      let tail = self.tail.load(.acquire)
-      node.prev = tail.incremented()
-      let next = tail.incremented(with: node.storage)
-      if self.tail.CAS(tail, next, .weak, .release)
-      { // success, update the old tail's next link
-        let next = TaggedOptionalMutableRawPointer(node.storage, tag: tail.tag)
-        Node(storage: tail.ptr).next.store(next, .release)
-        break
-      }
-    }
+    var oldTail = self.tail.load(.acquire)
+    var newTail: TaggedMutableRawPointer
+    repeat {
+      node.prev = oldTail.incremented()
+      newTail =   oldTail.incremented(with: node.storage)
+    } while !self.tail.loadCAS(&oldTail, newTail, .weak, .release, .relaxed)
+
+    // success, update the old tail's next link
+    let lastNext = TaggedOptionalMutableRawPointer(node.storage, tag: oldTail.tag)
+    Node(storage: oldTail.ptr).next.store(lastNext, .release)
   }
 
   public func dequeue() -> T?
