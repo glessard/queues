@@ -43,39 +43,30 @@ final public class OptimisticFastQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while true
+    // delete from tail to head because the `prev` pointer is most reliable
+    let head = Node(storage: self.head.load(.acquire).ptr)
+    var last = Node(storage: self.tail.load(.acquire).ptr)
+    while last != head
     {
-      let node = Node(storage: head.load(.relaxed).ptr)
-      defer { node.deallocate() }
-
-      let next = node.next.load(.relaxed)
-      if let node = Node(storage: next.ptr)
-      {
-        node.deinitialize()
-        let next = TaggedMutableRawPointer(node.storage, tag: next.tag)
-        head.store(next, .relaxed)
-      }
-      else { break }
+      let prev = Node(storage: last.prev.ptr)
+      last.deinitialize()
+      last.deallocate()
+      last = prev
     }
+    head.deallocate()
   }
 
   public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
 
   public var count: Int {
-    let tail = self.tail.load(.relaxed)
-    let head = self.head.load(.relaxed)
-    if head == tail { return 0 }
-
-    // make sure the `next` pointers are in order
-    fixlist(tail: tail, head: head)
-
     var i = 0
-    var next = Node(storage: head.ptr).next.load(.relaxed).ptr
-    while let current = Node(storage: next)
+    // count from the current tail to the current head
+    var current = self.tail.load(.acquire)
+    let head =    self.head.load(.acquire)
+    while current.ptr != head.ptr
     { // Iterate along the linked nodes while counting
-      next = current.next.load(.relaxed).ptr
+      current = Node(storage: current.ptr).prev
       i += 1
-      if current.storage == tail.ptr { break }
     }
     return i
   }
@@ -94,18 +85,16 @@ final public class OptimisticFastQueue<T>: QueueType
   {
     let node = self.node(with: newElement)
 
-    while true
-    {
-      let tail = self.tail.load(.acquire)
-      node.prev = tail.incremented()
-      let next = tail.incremented(with: node.storage)
-      if self.tail.CAS(tail, next, .weak, .release)
-      { // success, update the old tail's next link
-        let next = TaggedOptionalMutableRawPointer(node.storage, tag: tail.tag)
-        Node(storage: tail.ptr).next.store(next, .release)
-        break
-      }
-    }
+    var oldTail = self.tail.load(.acquire)
+    var newTail: TaggedMutableRawPointer
+    repeat {
+      node.prev = oldTail.incremented()
+      newTail =   oldTail.incremented(with: node.storage)
+    } while !self.tail.loadCAS(&oldTail, newTail, .weak, .release, .relaxed)
+
+    // success, update the old tail's next link
+    let lastNext = TaggedOptionalMutableRawPointer(node.storage, tag: oldTail.tag)
+    Node(storage: oldTail.ptr).next.store(lastNext, .relaxed)
   }
 
   public func dequeue() -> T?
@@ -113,7 +102,7 @@ final public class OptimisticFastQueue<T>: QueueType
     while true
     {
       let head = self.head.load(.acquire)
-      let tail = self.tail.load(.relaxed)
+      let tail = self.tail.load(.acquire)
       let next = Node(storage: head.ptr).next.load(.acquire)
 
       if head == self.head.load(.acquire)
@@ -152,7 +141,7 @@ final public class OptimisticFastQueue<T>: QueueType
 
       let tag = current.tag &- 1
       let updated = TaggedOptionalMutableRawPointer(current.ptr, tag: tag)
-      previousNode.next.store(updated, .release)
+      previousNode.next.store(updated, .relaxed)
       current = TaggedMutableRawPointer(previousNode.storage, tag: tag)
     }
   }
