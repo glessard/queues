@@ -85,7 +85,7 @@ final public class OptimisticLinkQueue<T>: QueueType
     while true
     {
       let tail = self.tail.load(.acquire)
-      node.prev.store(tail.incremented(), .release)
+      node.prev = tail.incremented()
       let next = tail.incremented(with: node.storage)
       if self.tail.CAS(tail, next, .weak, .release)
       { // success, update the old tail's next link
@@ -136,7 +136,7 @@ final public class OptimisticLinkQueue<T>: QueueType
     while oldhead == self.head.load(.relaxed) && current != oldhead
     {
       let currentNode = Node(storage: current.ptr)
-      let currentPrev = Node(storage: currentNode.prev.load(.acquire).ptr)
+      let currentPrev = Node(storage: currentNode.prev.ptr)
 
       let tag = current.tag &- 1
       let updated = TaggedOptionalMutableRawPointer(current.ptr, tag: tag)

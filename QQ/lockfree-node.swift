@@ -11,7 +11,7 @@ import CAtomics
 private let linkOffset = 0
 private let prevOffset = linkOffset + max(MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.alignment,
                                           MemoryLayout<AtomicOptionalMutableRawPointer>.stride)
-private let nextOffset = prevOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride
+private let nextOffset = prevOffset + MemoryLayout<TaggedMutableRawPointer>.stride
 
 private let nullNode = TaggedOptionalMutableRawPointer(nil, tag: 0)
 
@@ -45,8 +45,8 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+linkOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
     link = AtomicOptionalMutableRawPointer(nil)
-    (storage+prevOffset).bindMemory(to: AtomicTaggedMutableRawPointer.self, capacity: 1)
-    prev = AtomicTaggedMutableRawPointer()
+    (storage+prevOffset).bindMemory(to: TaggedMutableRawPointer.self, capacity: 1)
+    prev = TaggedMutableRawPointer()
     (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 1)
     next = AtomicTaggedOptionalMutableRawPointer(nullNode)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
@@ -74,12 +74,12 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
     }
   }
 
-  var prev: AtomicTaggedMutableRawPointer {
+  var prev: TaggedMutableRawPointer {
     @inlinable unsafeAddress {
-      return UnsafeRawPointer(storage+prevOffset).assumingMemoryBound(to: AtomicTaggedMutableRawPointer.self)
+      return UnsafeRawPointer(storage+prevOffset).assumingMemoryBound(to: TaggedMutableRawPointer.self)
     }
     @inlinable nonmutating unsafeMutableAddress {
-      return (storage+prevOffset).assumingMemoryBound(to: AtomicTaggedMutableRawPointer.self)
+      return (storage+prevOffset).assumingMemoryBound(to: TaggedMutableRawPointer.self)
     }
   }
 
