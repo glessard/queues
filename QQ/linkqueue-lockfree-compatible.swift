@@ -43,7 +43,7 @@ final public class LockFreeCompatibleQueue<T>: QueueType
       let node = Node(storage: head.load(.relaxed).ptr)
       defer { node.deallocate() }
 
-      let next = node.next.pointee.load(.relaxed)
+      let next = node.next.load(.relaxed)
       if let node = Node(storage: next.ptr)
       {
         node.deinitialize()
@@ -59,10 +59,10 @@ final public class LockFreeCompatibleQueue<T>: QueueType
   public var count: Int {
     var i = 0
     let tail = Node(storage: self.tail.load(.relaxed).ptr)
-    var next = Node(storage: self.head.load(.relaxed).ptr).next.pointee.load(.relaxed).ptr
+    var next = Node(storage: self.head.load(.relaxed).ptr).next.load(.relaxed).ptr
     while let current = Node(storage: next)
     { // Iterate along the linked nodes while counting
-      next = current.next.pointee.load(.relaxed).ptr
+      next = current.next.load(.relaxed).ptr
       i += 1
       if current == tail { break }
     }
@@ -80,7 +80,7 @@ final public class LockFreeCompatibleQueue<T>: QueueType
       let tail = self.tail.load(.acquire)
       let tailNode = Node(storage: tail.ptr)
 
-      let next = tailNode.next.pointee.load(.acquire)
+      let next = tailNode.next.load(.acquire)
       if let nextNode = Node(storage: next.ptr)
       { // tail wasn't pointing to the actual last node; try to fix it.
         let next = TaggedMutableRawPointer(nextNode.storage, tag: next.tag &+ 1)
@@ -90,7 +90,7 @@ final public class LockFreeCompatibleQueue<T>: QueueType
       { // try to link the new node to the end of the list
         let baseNode = TaggedOptionalMutableRawPointer()
         let nextNode = TaggedOptionalMutableRawPointer(node.storage, tag: next.tag &+ 1)
-        if tailNode.next.pointee.CAS(baseNode, nextNode, .weak, .release)
+        if tailNode.next.CAS(baseNode, nextNode, .weak, .release)
         { // success. try to have tail point to the inserted node.
           let newTail = TaggedMutableRawPointer(node.storage, tag: tail.tag &+ 1)
           _ = self.tail.CAS(tail, newTail, .strong, .release)
@@ -106,7 +106,7 @@ final public class LockFreeCompatibleQueue<T>: QueueType
     {
       let head = self.head.load(.acquire)
       let tail = self.tail.load(.relaxed)
-      let next = Node(storage: head.ptr).next.pointee.load(.acquire)
+      let next = Node(storage: head.ptr).next.load(.acquire)
 
       if head == self.head.load(.acquire)
       {

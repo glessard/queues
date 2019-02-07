@@ -45,7 +45,7 @@ final public class LockFreeLinkQueue<T>: QueueType
       let node = Node(storage: head.load(.relaxed).ptr)
       defer { node.deallocate() }
 
-      let next = node.next.pointee.load(.relaxed)
+      let next = node.next.load(.relaxed)
       if let node = Node(storage: next.ptr)
       {
         node.deinitialize()
@@ -61,10 +61,10 @@ final public class LockFreeLinkQueue<T>: QueueType
   public var count: Int {
     var i = 0
     let tail = Node(storage: self.tail.load(.relaxed).ptr)
-    var next = Node(storage: self.head.load(.relaxed).ptr).next.pointee.load(.relaxed).ptr
+    var next = Node(storage: self.head.load(.relaxed).ptr).next.load(.relaxed).ptr
     while let current = Node(storage: next)
     { // Iterate along the linked nodes while counting
-      next = current.next.pointee.load(.relaxed).ptr
+      next = current.next.load(.relaxed).ptr
       i += 1
       if current == tail { break }
     }
@@ -80,7 +80,7 @@ final public class LockFreeLinkQueue<T>: QueueType
       let origTail = self.tail.load(.acquire)
       let tailNode = Node(storage: origTail.ptr)
 
-      let origNext = tailNode.next.pointee.load(.acquire)
+      let origNext = tailNode.next.load(.acquire)
       if let nextNode = Node(storage: origNext.ptr)
       { // tail wasn't pointing to the actual last node; try to fix it.
         let next = TaggedMutableRawPointer(nextNode.storage, tag: origNext.tag &+ 1)
@@ -89,7 +89,7 @@ final public class LockFreeLinkQueue<T>: QueueType
       else
       { // try to link the new node to the end of the list
         let nextNode = origNext.incremented(with: node.storage)
-        if tailNode.next.pointee.CAS(nullNode, nextNode, .weak, .release)
+        if tailNode.next.CAS(nullNode, nextNode, .weak, .release)
         { // success. try to have tail point to the inserted node.
           let tail = origTail.incremented(with: node.storage)
           _ = self.tail.CAS(origTail, tail, .strong, .release)
@@ -105,7 +105,7 @@ final public class LockFreeLinkQueue<T>: QueueType
     {
       let origHead = self.head.load(.acquire)
       let origTail = self.tail.load(.relaxed)
-      let origNext = Node(storage: origHead.ptr).next.pointee.load(.acquire)
+      let origNext = Node(storage: origHead.ptr).next.load(.acquire)
 
       if origHead == self.head.load(.acquire)
       {

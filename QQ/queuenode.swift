@@ -40,9 +40,9 @@ struct QueueNode<Element>: OSAtomicNode, StackNode, Equatable
     let alignment = max(MemoryLayout<Element>.alignment, MemoryLayout<UnsafeMutableRawPointer?>.alignment)
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+linkOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    link.pointee = AtomicOptionalMutableRawPointer(nil)
+    link = AtomicOptionalMutableRawPointer(nil)
     (storage+nextOffset).bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1)
-    nptr.pointee = nil
+    next = nil
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
@@ -59,8 +59,13 @@ struct QueueNode<Element>: OSAtomicNode, StackNode, Equatable
     storage.deallocate()
   }
 
-  var link: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
-    return (storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+  var link: AtomicOptionalMutableRawPointer {
+    @inlinable unsafeAddress {
+      return UnsafePointer((storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self))
+    }
+    @inlinable nonmutating unsafeMutableAddress {
+      return (storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+    }
   }
 
   private var nptr: UnsafeMutablePointer<UnsafeMutableRawPointer?> {
@@ -68,10 +73,10 @@ struct QueueNode<Element>: OSAtomicNode, StackNode, Equatable
   }
 
   var next: QueueNode? {
-    get {
+    @inlinable get {
       return QueueNode(storage: nptr.pointee)
     }
-    nonmutating set {
+    @inlinable nonmutating set {
       nptr.pointee = newValue?.storage
     }
   }
@@ -82,7 +87,7 @@ struct QueueNode<Element>: OSAtomicNode, StackNode, Equatable
 
   func initialize(to element: Element)
   {
-    nptr.pointee = nil
+    next = nil
     data.initialize(to: element)
   }
 
