@@ -126,10 +126,9 @@ final public class MPSCLinkQueue<T>: QueueType
   }
 }
 
-private let linkOffset = 0
-private let nextOffset = linkOffset + MemoryLayout<AtomicOptionalMutableRawPointer>.stride
+private let nextOffset = 0
 
-private struct MPSCNode<Element>: OSAtomicNode, StackNode, Equatable
+private struct MPSCNode<Element>: OSAtomicNode, Equatable
 {
   let storage: UnsafeMutableRawPointer
 
@@ -157,8 +156,6 @@ private struct MPSCNode<Element>: OSAtomicNode, StackNode, Equatable
     let d = (nextOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride - a)/a
     let size = a*d+a + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
-    (storage+linkOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    link = AtomicOptionalMutableRawPointer(nil)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
     next = AtomicOptionalMutableRawPointer(nil)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
@@ -175,15 +172,6 @@ private struct MPSCNode<Element>: OSAtomicNode, StackNode, Equatable
   func deallocate()
   {
     storage.deallocate()
-  }
-
-  var link: AtomicOptionalMutableRawPointer {
-    @inlinable unsafeAddress {
-      return UnsafeRawPointer(storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
-    }
-    @inlinable nonmutating unsafeMutableAddress {
-      return (storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
-    }
   }
 
   var next: AtomicOptionalMutableRawPointer {
