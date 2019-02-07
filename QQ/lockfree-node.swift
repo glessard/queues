@@ -9,8 +9,8 @@
 import CAtomics
 
 private let linkOffset = 0
-private let prevOffset = linkOffset + max(MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.alignment,
-                                          MemoryLayout<AtomicOptionalMutableRawPointer>.stride)
+private let prevOffset = linkOffset + max(MemoryLayout<TaggedMutableRawPointer>.stride,
+                                          MemoryLayout<UnsafeMutableRawPointer?>.stride)
 private let nextOffset = prevOffset + MemoryLayout<TaggedMutableRawPointer>.stride
 
 private let nullNode = TaggedOptionalMutableRawPointer(nil, tag: 0)
@@ -43,8 +43,8 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
     let d = (nextOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride - a)/a
     let size = a*d+a + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
-    (storage+linkOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    link = AtomicOptionalMutableRawPointer(nil)
+    (storage+linkOffset).bindMemory(to: UnsafeMutableRawPointer?.self, capacity: 1)
+    link = nil
     (storage+prevOffset).bindMemory(to: TaggedMutableRawPointer.self, capacity: 1)
     prev = TaggedMutableRawPointer()
     (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 1)
@@ -65,12 +65,12 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
     storage.deallocate()
   }
 
-  var link: AtomicOptionalMutableRawPointer {
+  var link: UnsafeMutableRawPointer? {
     @inlinable unsafeAddress {
-      return UnsafeRawPointer(storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+      return UnsafeRawPointer(storage+linkOffset).assumingMemoryBound(to: UnsafeMutableRawPointer?.self)
     }
     @inlinable nonmutating unsafeMutableAddress {
-      return (storage+linkOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+      return (storage+linkOffset).assumingMemoryBound(to: UnsafeMutableRawPointer?.self)
     }
   }
 
