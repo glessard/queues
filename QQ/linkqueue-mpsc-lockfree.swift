@@ -30,42 +30,45 @@ final public class MPSCLinkQueue<T>: QueueType
   public typealias Element = T
   private typealias Node = MPSCNode<T>
 
-  private var head: UnsafeMutableRawPointer
-  private var tail: AtomicCacheAlignedMutableRawPointer
+  private var head: Node
+  private var tptr: AtomicCacheAlignedMutableRawPointer
+  private var tail: Node {
+    get { return Node(storage: tptr.load(.acquire)) }
+    set { tptr.store(newValue.storage, .release) }
+  }
 
   public init()
   { // set up an initial dummy node
-    let node = Node.dummy
-    head = node.storage
-    tail = AtomicCacheAlignedMutableRawPointer(head)
+    head = Node.dummy
+    tptr = AtomicCacheAlignedMutableRawPointer(head.storage)
   }
 
   deinit {
     // empty the queue
-    let head = Node(storage: self.head)
-    var next = Node(storage: head.next.load(.acquire))
+    let head = self.head
+    var next = head.next
     while let node = next
     {
-      next = Node(storage: node.next.load(.acquire))
+      next = node.next
       node.deinitialize()
       node.deallocate()
     }
     head.deallocate()
   }
 
-  public var isEmpty: Bool { return head == tail.load(.relaxed) }
+  public var isEmpty: Bool { return head.storage == tptr.load(.relaxed) }
 
   public var count: Int {
     var i = 0
     // only count as far as the current tail
-    let tail = Node(storage: self.tail.load(.acquire))
-    var next = Node(storage: self.head as Optional)
+    let tail = self.tail
+    var next = self.head as Optional
     while let node = next, node != tail
     { // Iterate along the linked nodes while counting
       repeat {
         // if node was not yet tail, then a `nil` next pointer
         // does not mean we are done counting.
-        next = Node(storage: node.next.load(.acquire))
+        next = node.next
       } while next == nil
       i += 1
     }
@@ -77,7 +80,8 @@ final public class MPSCLinkQueue<T>: QueueType
     let node = Node(initializedWith: newElement)
 
     // simultaneous producers synchronize with each other here
-    let previousTail = Node(storage: self.tail.swap(node.storage, .acqrel))
+    let previousTailPointer = self.tptr.swap(node.storage, .acqrel)
+    let previousTail = Node(storage: previousTailPointer)
 
     /**
      If a producer thread is interrupted here (between the swap above and the store below),
@@ -87,17 +91,17 @@ final public class MPSCLinkQueue<T>: QueueType
     */
 
     // publish the new node to the consumer here
-    previousTail.next.store(node.storage, .release)
+    previousTail.next = node
   }
 
   public func dequeue() -> T?
   { // read the head (dummy) node and try to read the first real node
-    let head = Node(storage: self.head)
-    var next = head.next.load(.acquire)
+    let head = self.head
+    var next = head.next
 
     if next == nil
     { // check whether the queue is actually empty
-      if tail.load(.relaxed) == head.storage
+      if head.storage == tptr.load(.relaxed)
       { // the queue is empty
         return nil
       }
@@ -111,17 +115,17 @@ final public class MPSCLinkQueue<T>: QueueType
           sched_yield()
         }
 
-        next = head.next.load(.acquire)
+        next = head.next
       } while next == nil
     }
 
-    guard let node = Node(storage: next) else { fatalError(#function) }
+    guard let node = next else { fatalError(#function) }
 
     // get the element and clear its storage in the node
     let element = node.move()
     // node is now a dummy node and points to the first real node;
     // make self.head point to it for the next call to dequeue()
-    self.head = node.storage
+    self.head = node
     // we can now dispose of the previous head node
     head.deallocate()
     return element
@@ -156,7 +160,7 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
     let size = offset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    next = AtomicOptionalMutableRawPointer(nil)
+    nptr = AtomicOptionalMutableRawPointer(nil)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
@@ -173,13 +177,18 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
     storage.deallocate()
   }
 
-  var next: AtomicOptionalMutableRawPointer {
-    @inlinable unsafeAddress {
+  private var nptr: AtomicOptionalMutableRawPointer {
+    unsafeAddress {
       return UnsafeRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }
-    @inlinable nonmutating unsafeMutableAddress {
+    nonmutating unsafeMutableAddress {
       return (storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }
+  }
+
+  var next: MPSCNode? {
+    get             { return MPSCNode(storage: nptr.load(.acquire)) }
+    nonmutating set { nptr.store(newValue?.storage, .release) }
   }
 
   private var data: UnsafeMutablePointer<Element> {
@@ -188,7 +197,7 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
 
   func initialize(to element: Element)
   {
-    next.store(nil, .relaxed)
+    nptr.store(nil, .relaxed)
     data.initialize(to: element)
   }
 
