@@ -1,5 +1,5 @@
 //
-//  linkqueue-spsc-lockfree.swift
+//  fastqueue-spsc-lockfree.swift
 //  QQ
 //
 //  Created by Guillaume Lessard
@@ -12,6 +12,7 @@
 /// http://www.1024cores.net/home/lock-free-algorithms/queues/unbounded-spsc-queue
 ///
 /// This algorithm is wait-free on both the producer and consumer paths
+/// (modulo memory allocation and deallocation issues.)
 /// Calls to enqueue() must be serialized in some way (single producer.)
 /// Calls to dequeue() must be serialized in some way (single consumer.)
 
@@ -20,116 +21,119 @@ import CAtomics
 final public class SPSCFastQueue<T>: QueueType
 {
   public typealias Element = T
+  private typealias Node = SPSCNode<T>
 
-  // these don't actually need to be atomic, but they're better off with the padding
-  private var head: AtomicCacheLineAlignedMutableRawPointer
-  private var tail: AtomicCacheLineAlignedMutableRawPointer
-  private var oldest: UnsafeMutableRawPointer
-  private var recentHead: UnsafeMutableRawPointer
+  private var hptr: AtomicCacheAlignedMutableRawPointer
+  private var head: Node {
+    get { return Node(storage: hptr.load(.acquire)) }
+    set { hptr.store(newValue.storage, .release) }
+  }
+  private var tail: Node
+  private var oldest: Node
+  private var headCopy: Node
 
   public init()
   { // set up an initial dummy node
-    let node = Node<T>()
-    head = AtomicCacheLineAlignedMutableRawPointer(node.storage)
-    tail = AtomicCacheLineAlignedMutableRawPointer(node.storage)
-    oldest = UnsafeMutableRawPointer(node.storage)
-    recentHead = UnsafeMutableRawPointer(node.storage)
+    tail = Node.dummy
+    hptr = AtomicCacheAlignedMutableRawPointer(tail.storage)
+    oldest = tail
+    headCopy = tail
+    assert(tail == head)
   }
 
   deinit {
     // empty the queue
-    let head: Node<T> = Node(storage: oldest)
-    var next = head.loadNextNode(order: .acquire)
+    let head = self.head
+    var next = head.next
     while let node = next
     {
-      next = node.loadNextNode(order: .acquire)
+      next = node.next
+      node.deinitialize()
       node.deallocate()
     }
-    head.deallocate()
+    head.next = nil
+
+    next = oldest
+    while let node = next
+    {
+      next = node.next
+      node.deallocate()
+    }
   }
 
-  public var isEmpty: Bool { return head.load(.relaxed) == tail.load(.relaxed) }
+  public var isEmpty: Bool { return head == tail }
 
   public var count: Int {
     var i = 0
     // only count as far as the current tail
-    let tail: Node<T>  = self.tail.loadNode(order: .acquire)
-    var next: Node<T>? = self.head.loadNode(order: .acquire)
+    let tail = self.tail
+    var next = self.head as Optional
     while let node = next, node != tail
     { // Iterate along the linked nodes while counting
-      repeat {
-        // if node was not yet tail, then a `nil` next pointer
-        // does not mean we are done counting.
-        next = node.loadNextNode(order: .acquire)
-      } while next == nil
+      next = node.next
       i += 1
     }
     return i
   }
 
+  private func node(with element: T) -> Node
+  {
+    if oldest != headCopy
+    {
+      let node = oldest
+      guard let nextOldest = node.nptr.load(.relaxed) else { fatalError() }
+      oldest = Node(storage: nextOldest)
+      node.initialize(to: element)
+      return node
+    }
+    else
+    {
+      headCopy = self.head
+      if oldest != headCopy
+      {
+        let node = oldest
+        guard let nextOldest = node.nptr.load(.relaxed) else { fatalError() }
+        oldest = Node(storage: nextOldest)
+        node.initialize(to: element)
+        return node
+      }
+    }
+
+    return Node(initializedWith: element)
+  }
+
   public func enqueue(_ newElement: T)
   {
-    let node = Node(newElement)
+    let node = self.node(with: newElement)
 
-    tail.loadNode(order: .relaxed).storeNextNode(node, order: .release)
-    tail.store(node: node, order: .relaxed)
+    self.tail.next = node
+    self.tail = node
   }
 
   public func dequeue() -> T?
   { // read the head (dummy) node and try to read the first real node
-    let head: Node<T>  = self.head.loadNode(order: .relaxed)
-
-    guard let node: Node<T> = head.loadNextNode(order: .acquire)
-      else { return nil }
+    let head = self.head
+    let next = head.next
+    guard let node = next else { return nil }
 
     // get the element and clear its storage in the node
     let element = node.move()
     // node is now a dummy node and points ot the first real node;
     // make self.head point to it for the next call to dequeue()
-    self.head.store(node: node, order: .relaxed)
-
-    // we can now dispose of the previous head node
-    head.deallocate()
+    self.head = node
+    // the previous head node is now ready for reuse
     return element
   }
 }
 
-// Extensions used to deal with the queue's head and tail pointers
+private let nextOffset = 0
 
-extension AtomicCacheLineAlignedMutableRawPointer
-{
-  mutating fileprivate func initialize<T>(node: Node<T>)
-  {
-    self.initialize(node.storage)
-  }
-
-  mutating fileprivate func loadNode<T>(order: LoadMemoryOrder) -> Node<T>
-  {
-    return Node(storage: self.load(order))
-  }
-
-  mutating fileprivate func store<T>(node: Node<T>, order: StoreMemoryOrder = .release)
-  {
-    self.store(node.storage, order)
-  }
-}
-
-private struct Node<Element>: OSAtomicNode, Equatable
+private struct SPSCNode<Element>: OSAtomicNode, Equatable
 {
   let storage: UnsafeMutableRawPointer
 
-  private var nextOffset: Int { return 0 }
   private var dataOffset: Int {
-    return (MemoryLayout<AtomicOptionalMutableRawPointer>.alignment > MemoryLayout<Element?>.alignment) ?
-      MemoryLayout<AtomicOptionalMutableRawPointer>.stride : MemoryLayout<Element?>.stride
-  }
-
-  var next: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
-    return (storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
-  }
-
-  var data: UnsafeMutablePointer<Element?> {
-    return (storage+dataOffset).assumingMemoryBound(to: (Element?).self)
+    return max(MemoryLayout<UnsafeMutableRawPointer?>.stride, MemoryLayout<Element>.alignment)
   }
 
   init(storage: UnsafeMutableRawPointer)
@@ -137,54 +141,67 @@ private struct Node<Element>: OSAtomicNode, Equatable
     self.storage = storage
   }
 
-  private init(private: Void = ())
+  init?(storage: UnsafeMutableRawPointer?)
   {
-    let alignment = max(MemoryLayout<AtomicOptionalMutableRawPointer>.alignment, MemoryLayout<Element?>.alignment)
-    let offset = (MemoryLayout<AtomicOptionalMutableRawPointer>.alignment > MemoryLayout<Element?>.alignment) ?
-                  MemoryLayout<AtomicOptionalMutableRawPointer>.stride : MemoryLayout<Element?>.stride
-    let size = offset + MemoryLayout<Element?>.stride
+    guard let storage = storage else { return nil }
+    self.storage = storage
+  }
+
+  private init()
+  {
+    let alignment = max(MemoryLayout<UnsafeMutableRawPointer?>.alignment, MemoryLayout<Element>.alignment)
+    let offset = max(MemoryLayout<UnsafeMutableRawPointer?>.stride, MemoryLayout<Element>.alignment)
+    let size = offset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    (storage+dataOffset).bindMemory(to: (Element?).self, capacity: 1)
+    nptr = AtomicOptionalMutableRawPointer(nil)
+    (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
-  init()
-  {
-    self.init(private: ())
-    next.pointee = AtomicOptionalMutableRawPointer()
-    next.pointee.initialize(nil)
-    data.initialize(to: nil)
-  }
+  static var dummy: SPSCNode { return SPSCNode() }
 
-  init(_ element: Element)
+  init(initializedWith element: Element)
   {
-    self.init(private: ())
-    next.pointee = AtomicOptionalMutableRawPointer()
-    next.pointee.initialize(nil)
+    self.init()
     data.initialize(to: element)
   }
 
   func deallocate()
   {
-    data.deinitialize(count: 1)
     storage.deallocate()
   }
 
-  func loadNextNode(order: LoadMemoryOrder = .acquire) -> Node?
-  {
-    guard let storage = next.pointee.load(order) else { return nil }
-    return Node(storage: storage)
+  var nptr: AtomicOptionalMutableRawPointer {
+    unsafeAddress {
+      return UnsafeRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+    }
+    nonmutating unsafeMutableAddress {
+      return (storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+    }
   }
 
-  func storeNextNode(_ node: Node, order: StoreMemoryOrder = .release)
-  {
-    next.pointee.store(node.storage, order)
+  var next: SPSCNode? {
+    get             { return SPSCNode(storage: nptr.load(.acquire)) }
+    nonmutating set { nptr.store(newValue?.storage, .release) }
   }
 
-  func move() -> Element?
+  private var data: UnsafeMutablePointer<Element> {
+    return (storage+dataOffset).assumingMemoryBound(to: Element.self)
+  }
+
+  func initialize(to element: Element)
   {
-    let element = data.move()
-    data.initialize(to: nil)
-    return element
+    nptr.store(nil, .relaxed)
+    data.initialize(to: element)
+  }
+
+  func deinitialize()
+  {
+    data.deinitialize(count: 1)
+  }
+
+  func move() -> Element
+  {
+    return data.move()
   }
 }
