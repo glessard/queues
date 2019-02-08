@@ -31,13 +31,13 @@ final public class MPSCLinkQueue<T>: QueueType
   private typealias Node = MPSCNode<T>
 
   private var head: UnsafeMutableRawPointer
-  private var tail: AtomicCacheLineAlignedMutableRawPointer
+  private var tail: AtomicCacheAlignedMutableRawPointer
 
   public init()
   { // set up an initial dummy node
     let node = Node.dummy
     head = node.storage
-    tail = AtomicCacheLineAlignedMutableRawPointer(head)
+    tail = AtomicCacheAlignedMutableRawPointer(head)
   }
 
   deinit {

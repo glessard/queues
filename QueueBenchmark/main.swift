@@ -184,6 +184,78 @@ dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with references")
 
 
+print("\nLock-free queues")
+
+print("LockFreeLinkQueue (Michael-Scott Queue)")
+var msqueue = LockFreeLinkQueue(iterations)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  _ = msqueue.dequeue()
+  msqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration")
+
+let msqueueref = LockFreeLinkQueue(ref)
+
+then = mach_absolute_time()
+for _ in 1...iterations
+{
+  _ = msqueueref.dequeue()
+  msqueueref.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration with references")
+
+print("Lock-free MPSC queue (Vyukov)")
+var mpscqueue = MPSCLinkQueue(iterations)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  _ = msqueue.dequeue()
+  msqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration")
+
+let mpscqueueref = MPSCLinkQueue(ref)
+
+then = mach_absolute_time()
+for _ in 1...iterations
+{
+  _ = msqueueref.dequeue()
+  msqueueref.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration with references")
+
+print("Lock-free SPSC queue (Vyukov)")
+var spscqueue = SPSCLinkQueue(iterations)
+
+then = mach_absolute_time()
+for i in 1...iterations
+{
+  _ = msqueue.dequeue()
+  msqueue.enqueue(i)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration")
+
+let spscqueueref = SPSCLinkQueue(ref)
+
+then = mach_absolute_time()
+for _ in 1...iterations
+{
+  _ = msqueueref.dequeue()
+  msqueueref.enqueue(ref)
+}
+dt = mach_absolute_time() - then
+print("\(dt/iterations) ns per iteration with references")
+
+
 print("\nQueues without thread-safety")
 
 print("UnsafeQueue:")
