@@ -111,4 +111,9 @@ struct LockFreeNode<Element>: OSAtomicNode, StackNode, Equatable
   {
     return data.pointee
   }
+
+  func move() -> Element
+  {
+    return data.move()
+  }
 }

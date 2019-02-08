@@ -6,7 +6,7 @@
 //  Copyright (c) 2018 Guillaume Lessard. All rights reserved.
 //
 
-/// Multiple-Producer, Single-Consumer, Lock-Free Queue
+/// Multiple-Producer, Single-Consumer, (mostly) Lock-Free Queue
 ///
 /// Adapted from Dmitry Vyukov's non-intrusive MPSC queue,
 /// http://www.1024cores.net/home/lock-free-algorithms/queues/non-intrusive-mpsc-node-based-queue
@@ -17,8 +17,10 @@
 /// (see also: Michael & Scott algorithm from their PODC96 paper, at
 /// http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html)
 ///
-/// This algorithm is wait-free for the Producer path, and lock-free for the Consumer path.
+/// This algorithm is wait-free for the Producer path.
 /// Calls to enqueue() can be made from multiple simultaneous threads (multiple producers.)
+/// The consumer path is generally lock-free, though a producer that is delayed
+/// at a crucial point can lead to the consumer thread being temporarily suspended.
 /// Calls to dequeue() must be serialized in some way (single consumer.)
 
 import CAtomics
