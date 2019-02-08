@@ -135,9 +135,7 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
   let storage: UnsafeMutableRawPointer
 
   private var dataOffset: Int {
-    let a = MemoryLayout<Element>.alignment
-    let d = (nextOffset + MemoryLayout<AtomicOptionalMutableRawPointer>.stride - a)/a
-    return a*d+a
+    return max(MemoryLayout<AtomicOptionalMutableRawPointer>.stride, MemoryLayout<Element>.alignment)
   }
 
   init(storage: UnsafeMutableRawPointer)
@@ -154,9 +152,8 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
   private init()
   {
     let alignment = max(MemoryLayout<AtomicOptionalMutableRawPointer>.alignment, MemoryLayout<Element>.alignment)
-    let a = MemoryLayout<Element>.alignment
-    let d = (nextOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride - a)/a
-    let size = a*d+a + MemoryLayout<Element>.stride
+    let offset = max(MemoryLayout<AtomicOptionalMutableRawPointer>.stride, MemoryLayout<Element>.alignment)
+    let size = offset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
     next = AtomicOptionalMutableRawPointer(nil)
@@ -198,11 +195,6 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
   func deinitialize()
   {
     data.deinitialize(count: 1)
-  }
-
-  func read() -> Element?
-  {
-    return data.pointee
   }
 
   func move() -> Element

@@ -133,7 +133,7 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
   let storage: UnsafeMutableRawPointer
 
   private var dataOffset: Int {
-    return max(MemoryLayout<UnsafeMutableRawPointer?>.stride, MemoryLayout<Element>.alignment)
+    return max(MemoryLayout<AtomicOptionalMutableRawPointer>.stride, MemoryLayout<Element>.alignment)
   }
 
   init(storage: UnsafeMutableRawPointer)
@@ -149,8 +149,8 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
 
   private init()
   {
-    let alignment = max(MemoryLayout<UnsafeMutableRawPointer?>.alignment, MemoryLayout<Element>.alignment)
-    let offset = max(MemoryLayout<UnsafeMutableRawPointer?>.stride, MemoryLayout<Element>.alignment)
+    let alignment = max(MemoryLayout<AtomicOptionalMutableRawPointer>.alignment, MemoryLayout<Element>.alignment)
+    let offset = max(MemoryLayout<AtomicOptionalMutableRawPointer>.stride, MemoryLayout<Element>.alignment)
     let size = offset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
