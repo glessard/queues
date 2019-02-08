@@ -23,7 +23,7 @@ class QQTests: XCTestCase
     var c = 2
     guard q.count == c else
     {
-      XCTAssert(c == q.count, "\(q.count) elements counted, should be 2")
+      XCTAssertEqual(c, q.count, "\(q.count) elements counted, should be 2")
       return
     }
 
@@ -37,14 +37,14 @@ class QQTests: XCTestCase
         q.enqueue(element)
         c += 1
         let b = q.count
-        XCTAssert(b-a == 1, "element count improperly incremented: \(b)+1 != \(a)")
-        XCTAssert(c == b, "expected \(c) and \(b) equal")
+        XCTAssertEqual(b-a, 1, "element count improperly incremented: \(b)+1 != \(a)")
+        XCTAssertEqual(c, b, "expected \(c) and \(b) equal")
       }
       else
       {
         if c == 0
         {
-          XCTAssert(q.dequeue() == nil, "non-nil result from an empty queue")
+          XCTAssertNil(q.dequeue(), "non-nil result from an empty queue")
         }
         else
         {
@@ -53,8 +53,8 @@ class QQTests: XCTestCase
           {
             c -= 1
             let b = q.count
-            XCTAssert(a-b == 1, "element count improperly decremented upon dequeuing")
-            XCTAssert(c == b)
+            XCTAssertEqual(a-b, 1, "element count improperly decremented upon dequeuing")
+            XCTAssertEqual(c, b, "expected \(c) and \(b) equal")
           }
           else
           {
@@ -81,7 +81,7 @@ class QQTests: XCTestCase
     {
       if let t = q.dequeue()
       {
-        XCTAssert(t.id == a[i].id, "Wrong object dequeued")
+        XCTAssertEqual(t.id, a[i].id, "Wrong object dequeued")
       }
     }
   }
@@ -102,7 +102,7 @@ class QQTests: XCTestCase
     {
       if let r = q.dequeue()
       {
-        XCTAssert(r == a[i], "Wrong object dequeued")
+        XCTAssertEqual(r, a[i], "Wrong object dequeued")
       }
     }
   }
@@ -151,17 +151,17 @@ class QQTests: XCTestCase
   func QueueInitEmptyTest<Q: QueueType>(_: Q.Type, newElement: Q.Element)
   {
     let q = Q(newElement)
-    XCTAssert(q.isEmpty == false)
+    XCTAssertFalse(q.isEmpty)
 
     _ = q.dequeue()
-    XCTAssert(q.isEmpty == true)
+    XCTAssertTrue(q.isEmpty)
 
     let enqueueCount = 10
 
     (1...enqueueCount).forEach { _ in q.enqueue(newElement) }
     let dequeueCount = q.reduce(0) { (i, _) in i+1 }
 
-    XCTAssert(dequeueCount == enqueueCount)
+    XCTAssertEqual(dequeueCount, enqueueCount)
   }
 
   func MultiThreadedBenchmark<Q: QueueType>(_ type: Q.Type) where Q.Element: TestItem

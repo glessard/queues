@@ -34,8 +34,8 @@ final public class OptimisticFastQueue<T>: QueueType
 
   public init()
   {
-    let node = Node()
-    let tmrp = TaggedMutableRawPointer(node.storage)
+    let node = Node.dummy
+    let tmrp = TaggedMutableRawPointer(node.storage, tag: 1)
     head.initialize(tmrp)
     tail.initialize(tmrp)
   }
@@ -43,68 +43,58 @@ final public class OptimisticFastQueue<T>: QueueType
   deinit
   {
     // empty the queue
-    while true
+    // delete from tail to head because the `prev` pointer is most reliable
+    let head = Node(storage: self.head.load(.acquire).ptr)
+    var last = Node(storage: self.tail.load(.acquire).ptr)
+    while last != head
     {
-      let node = Node(storage: head.load(.relaxed).ptr)
-      defer { node.deallocate() }
-
-      let next = node.next.pointee.load(.relaxed)
-      if let node = Node(storage: next.ptr)
-      {
-        node.deinitialize()
-        let next = TaggedMutableRawPointer(node.storage, tag: next.tag)
-        head.store(next, .relaxed)
-      }
-      else { break }
+      let prev = Node(storage: last.prev.ptr)
+      last.deinitialize()
+      last.deallocate()
+      last = prev
     }
-
-    // drain the pool
-    while let node = pool.pop()
-    {
-      node.deallocate()
-    }
-    pool.release()
+    head.deallocate()
   }
 
   public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
 
   public var count: Int {
-    let tail = self.tail.load(.relaxed)
-    let head = self.head.load(.relaxed)
-    if head == tail { return 0 }
-
-    // make sure the `next` pointers are in order
-    fixlist(tail: tail, head: head)
-
     var i = 0
-    var next = Node(storage: head.ptr).next.pointee.load(.relaxed).ptr
-    while let current = Node(storage: next)
+    // count from the current tail to the current head
+    var current = self.tail.load(.acquire)
+    let head =    self.head.load(.acquire)
+    while current.ptr != head.ptr
     { // Iterate along the linked nodes while counting
-      next = current.next.pointee.load(.relaxed).ptr
+      current = Node(storage: current.ptr).prev
       i += 1
-      if current.storage == tail.ptr { break }
     }
     return i
   }
 
+  private func node(with element: T) -> Node
+  {
+    if let reused = pool.pop()
+    {
+      reused.initialize(to: element)
+      return reused
+    }
+    return Node(initializedWith: element)
+  }
+
   public func enqueue(_ newElement: T)
   {
-    let node = pool.pop() ?? LockFreeNode<T>()
-    node.initialize(to: newElement)
+    let node = self.node(with: newElement)
 
-    while true
-    {
-      let tail = self.tail.load(.acquire)
-      let prev = TaggedOptionalMutableRawPointer(tail.ptr, tag: tail.tag &+ 1)
-      node.prev.pointee.store(prev, .release)
-      let next = TaggedMutableRawPointer(node.storage, tag: tail.tag &+ 1)
-      if self.tail.CAS(tail, next, .weak, .release)
-      { // success, update the old tail's next link
-        let next = TaggedOptionalMutableRawPointer(node.storage, tag: tail.tag)
-        Node(storage: tail.ptr).next.pointee.store(next, .release)
-        break
-      }
-    }
+    var oldTail = self.tail.load(.acquire)
+    var newTail: TaggedMutableRawPointer
+    repeat {
+      node.prev = oldTail.incremented()
+      newTail =   oldTail.incremented(with: node.storage)
+    } while !self.tail.loadCAS(&oldTail, newTail, .weak, .release, .relaxed)
+
+    // success, update the old tail's next link
+    let lastNext = TaggedOptionalMutableRawPointer(node.storage, tag: oldTail.tag)
+    Node(storage: oldTail.ptr).next.store(lastNext, .relaxed)
   }
 
   public func dequeue() -> T?
@@ -112,8 +102,8 @@ final public class OptimisticFastQueue<T>: QueueType
     while true
     {
       let head = self.head.load(.acquire)
-      let tail = self.tail.load(.relaxed)
-      let next = Node(storage: head.ptr).next.pointee.load(.acquire)
+      let tail = self.tail.load(.acquire)
+      let next = Node(storage: head.ptr).next.load(.acquire)
 
       if head == self.head.load(.acquire)
       {
@@ -125,7 +115,7 @@ final public class OptimisticFastQueue<T>: QueueType
             continue
           }
           if let node = Node(storage: next.ptr),
-            let element = node.read() // must happen before deinitialize in another thread
+             let element = node.read() // must happen before deinitialize in another thread
           {
             let newhead = TaggedMutableRawPointer(node.storage, tag: head.tag &+ 1)
             if self.head.CAS(head, newhead, .weak, .release)
@@ -146,13 +136,13 @@ final public class OptimisticFastQueue<T>: QueueType
     var current = oldtail
     while oldhead == self.head.load(.relaxed) && current != oldhead
     {
-      let currentNode = Node(storage: current.ptr)
-      if let currentPrev = Node(storage: currentNode.prev.pointee.load(.relaxed).ptr)
-      {
-        let tag = current.tag &- 1
-        currentPrev.next.pointee.store(TaggedOptionalMutableRawPointer(current.ptr, tag: tag), .relaxed)
-        current = TaggedMutableRawPointer(currentPrev.storage, tag: tag)
-      }
+      let currentNode  = Node(storage: current.ptr)
+      let previousNode = Node(storage: currentNode.prev.ptr)
+
+      let tag = current.tag &- 1
+      let updated = TaggedOptionalMutableRawPointer(current.ptr, tag: tag)
+      previousNode.next.store(updated, .relaxed)
+      current = TaggedMutableRawPointer(previousNode.storage, tag: tag)
     }
   }
 }

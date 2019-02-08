@@ -22,7 +22,7 @@ import func Darwin.libkern.OSAtomic.OSAtomicFifoDequeue
 
 /// A wrapper for OSAtomicFifoQueue
 
-struct AtomicQueue<Node: OSAtomicNode>
+struct OSAtomicQueue<Node: OSAtomicNode>
 {
   private let head: OpaquePointer
 
@@ -90,7 +90,7 @@ import func Darwin.libkern.OSAtomic.OSAtomicDequeue
 
 /// A wrapper for OSAtomicQueue
 
-struct AtomicStack<Node: OSAtomicNode>
+struct OSAtomicStack<Node: OSAtomicNode>
 {
   private let head: OpaquePointer
 

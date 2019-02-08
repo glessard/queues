@@ -8,41 +8,43 @@
 
 import CAtomics
 
-/// Lock-free queue
+/// Multiple-Producer, Single-Consumer, (mostly) Lock-Free Queue
 ///
-/// Note that this algorithm is not designed for tri-state memory as used in Swift.
-/// This means that it does not work correctly in multi-threaded situations (as in, accesses memory in an incorrect state.)
-/// It was an interesting experiment.
-///
-/// Lock-free queue algorithm adapted from Edya Ladan-Mozes and Nir Shavit,
+/// Adapted from the Optimistic Lock-free queue algorithm by Edya Ladan-Mozes and Nir Shavit,
 /// "An optimistic approach to lock-free FIFO queues",
 /// Distributed Computing (2008) 20:323-341; DOI 10.1007/s00446-007-0050-0
 ///
 /// See also:
 /// Proceedings of the 18th International Conference on Distributed Computing (DISC) 2004
 /// http://people.csail.mit.edu/edya/publications/OptimisticFIFOQueue-DISC2004.pdf
+///
+/// This algorithm is lock-free for both the Producer and Consumer paths.
+/// Calls to enqueue() can be made from multiple simultaneous threads (multiple producers.)
+/// Calls to dequeue() must be serialized in some way (single consumer.)
+/// The serialization of the consumer enables the algorithm to work properly with
+/// ARC-enabled memory and avoids other memory-related issues by ensuring that
+/// no concurrency exists on that path.
 
-final public class OptimisticLinkQueue<T>: QueueType
+final public class OptimisticMPSCLinkQueue<T>: QueueType
 {
   public typealias Element = T
   typealias Node = LockFreeNode<T>
 
-  private var head = AtomicTaggedMutableRawPointer()
-  private var tail = AtomicTaggedMutableRawPointer()
+  private var head: TaggedMutableRawPointer
+  private var tail: AtomicTaggedMutableRawPointer
 
   public init()
   {
     let node = Node.dummy
-    let tmrp = TaggedMutableRawPointer(node.storage, tag: 1)
-    head.initialize(tmrp)
-    tail.initialize(tmrp)
+    head = TaggedMutableRawPointer(node.storage, tag: 1)
+    tail = AtomicTaggedMutableRawPointer(head)
   }
 
   deinit
   {
     // empty the queue
     // delete from tail to head because the `prev` pointer is most reliable
-    let head = Node(storage: self.head.load(.acquire).ptr)
+    let head = Node(storage: self.head.ptr)
     var last = Node(storage: self.tail.load(.acquire).ptr)
     while last != head
     {
@@ -54,13 +56,12 @@ final public class OptimisticLinkQueue<T>: QueueType
     head.deallocate()
   }
 
-  public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
+  public var isEmpty: Bool { return head.ptr == tail.load(.relaxed).ptr }
 
   public var count: Int {
     var i = 0
-    // count from the current tail to the current head
-    var current = self.tail.load(.acquire)
-    let head =    self.head.load(.acquire)
+    // count from the current tail until head
+    var current = tail.load(.acquire)
     while current.ptr != head.ptr
     { // Iterate along the linked nodes while counting
       current = Node(storage: current.ptr).prev
@@ -81,48 +82,37 @@ final public class OptimisticLinkQueue<T>: QueueType
     } while !self.tail.loadCAS(&oldTail, newTail, .weak, .release, .relaxed)
 
     // success, update the old tail's next link
-    let lastNext = TaggedOptionalMutableRawPointer(node.storage, tag: oldTail.tag)
-    Node(storage: oldTail.ptr).next.store(lastNext, .relaxed)
+    let oldTailNext = TaggedOptionalMutableRawPointer(node.storage, tag: oldTail.tag)
+    Node(storage: oldTail.ptr).next.store(oldTailNext, .relaxed)
   }
 
   public func dequeue() -> T?
   {
     while true
     {
-      let head = self.head.load(.acquire)
+      let head = self.head
       let tail = self.tail.load(.acquire)
       let next = Node(storage: head.ptr).next.load(.acquire)
 
-      if head == self.head.load(.acquire)
+      guard head != tail else { return nil }
+      // queue is not empty
+      if (next.tag != head.tag) || (next.tag == 0 && next.ptr == nil)
+      { // an enqueue missed its final linking operation
+        fixlist(tail: tail, head: head)
+      }
+      else if let node = Node(storage: next.ptr)
       {
-        if head != tail
-        { // queue is not empty
-          if next.tag != head.tag
-          { // an enqueue missed its final linking operation
-            fixlist(tail: tail, head: head)
-            continue
-          }
-          if let node = Node(storage: next.ptr),
-             let element = node.read() // must happen before deinitialize in another thread
-          {
-            let newhead = head.incremented(with: node.storage)
-            if self.head.CAS(head, newhead, .weak, .release)
-            {
-              node.deinitialize()
-              Node(storage: head.ptr).deallocate()
-              return element
-            }
-          }
-        }
-        return nil
+        self.head = head.incremented(with: node.storage)
+        Node(storage: head.ptr).deallocate()
+        return node.move()
       }
     }
   }
 
   private func fixlist(tail oldtail: TaggedMutableRawPointer, head oldhead: TaggedMutableRawPointer)
-  {
+  { // should only be called as part of the (serialized) dequeue() path
     var current = oldtail
-    while oldhead == self.head.load(.relaxed) && current != oldhead
+    while current != oldhead
     {
       let currentNode = Node(storage: current.ptr)
       let currentPrev = Node(storage: currentNode.prev.ptr)

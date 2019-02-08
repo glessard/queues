@@ -20,18 +20,19 @@ import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 final public class Fast2LockQueue<T>: QueueType
 {
   public typealias Element = T
+  typealias Node = QueueNode<T>
 
-  private var head: QueueNode<T>
-  private var tail: QueueNode<T>
+  private var head: Node
+  private var tail: Node
 
   private var hlock = OS_SPINLOCK_INIT
   private var tlock = OS_SPINLOCK_INIT
 
-  private let pool = AtomicStack<QueueNode<T>>()
+  private let pool = AtomicStack<Node>()
 
   public init()
   {
-    tail = QueueNode()
+    tail = Node.dummy
     head = tail
   }
 
@@ -46,14 +47,6 @@ final public class Fast2LockQueue<T>: QueueType
       node.deallocate()
     }
     head.deallocate()
-
-    // drain the pool
-    while let node = pool.pop()
-    {
-      node.deallocate()
-    }
-    // release the pool stack structure
-    pool.release()
   }
 
   public var isEmpty: Bool { return head.storage == tail.storage }
@@ -71,10 +64,19 @@ final public class Fast2LockQueue<T>: QueueType
     return i
   }
 
+  private func node(with element: T) -> Node
+  {
+    if let reused = pool.pop()
+    {
+      reused.initialize(to: element)
+      return reused
+    }
+    return Node(initializedWith: element)
+  }
+
   public func enqueue(_ newElement: T)
   {
-    let node = pool.pop() ?? QueueNode()
-    node.initialize(to: newElement)
+    let node = self.node(with: newElement)
 
     OSSpinLockLock(&tlock)
     tail.next = node

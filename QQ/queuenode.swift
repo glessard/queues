@@ -6,29 +6,52 @@
 //  Copyright © 2017 Guillaume Lessard. All rights reserved.
 //
 
-private let offset = MemoryLayout<UnsafeMutableRawPointer>.stride
+import struct CAtomics.AtomicOptionalMutableRawPointer
 
-struct QueueNode<Element>: OSAtomicNode, Equatable
+private let linkOffset = 0
+private let nextOffset = linkOffset + MemoryLayout<UnsafeMutableRawPointer?>.stride
+
+struct QueueNode<Element>: OSAtomicNode, StackNode, Equatable
 {
   let storage: UnsafeMutableRawPointer
+
+  private var dataOffset: Int {
+    let a = MemoryLayout<Element>.alignment
+    let d = (nextOffset + MemoryLayout<UnsafeMutableRawPointer?>.stride - a)/a
+    return a*d+a
+  }
 
   init(storage: UnsafeMutableRawPointer)
   {
     self.storage = storage
   }
 
-  init()
+  private init?(storage: UnsafeMutableRawPointer?)
   {
-    let size = offset + MemoryLayout<Element>.stride
-    storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 16)
-    storage.bindMemory(to: (UnsafeMutableRawPointer?).self, capacity: 1).pointee = nil
-    (storage+offset).bindMemory(to: Element.self, capacity: 1)
+    guard let storage = storage else { return nil }
+    self.storage = storage
   }
+
+  private init()
+  {
+    let a = MemoryLayout<Element>.alignment
+    let d = (nextOffset + MemoryLayout<UnsafeMutableRawPointer?>.stride - a)/a
+    let size = a*d+a + MemoryLayout<Element>.stride
+    let alignment = max(MemoryLayout<Element>.alignment, MemoryLayout<UnsafeMutableRawPointer?>.alignment)
+    storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
+    (storage+linkOffset).bindMemory(to: UnsafeMutableRawPointer?.self, capacity: 1)
+    link = nil
+    (storage+nextOffset).bindMemory(to: UnsafeMutableRawPointer?.self, capacity: 1)
+    next = nil
+    (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
+  }
+
+  static var dummy: QueueNode { return QueueNode() }
 
   init(initializedWith element: Element)
   {
     self.init()
-    (storage+offset).assumingMemoryBound(to: Element.self).initialize(to: element)
+    data.initialize(to: element)
   }
 
   func deallocate()
@@ -36,33 +59,46 @@ struct QueueNode<Element>: OSAtomicNode, Equatable
     storage.deallocate()
   }
 
+  var link: UnsafeMutableRawPointer? {
+    @inlinable unsafeAddress {
+      return UnsafeRawPointer(storage+linkOffset).assumingMemoryBound(to: UnsafeMutableRawPointer?.self)
+    }
+    @inlinable nonmutating unsafeMutableAddress {
+      return (storage+linkOffset).assumingMemoryBound(to: UnsafeMutableRawPointer?.self)
+    }
+  }
+
+  private var nptr: UnsafeMutablePointer<UnsafeMutableRawPointer?> {
+    return (storage+nextOffset).assumingMemoryBound(to: (UnsafeMutableRawPointer?).self)
+  }
+
   var next: QueueNode? {
-    get {
-      if let s = storage.assumingMemoryBound(to: (UnsafeMutableRawPointer?).self).pointee
-      {
-        return QueueNode(storage: s)
-      }
-      return nil
+    @inlinable get {
+      return QueueNode(storage: nptr.pointee)
     }
-    nonmutating set {
-      storage.assumingMemoryBound(to: (UnsafeMutableRawPointer?).self).pointee = newValue?.storage
+    @inlinable nonmutating set {
+      nptr.pointee = newValue?.storage
     }
+  }
+
+  private var data: UnsafeMutablePointer<Element> {
+    return (storage+dataOffset).assumingMemoryBound(to: Element.self)
   }
 
   func initialize(to element: Element)
   {
-    storage.assumingMemoryBound(to: (UnsafeMutableRawPointer?).self).pointee = nil
-    (storage+offset).assumingMemoryBound(to: Element.self).initialize(to: element)
+    next = nil
+    data.initialize(to: element)
   }
 
   func deinitialize()
   {
-    (storage+offset).assumingMemoryBound(to: Element.self).deinitialize(count: 1)
+    data.deinitialize(count: 1)
   }
 
   @discardableResult
   func move() -> Element
   {
-    return (storage+offset).assumingMemoryBound(to: Element.self).move()
+    return data.move()
   }
 }

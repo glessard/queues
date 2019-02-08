@@ -25,16 +25,17 @@ import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 final public class Link2LockQueue<T>: QueueType, Sequence, IteratorProtocol
 {
   public typealias Element = T
+  typealias Node = QueueNode<T>
 
-  private var head: QueueNode<T>
-  private var tail: QueueNode<T>
+  private var head: Node
+  private var tail: Node
 
   private var hlock = OS_SPINLOCK_INIT
   private var tlock = OS_SPINLOCK_INIT
 
   public init()
   {
-    tail = QueueNode()
+    tail = Node.dummy
     head = tail
   }
 
@@ -68,7 +69,7 @@ final public class Link2LockQueue<T>: QueueType, Sequence, IteratorProtocol
 
   public func enqueue(_ newElement: T)
   {
-    let node = QueueNode(initializedWith: newElement)
+    let node = Node(initializedWith: newElement)
 
     OSSpinLockLock(&tlock)
     tail.next = node
