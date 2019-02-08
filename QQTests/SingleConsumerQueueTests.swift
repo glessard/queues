@@ -96,3 +96,46 @@ class OptimisticMPSCLinkQueueTests: QQTests
     QueuePerformanceTestMultiThreaded(type: OptimisticMPSCLinkQueue<Thing>.self)
   }
 }
+
+class SPSCQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTestCount(SPSCLinkQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(SPSCLinkQueue<UInt64>.self)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(SPSCLinkQueue<Thing>.self)
+  }
+
+  func testPerformanceFill()
+  {
+    QueuePerformanceTestFill(SPSCLinkQueue<Thing>.self)
+  }
+
+  func testPerformanceSpin()
+  {
+    QueuePerformanceTestSpin(SPSCLinkQueue<Thing>.self)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(SPSCLinkQueue<Thing>.self)
+  }
+
+  func testEmpty()
+  {
+    QueueInitEmptyTest(SPSCLinkQueue<Thing>.self, newElement: Thing())
+  }
+
+//  func testPerformanceMT()
+//  {
+//    QueuePerformanceTestMultiThreaded(type: SPSCLinkQueue<Thing>.self)
+//  }
+}
