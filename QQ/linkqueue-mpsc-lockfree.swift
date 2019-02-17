@@ -30,8 +30,8 @@ final public class MPSCLinkQueue<T>: QueueType
   public typealias Element = T
   private typealias Node = MPSCNode<T>
 
+  private var tptr: AtomicPaddedMutableRawPointer
   private var head: Node
-  private var tptr: AtomicCacheAlignedMutableRawPointer
   private var tail: Node {
     get { return Node(storage: tptr.load(.acquire)) }
     set { tptr.store(newValue.storage, .release) }
@@ -40,7 +40,7 @@ final public class MPSCLinkQueue<T>: QueueType
   public init()
   { // set up an initial dummy node
     head = Node.dummy
-    tptr = AtomicCacheAlignedMutableRawPointer(head.storage)
+    tptr = AtomicPaddedMutableRawPointer(head.storage)
   }
 
   deinit {
