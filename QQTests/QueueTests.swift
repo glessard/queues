@@ -48,11 +48,11 @@ class GenericNodeQueueTests: QQTests
     QueueInitEmptyTest(Queue<Thing>.self, newElement: Thing())
   }
 
-  //  This one tends to crash. rdar://20984816
-  //  func testMT()
-  //  {
-  //    MultiThreadedBenchmark(Queue<UInt32>.self)
-  //  }
+  //  This one used to crash. rdar://20984816
+  func testMT()
+  {
+    MultiThreadedBenchmark(Queue<Thing>.self)
+  }
 }
 
 class UnsafeQueueTests: QQTests

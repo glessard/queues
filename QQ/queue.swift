@@ -66,6 +66,7 @@ final public class Queue<T>: QueueType
     {
       // Promote the 2nd node to 1st
       head = node.next
+      node.next = nil
 
       // Logical housekeeping
       if head == nil { tail = nil }
