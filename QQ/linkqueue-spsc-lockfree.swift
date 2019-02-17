@@ -23,7 +23,7 @@ final public class SPSCLinkQueue<T>: QueueType
   public typealias Element = T
   private typealias Node = SPSCNode<T>
 
-  private var hptr: CacheAlignedMutableRawPointer
+  private var hptr: PaddedMutableRawPointer
   private var head: Node {
     get { return Node(storage: hptr.pointer) }
     set { hptr.pointer = newValue.storage }
@@ -33,7 +33,7 @@ final public class SPSCLinkQueue<T>: QueueType
   public init()
   { // set up an initial dummy node
     tail = Node.dummy
-    hptr = CacheAlignedMutableRawPointer(pointer: tail.storage)
+    hptr = PaddedMutableRawPointer(tail.storage)
     assert(tail == head)
   }
 

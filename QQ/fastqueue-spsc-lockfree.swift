@@ -23,7 +23,7 @@ final public class SPSCFastQueue<T>: QueueType
   public typealias Element = T
   private typealias Node = SPSCNode<T>
 
-  private var hptr: AtomicCacheAlignedMutableRawPointer
+  private var hptr: AtomicPaddedMutableRawPointer
   private var head: Node {
     get { return Node(storage: hptr.load(.acquire)) }
     set { hptr.store(newValue.storage, .release) }
@@ -35,7 +35,7 @@ final public class SPSCFastQueue<T>: QueueType
   public init()
   { // set up an initial dummy node
     tail = Node.dummy
-    hptr = AtomicCacheAlignedMutableRawPointer(tail.storage)
+    hptr = AtomicPaddedMutableRawPointer(tail.storage)
     oldest = tail
     headCopy = tail
     assert(tail == head)
