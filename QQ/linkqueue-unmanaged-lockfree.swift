@@ -8,24 +8,26 @@
 
 import CAtomics
 
-/// Lock-free queue
+/// Lock-free queue (with node recycling)
 ///
-/// Note that this algorithm is not designed for tri-state memory as used in Swift.
-/// This means that it does not work correctly in multi-threaded situations (as in, accesses memory in an incorrect state.)
-/// It was an interesting experiment.
+/// Note that node recycling is necessary with this algorithm.
+/// A non-recycling algorithm is possible by using hazard pointers,
+/// or possibly by relying on ARC.
 ///
 /// Lock-free queue algorithm adapted from Maged M. Michael and Michael L. Scott.,
 /// "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms",
 /// in Principles of Distributed Computing '96 (PODC96)
 /// See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 
-final public class LockFreeLinkReferenceQueue<T: AnyObject>: QueueType
+final public class LockFreeReferenceQueue<T: AnyObject>: QueueType
 {
   public typealias Element = T
-  typealias Node = LockFreeNode<Unmanaged<T>>
+  typealias Node = LockFreeNode
 
   private var head = AtomicTaggedMutableRawPointer()
   private var tail = AtomicTaggedMutableRawPointer()
+
+  private let pool = AtomicStack<Node>()
 
   public init()
   {
@@ -38,20 +40,18 @@ final public class LockFreeLinkReferenceQueue<T: AnyObject>: QueueType
   deinit
   {
     // empty the queue
-    while true
+    let head = Node(storage: self.head.load(.acquire).ptr)
+    var next = Node(storage: head.next.load(.acquire).ptr)
+    while let node = next
     {
-      let node = Node(storage: head.load(.relaxed).ptr)
-      defer { node.deallocate() }
-
-      let next = node.next.load(.relaxed)
-      if let node = Node(storage: next.ptr)
+      next = Node(storage: node.next.load(.acquire).ptr)
+      if let opaque = node.data.swap(nil, .acquire)
       {
-        node.deinitialize()
-        let tagged = TaggedMutableRawPointer(node.storage, tag: next.tag)
-        head.store(tagged, .relaxed)
+        Unmanaged<T>.fromOpaque(opaque).release()
       }
-      else { break }
+      node.deallocate()
     }
+    head.deallocate()
   }
 
   public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
@@ -69,10 +69,20 @@ final public class LockFreeLinkReferenceQueue<T: AnyObject>: QueueType
     return i
   }
 
+  private func node(with element: T) -> Node
+  {
+    let u = Unmanaged.passRetained(element).toOpaque()
+    if let reused = pool.pop()
+    {
+      reused.initialize(to: u)
+      return reused
+    }
+    return Node(initializedWith: u)
+  }
+
   public func enqueue(_ newElement: T)
   {
-    let u = Unmanaged.passRetained(newElement)
-    let node = LockFreeNode(initializedWith: u)
+    let node = self.node(with: newElement)
 
     while true
     {
@@ -88,10 +98,10 @@ final public class LockFreeLinkReferenceQueue<T: AnyObject>: QueueType
       else
       { // try to link the new node to the end of the list
         let baseNode = TaggedOptionalMutableRawPointer()
-        let nextNode = TaggedOptionalMutableRawPointer(node.storage, tag: next.tag &+ 1)
+        let nextNode = next.incremented(with: node.storage)
         if tailNode.next.CAS(baseNode, nextNode, .weak, .release)
         { // success. try to have tail point to the inserted node.
-          let newTail = TaggedMutableRawPointer(node.storage, tag: tail.tag &+ 1)
+          let newTail = tail.incremented(with: node.storage)
           _ = self.tail.CAS(tail, newTail, .strong, .release)
           break
         }
@@ -113,7 +123,7 @@ final public class LockFreeLinkReferenceQueue<T: AnyObject>: QueueType
         { // either the queue is empty, or the tail is lagging behind
           if let nextPtr = next.ptr
           { // tail was behind the actual last node; try to advance it.
-            let newTail = TaggedMutableRawPointer(nextPtr, tag: tail.tag &+ 1)
+            let newTail = tail.incremented(with: nextPtr)
             _ = self.tail.CAS(tail, newTail, .strong, .release)
           }
           else
@@ -125,14 +135,13 @@ final public class LockFreeLinkReferenceQueue<T: AnyObject>: QueueType
         { // no need to deal with tail
           // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
           if let node = Node(storage: next.ptr),
-            let element = node.read() // must happen before deinitialize in another thread
+             let element = node.data.load(.acquire)
           {
-            let newhead = TaggedMutableRawPointer(node.storage, tag: head.tag &+ 1)
+            let newhead = head.incremented(with: node.storage)
             if self.head.CAS(head, newhead, .weak, .release)
             {
-              node.deinitialize()
-              Node(storage: head.ptr).deallocate()
-              return element.takeRetainedValue()
+              pool.push(Node(storage: head.ptr))
+              return Unmanaged<T>.fromOpaque(element).takeRetainedValue()
             }
           }
         }

@@ -187,7 +187,7 @@ print("\(dt/iterations) ns per iteration with references")
 print("\nLock-free queues")
 
 print("LockFreeLinkQueue (Michael-Scott Queue)")
-var msqueue = LockFreeLinkQueue(iterations)
+var msqueue = LockFreeQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -198,7 +198,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
-let msqueueref = LockFreeLinkQueue(ref)
+let msqueueref = LockFreeQueue(ref)
 
 then = mach_absolute_time()
 for _ in 1...iterations

@@ -107,7 +107,7 @@ class RecyclingOSQueueTests: QQTests
   }
 }
 
-class TwoLockFastQueueTests: QQTests
+class TwoLockRecyclingQueueTests: QQTests
 {
   func testQueue()
   {
@@ -155,103 +155,144 @@ class TwoLockFastQueueTests: QQTests
   }
 }
 
-class LockFreeFastQueueTests: QQTests
+class LockFreeQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(LockFreeFastQueue<Int>.self, element: 0)
+    QueueTestCount(LockFreeQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(LockFreeFastQueue<UInt64>.self)
+    QueueIntTest(LockFreeQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(LockFreeFastQueue<Thing>.self)
+    QueueRefTest(LockFreeQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(LockFreeFastQueue<Thing>.self)
+    QueuePerformanceTestFill(LockFreeQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(LockFreeFastQueue<Thing>.self)
+    QueuePerformanceTestSpin(LockFreeQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(LockFreeFastQueue<Thing>.self)
+    QueuePerformanceTestEmpty(LockFreeQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(LockFreeFastQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(LockFreeQueue<Thing>.self, newElement: Thing())
   }
 
   func testMT()
   {
-    MultiThreadedBenchmark(LockFreeFastQueue<Datum>.self)
+    MultiThreadedBenchmark(LockFreeQueue<Datum>.self)
   }
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(type: LockFreeFastQueue<Datum>.self)
+    QueuePerformanceTestMultiThreaded(type: LockFreeQueue<Datum>.self)
   }
 }
 
-
-class OptimisticFastQueueTests: QQTests
+class OptimisticLockFreeQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(OptimisticFastQueue<Int>.self, element: 0)
+    QueueTestCount(OptimisticLockFreeQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(OptimisticFastQueue<UInt64>.self)
+    QueueIntTest(OptimisticLockFreeQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(OptimisticFastQueue<Thing>.self)
+    QueueRefTest(OptimisticLockFreeQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(OptimisticFastQueue<Thing>.self)
+    QueuePerformanceTestFill(OptimisticLockFreeQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(OptimisticFastQueue<Thing>.self)
+    QueuePerformanceTestSpin(OptimisticLockFreeQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(OptimisticFastQueue<Thing>.self)
+    QueuePerformanceTestEmpty(OptimisticLockFreeQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(OptimisticFastQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(OptimisticLockFreeQueue<Thing>.self, newElement: Thing())
   }
 
   func testMT()
   {
-    MultiThreadedBenchmark(OptimisticFastQueue<Datum>.self)
+    MultiThreadedBenchmark(OptimisticLockFreeQueue<Datum>.self)
   }
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(type: OptimisticFastQueue<Datum>.self)
+    QueuePerformanceTestMultiThreaded(type: OptimisticLockFreeQueue<Datum>.self)
   }
 }
 
+class LockFreeReferenceQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTestCount(LockFreeReferenceQueue<Thing>.self, element: Thing())
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(LockFreeReferenceQueue<Thing>.self)
+  }
+
+  func testPerformanceFill()
+  {
+    QueuePerformanceTestFill(LockFreeReferenceQueue<Thing>.self)
+  }
+
+  func testPerformanceSpin()
+  {
+    QueuePerformanceTestSpin(LockFreeReferenceQueue<Thing>.self)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(LockFreeReferenceQueue<Thing>.self)
+  }
+
+  func testEmpty()
+  {
+    QueueInitEmptyTest(LockFreeReferenceQueue<Thing>.self, newElement: Thing())
+  }
+
+  func testMT()
+  {
+    MultiThreadedBenchmark(LockFreeReferenceQueue<Thing>.self)
+  }
+
+  func testPerformanceMT()
+  {
+    QueuePerformanceTestMultiThreaded(type: LockFreeReferenceQueue<Thing>.self)
+  }
+}
 
 class UnsafeRecyclingQueueTests: QQTests
 {
