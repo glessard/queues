@@ -1,12 +1,12 @@
 //
-//  linkqueue-unsafe.swift
+//  recycling-queue-unsafe.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-final public class UnsafeLinkQueue<T>: QueueType
+final public class UnsafeRecyclingQueue<T>: QueueType
 {
   public typealias Element = T
   typealias Node = QueueNode<T>
@@ -14,10 +14,13 @@ final public class UnsafeLinkQueue<T>: QueueType
   private var head: Node? = nil
   private var tail: Node! = nil
 
+  private let pool = AtomicStack<Node>()
+
   public init() { }
 
   deinit
   {
+    // empty the queue
     while let node = head
     {
       head = node.next
@@ -41,9 +44,19 @@ final public class UnsafeLinkQueue<T>: QueueType
     return i
   }
 
+  private func node(with element: T) -> Node
+  {
+    if let reused = pool.pop()
+    {
+      reused.initialize(to: element)
+      return reused
+    }
+    return Node(initializedWith: element)
+  }
+
   public func enqueue(_ newElement: T)
   {
-    let node = Node(initializedWith: newElement)
+    let node = self.node(with: newElement)
 
     if head == nil
     {
@@ -60,11 +73,11 @@ final public class UnsafeLinkQueue<T>: QueueType
   public func dequeue() -> T?
   {
     if let node = head
-    {
+    { // Promote the 2nd item to 1st
       head = node.next
 
       let element = node.move()
-      node.deallocate()
+      pool.push(node)
       return element
     }
 

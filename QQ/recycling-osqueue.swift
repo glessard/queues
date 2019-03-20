@@ -1,17 +1,18 @@
 //
-//  LinkOSQueue.swift
+//  recycling-osqueue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-12-13.
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-final public class LinkOSQueue<T>: QueueType
+final public class RecyclingOSQueue<T>: QueueType
 {
   public typealias Element = T
   typealias Node = QueueNode<T>
 
   private let queue = OSAtomicQueue<Node>()
+  private let pool = OSAtomicStack<Node>()
 
   public init() { }
 
@@ -25,6 +26,14 @@ final public class LinkOSQueue<T>: QueueType
     }
     // release the queue head structure
     queue.release()
+
+    // drain the pool
+    while let node = pool.pop()
+    {
+      node.deallocate()
+    }
+    // release the pool stack structure
+    pool.release()
   }
 
   public var isEmpty: Bool {
@@ -35,9 +44,19 @@ final public class LinkOSQueue<T>: QueueType
     return queue.count
   }
 
+  private func node(with element: T) -> Node
+  {
+    if let reused = pool.pop()
+    {
+      reused.initialize(to: element)
+      return reused
+    }
+    return Node(initializedWith: element)
+  }
+
   public func enqueue(_ newElement: T)
   {
-    let node = Node(initializedWith: newElement)
+    let node = self.node(with: newElement)
 
     queue.enqueue(node)
   }
@@ -47,7 +66,7 @@ final public class LinkOSQueue<T>: QueueType
     if let node = queue.dequeue()
     {
       let element = node.move()
-      node.deallocate()
+      pool.push(node)
       return element
     }
 

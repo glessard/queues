@@ -6,16 +6,25 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-/// An ARC-based queue with no thread safety.
-
 final public class UnsafeQueue<T>: QueueType
 {
   public typealias Element = T
+  typealias Node = QueueNode<T>
 
-  private var head: Node<T>? = nil
-  private var tail: Node<T>! = nil
+  private var head: Node? = nil
+  private var tail: Node! = nil
 
   public init() { }
+
+  deinit
+  {
+    while let node = head
+    {
+      head = node.next
+      node.deinitialize()
+      node.deallocate()
+    }
+  }
 
   public var isEmpty: Bool { return head == nil }
 
@@ -27,14 +36,14 @@ final public class UnsafeQueue<T>: QueueType
     { // Iterate along the linked nodes while counting
       node = current.next
       i += 1
-      if current === tail { break }
+      if current == tail { break }
     }
     return i
   }
 
   public func enqueue(_ newElement: T)
   {
-    let node = Node(newElement)
+    let node = Node(initializedWith: newElement)
 
     if head == nil
     {
@@ -52,32 +61,14 @@ final public class UnsafeQueue<T>: QueueType
   {
     if let node = head
     {
-      // Promote the 2nd node to 1st
       head = node.next
 
-      // Logical housekeeping
-      if head == nil { tail = nil }
-
-      return node.elem
+      let element = node.move()
+      node.deallocate()
+      return element
     }
 
     // queue is empty
     return nil
-  }
-}
-
-/**
-  A simple Node for the Queue implemented above.
-  Clearly an implementation detail.
-*/
-
-private class Node<T>
-{
-  var next: Node? = nil
-  let elem: T
-
-  init(_ e: T)
-  {
-    elem = e
   }
 }

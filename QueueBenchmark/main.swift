@@ -16,7 +16,7 @@ let ref = Thing()
 print("Thread-safe, pure-Swift queues")
 
 print("ARC Queue:")
-var queue1 = Queue(iterations)
+var queue1 = ARCQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -27,7 +27,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
-var queue1ref = Queue(ref)
+var queue1ref = ARCQueue(ref)
 
 then = mach_absolute_time()
 for _ in 1...iterations
@@ -39,8 +39,8 @@ dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with references")
 
 
-print("LinkQueue:")
-var lqueue = LinkQueue(iterations)
+print("Pointer-Based Queue:")
+var lqueue = Queue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -52,7 +52,7 @@ dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
 
-var lqueueref = LinkQueue(ref)
+var lqueueref = Queue(ref)
 
 then = mach_absolute_time()
 for _ in 1...iterations
@@ -64,8 +64,8 @@ dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with references")
 
 
-print("FastQueue:")
-var fqueue = FastQueue(iterations)
+print("Node-recycling Queue:")
+var fqueue = RecyclingQueue(iterations)
 //fqueue.enqueue(42)
 
 then = mach_absolute_time()
@@ -77,7 +77,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
-var fqueueref = FastQueue(ref)
+var fqueueref = RecyclingQueue(ref)
 
 then = mach_absolute_time()
 for _ in 1...iterations
@@ -88,8 +88,8 @@ for _ in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with references")
 
-print("Two-Lock LinkQueue:")
-var tllqueue = Link2LockQueue(iterations)
+print("Two-lock Queue:")
+var tllqueue = TwoLockQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -100,7 +100,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
-var tllqueueref = Link2LockQueue(ref)
+var tllqueueref = TwoLockQueue(ref)
 
 then = mach_absolute_time()
 for _ in 1...iterations
@@ -111,8 +111,8 @@ for _ in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with references")
 
-print("Two-Lock FastQueue:")
-var tlfqueue = Fast2LockQueue(iterations)
+print("Two-lock Node-recycling Queue:")
+var tlfqueue = TwoLockRecyclingQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -123,7 +123,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
-var tlfqueueref = Fast2LockQueue(ref)
+var tlfqueueref = TwoLockRecyclingQueue(ref)
 
 then = mach_absolute_time()
 for _ in 1...iterations
@@ -137,8 +137,8 @@ print("\(dt/iterations) ns per iteration with references")
 
 print("\nSwift combined with OSAtomicFifoQueue:")
 
-print("LinkOSQueue:" )
-var losqueue = LinkOSQueue(iterations)
+print("OSQueue:" )
+var losqueue = OSQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -149,7 +149,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
-var losqueueref = LinkOSQueue(ref)
+var losqueueref = OSQueue(ref)
 then = mach_absolute_time()
 for _ in 1...iterations
 {
@@ -160,8 +160,8 @@ dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with references")
 
 
-print("FastOSQueue:" )
-var fosqueue = FastOSQueue(iterations)
+print("RecyclingOSQueue:" )
+var fosqueue = RecyclingOSQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -172,7 +172,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
-var fosqueueref = FastOSQueue(ref)
+var fosqueueref = RecyclingOSQueue(ref)
 
 then = mach_absolute_time()
 for _ in 1...iterations
@@ -258,8 +258,8 @@ print("\(dt/iterations) ns per iteration with references")
 
 print("\nQueues without thread-safety")
 
-print("UnsafeQueue:")
-var unsafequeue = UnsafeQueue(iterations)
+print("UnsafeARCQueue:")
+var unsafequeue = UnsafeARCQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -270,7 +270,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
-var unsaferefqueue = UnsafeQueue(ref)
+var unsaferefqueue = UnsafeARCQueue(ref)
 
 then = mach_absolute_time()
 for _ in 1...iterations
@@ -306,8 +306,8 @@ dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with references")
 
 
-print("UnsafeLinkQueue:")
-var ulinkqueue = UnsafeLinkQueue(iterations)
+print("UnsafeQueue:")
+var ulinkqueue = UnsafeQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -318,7 +318,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
-var ureflinkqueue = UnsafeLinkQueue(ref)
+var ureflinkqueue = UnsafeQueue(ref)
 
 then = mach_absolute_time()
 for _ in 1...iterations
@@ -330,8 +330,8 @@ dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration with references")
 
 
-print("UnsafeFastQueue:" )
-var ufastqueue = UnsafeFastQueue(iterations)
+print("Unsafe Recycling Queue:" )
+var ufastqueue = UnsafeRecyclingQueue(iterations)
 
 then = mach_absolute_time()
 for i in 1...iterations
@@ -342,7 +342,7 @@ for i in 1...iterations
 dt = mach_absolute_time() - then
 print("\(dt/iterations) ns per iteration")
 
-var ureffastqueue = UnsafeFastQueue(ref)
+var ureffastqueue = UnsafeRecyclingQueue(ref)
 
 then = mach_absolute_time()
 for _ in 1...iterations

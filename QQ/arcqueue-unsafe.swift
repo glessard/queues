@@ -1,33 +1,21 @@
 //
-//  fastqueue.swift
+//  arcqueue-unsafe.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-final public class UnsafeFastQueue<T>: QueueType
+/// An ARC-based queue with no thread safety.
+
+final public class UnsafeARCQueue<T>: QueueType
 {
   public typealias Element = T
-  typealias Node = QueueNode<T>
 
-  private var head: Node? = nil
-  private var tail: Node! = nil
-
-  private let pool = AtomicStack<Node>()
+  private var head: Node<T>? = nil
+  private var tail: Node<T>! = nil
 
   public init() { }
-
-  deinit
-  {
-    // empty the queue
-    while let node = head
-    {
-      head = node.next
-      node.deinitialize()
-      node.deallocate()
-    }
-  }
 
   public var isEmpty: Bool { return head == nil }
 
@@ -39,24 +27,14 @@ final public class UnsafeFastQueue<T>: QueueType
     { // Iterate along the linked nodes while counting
       node = current.next
       i += 1
-      if current == tail { break }
+      if current === tail { break }
     }
     return i
   }
 
-  private func node(with element: T) -> Node
-  {
-    if let reused = pool.pop()
-    {
-      reused.initialize(to: element)
-      return reused
-    }
-    return Node(initializedWith: element)
-  }
-
   public func enqueue(_ newElement: T)
   {
-    let node = self.node(with: newElement)
+    let node = Node(newElement)
 
     if head == nil
     {
@@ -73,15 +51,33 @@ final public class UnsafeFastQueue<T>: QueueType
   public func dequeue() -> T?
   {
     if let node = head
-    { // Promote the 2nd item to 1st
+    {
+      // Promote the 2nd node to 1st
       head = node.next
 
-      let element = node.move()
-      pool.push(node)
-      return element
+      // Logical housekeeping
+      if head == nil { tail = nil }
+
+      return node.elem
     }
 
     // queue is empty
     return nil
+  }
+}
+
+/**
+  A simple Node for the Queue implemented above.
+  Clearly an implementation detail.
+*/
+
+private class Node<T>
+{
+  var next: Node? = nil
+  let elem: T
+
+  init(_ e: T)
+  {
+    elem = e
   }
 }
