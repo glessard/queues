@@ -11,11 +11,8 @@ import func Darwin.libkern.OSAtomic.OSSpinLockLock
 import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 
 /// An ARC-based queue with a spin-lock for thread safety.
-///
-/// Should be thread-safe in principle, but causes an ARC crash under heavy contention.
-/// (rdar://20984816)
 
-final public class Queue<T>: QueueType
+final public class ARCQueue<T>: QueueType
 {
   public typealias Element = T
 

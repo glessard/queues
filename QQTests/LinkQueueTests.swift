@@ -11,147 +11,147 @@ import XCTest
 
 @testable import QQ
 
-class LinkQueueTests: QQTests
+class QueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(LinkQueue<Int>.self, element: 0)
+    QueueTestCount(Queue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(LinkQueue<UInt64>.self)
+    QueueIntTest(Queue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(LinkQueue<Thing>.self)
+    QueueRefTest(Queue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(LinkQueue<Thing>.self)
+    QueuePerformanceTestFill(Queue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(LinkQueue<Thing>.self)
+    QueuePerformanceTestSpin(Queue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(LinkQueue<Thing>.self)
+    QueuePerformanceTestEmpty(Queue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(LinkQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(Queue<Thing>.self, newElement: Thing())
   }
 
   func testMT()
   {
-    MultiThreadedBenchmark(LinkQueue<Thing>.self)
+    MultiThreadedBenchmark(Queue<Thing>.self)
   }
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(type: LinkQueue<Thing>.self)
+    QueuePerformanceTestMultiThreaded(type: Queue<Thing>.self)
   }
 }
 
-class LinkOSQueueTests: QQTests
+class OSQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(LinkOSQueue<Int>.self, element: 0)
+    QueueTestCount(OSQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(LinkOSQueue<UInt64>.self)
+    QueueIntTest(OSQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(LinkOSQueue<Thing>.self)
+    QueueRefTest(OSQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(LinkOSQueue<Thing>.self)
+    QueuePerformanceTestFill(OSQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(LinkOSQueue<Thing>.self)
+    QueuePerformanceTestSpin(OSQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(LinkOSQueue<Thing>.self)
+    QueuePerformanceTestEmpty(OSQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(LinkOSQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(OSQueue<Thing>.self, newElement: Thing())
   }
 
   func testMT()
   {
-    MultiThreadedBenchmark(LinkOSQueue<Thing>.self)
+    MultiThreadedBenchmark(OSQueue<Thing>.self)
   }
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(type: LinkOSQueue<Thing>.self)
+    QueuePerformanceTestMultiThreaded(type: OSQueue<Thing>.self)
   }
 }
 
-class DoubleLockLinkQueueTests: QQTests
+class TwoLockQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(Link2LockQueue<Int>.self, element: 0)
+    QueueTestCount(TwoLockQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(Link2LockQueue<UInt64>.self)
+    QueueIntTest(TwoLockQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(Link2LockQueue<Thing>.self)
+    QueueRefTest(TwoLockQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(Link2LockQueue<Thing>.self)
+    QueuePerformanceTestFill(TwoLockQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(Link2LockQueue<Thing>.self)
+    QueuePerformanceTestSpin(TwoLockQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(Link2LockQueue<Thing>.self)
+    QueuePerformanceTestEmpty(TwoLockQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(Link2LockQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(TwoLockQueue<Thing>.self, newElement: Thing())
   }
 
   func testMT()
   {
-    MultiThreadedBenchmark(Link2LockQueue<Thing>.self)
+    MultiThreadedBenchmark(TwoLockQueue<Thing>.self)
   }
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(type: Link2LockQueue<Thing>.self)
+    QueuePerformanceTestMultiThreaded(type: TwoLockQueue<Thing>.self)
   }
 }
 
@@ -342,40 +342,40 @@ class OptimisticLinkQueueTests: QQTests
   }
 }
 
-class UnsafeLinkQueueTests: QQTests
+class UnsafeQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(UnsafeLinkQueue<Int>.self, element: 0)
+    QueueTestCount(UnsafeQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(UnsafeLinkQueue<UInt64>.self)
+    QueueIntTest(UnsafeQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(UnsafeLinkQueue<Thing>.self)
+    QueueRefTest(UnsafeQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(UnsafeLinkQueue<Thing>.self)
+    QueuePerformanceTestFill(UnsafeQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(UnsafeLinkQueue<Thing>.self)
+    QueuePerformanceTestSpin(UnsafeQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(UnsafeLinkQueue<Thing>.self)
+    QueuePerformanceTestEmpty(UnsafeQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(UnsafeLinkQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(UnsafeQueue<Thing>.self, newElement: Thing())
   }
 }

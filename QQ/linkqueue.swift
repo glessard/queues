@@ -10,7 +10,7 @@ import let  Darwin.libkern.OSAtomic.OS_SPINLOCK_INIT
 import func Darwin.libkern.OSAtomic.OSSpinLockLock
 import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 
-final public class LinkQueue<T>: QueueType
+final public class Queue<T>: QueueType
 {
   public typealias Element = T
   typealias Node = QueueNode<T>

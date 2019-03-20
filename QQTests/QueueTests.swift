@@ -11,85 +11,85 @@ import XCTest
 
 @testable import QQ
 
-class GenericNodeQueueTests: QQTests
+class ARCQueueTests: QQTests
 {
   func testQueueCount()
   {
-    QueueTestCount(Queue<Int>.self, element: 0)
+    QueueTestCount(ARCQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(Queue<UInt64>.self)
+    QueueIntTest(ARCQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(Queue<Thing>.self)
+    QueueRefTest(ARCQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(Queue<Thing>.self)
+    QueuePerformanceTestFill(ARCQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(Queue<Thing>.self)
+    QueuePerformanceTestSpin(ARCQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(Queue<Thing>.self)
+    QueuePerformanceTestEmpty(ARCQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(Queue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(ARCQueue<Thing>.self, newElement: Thing())
   }
 
   //  This one used to crash. rdar://20984816
   func testMT()
   {
-    MultiThreadedBenchmark(Queue<Thing>.self)
+    MultiThreadedBenchmark(ARCQueue<Thing>.self)
   }
 }
 
-class UnsafeQueueTests: QQTests
+class UnsafeARCQueueTests: QQTests
 {
   func testQueueCount()
   {
-    QueueTestCount(UnsafeQueue<Int>.self, element: 0)
+    QueueTestCount(UnsafeARCQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(UnsafeQueue<UInt64>.self)
+    QueueIntTest(UnsafeARCQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(UnsafeQueue<Thing>.self)
+    QueueRefTest(UnsafeARCQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(UnsafeQueue<Thing>.self)
+    QueuePerformanceTestFill(UnsafeARCQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(UnsafeQueue<Thing>.self)
+    QueuePerformanceTestSpin(UnsafeARCQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(UnsafeQueue<Thing>.self)
+    QueuePerformanceTestEmpty(UnsafeARCQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(UnsafeQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(UnsafeARCQueue<Thing>.self, newElement: Thing())
   }
 }
 

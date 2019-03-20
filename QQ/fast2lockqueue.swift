@@ -17,7 +17,7 @@ import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 /// in Principles of Distributed Computing '96 (PODC96)
 /// See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 
-final public class Fast2LockQueue<T>: QueueType
+final public class TwoLockRecyclingQueue<T>: QueueType
 {
   public typealias Element = T
   typealias Node = QueueNode<T>

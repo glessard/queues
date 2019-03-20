@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-final public class UnsafeLinkQueue<T>: QueueType
+final public class UnsafeQueue<T>: QueueType
 {
   public typealias Element = T
   typealias Node = QueueNode<T>

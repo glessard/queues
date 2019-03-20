@@ -8,7 +8,7 @@
 
 /// An ARC-based queue with no thread safety.
 
-final public class UnsafeQueue<T>: QueueType
+final public class UnsafeARCQueue<T>: QueueType
 {
   public typealias Element = T
 

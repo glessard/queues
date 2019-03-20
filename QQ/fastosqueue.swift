@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-final public class FastOSQueue<T>: QueueType
+final public class RecyclingOSQueue<T>: QueueType
 {
   public typealias Element = T
   typealias Node = QueueNode<T>

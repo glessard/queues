@@ -11,147 +11,147 @@ import XCTest
 
 @testable import QQ
 
-class FastQueueTests: QQTests
+class RecyclingQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(FastQueue<Int>.self, element: 0)
+    QueueTestCount(RecyclingQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(FastQueue<UInt64>.self)
+    QueueIntTest(RecyclingQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(FastQueue<Thing>.self)
+    QueueRefTest(RecyclingQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(FastQueue<Thing>.self)
+    QueuePerformanceTestFill(RecyclingQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(FastQueue<Thing>.self)
+    QueuePerformanceTestSpin(RecyclingQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(FastQueue<Thing>.self)
+    QueuePerformanceTestEmpty(RecyclingQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(FastQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(RecyclingQueue<Thing>.self, newElement: Thing())
   }
 
   func testMT()
   {
-    MultiThreadedBenchmark(FastQueue<Thing>.self)
+    MultiThreadedBenchmark(RecyclingQueue<Thing>.self)
   }
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(type: FastQueue<Thing>.self)
+    QueuePerformanceTestMultiThreaded(type: RecyclingQueue<Thing>.self)
   }
 }
 
-class FastOSQueueTests: QQTests
+class RecyclingOSQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(FastOSQueue<Int>.self, element: 0)
+    QueueTestCount(RecyclingOSQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(FastOSQueue<UInt64>.self)
+    QueueIntTest(RecyclingOSQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(FastOSQueue<Thing>.self)
+    QueueRefTest(RecyclingOSQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(FastOSQueue<Thing>.self)
+    QueuePerformanceTestFill(RecyclingOSQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(FastOSQueue<Thing>.self)
+    QueuePerformanceTestSpin(RecyclingOSQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(FastOSQueue<Thing>.self)
+    QueuePerformanceTestEmpty(RecyclingOSQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(FastOSQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(RecyclingOSQueue<Thing>.self, newElement: Thing())
   }
 
   func testMT()
   {
-    MultiThreadedBenchmark(FastOSQueue<Thing>.self)
+    MultiThreadedBenchmark(RecyclingOSQueue<Thing>.self)
   }
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(type: FastOSQueue<Thing>.self)
+    QueuePerformanceTestMultiThreaded(type: RecyclingOSQueue<Thing>.self)
   }
 }
 
-class DoubleLockFastQueueTests: QQTests
+class TwoLockFastQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(Fast2LockQueue<Int>.self, element: 0)
+    QueueTestCount(TwoLockRecyclingQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(Fast2LockQueue<UInt64>.self)
+    QueueIntTest(TwoLockRecyclingQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(Fast2LockQueue<Thing>.self)
+    QueueRefTest(TwoLockRecyclingQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(Fast2LockQueue<Thing>.self)
+    QueuePerformanceTestFill(TwoLockRecyclingQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(Fast2LockQueue<Thing>.self)
+    QueuePerformanceTestSpin(TwoLockRecyclingQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(Fast2LockQueue<Thing>.self)
+    QueuePerformanceTestEmpty(TwoLockRecyclingQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(Fast2LockQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(TwoLockRecyclingQueue<Thing>.self, newElement: Thing())
   }
 
   func testMT()
   {
-    MultiThreadedBenchmark(Fast2LockQueue<Thing>.self)
+    MultiThreadedBenchmark(TwoLockRecyclingQueue<Thing>.self)
   }
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(type: Fast2LockQueue<Thing>.self)
+    QueuePerformanceTestMultiThreaded(type: TwoLockRecyclingQueue<Thing>.self)
   }
 }
 
@@ -253,40 +253,40 @@ class OptimisticFastQueueTests: QQTests
 }
 
 
-class UnsafeFastQueueTests: QQTests
+class UnsafeRecyclingQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(UnsafeFastQueue<Int>.self, element: 0)
+    QueueTestCount(UnsafeRecyclingQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(UnsafeFastQueue<UInt64>.self)
+    QueueIntTest(UnsafeRecyclingQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(UnsafeFastQueue<Thing>.self)
+    QueueRefTest(UnsafeRecyclingQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(UnsafeFastQueue<Thing>.self)
+    QueuePerformanceTestFill(UnsafeRecyclingQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(UnsafeFastQueue<Thing>.self)
+    QueuePerformanceTestSpin(UnsafeRecyclingQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(UnsafeFastQueue<Thing>.self)
+    QueuePerformanceTestEmpty(UnsafeRecyclingQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(UnsafeFastQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(UnsafeRecyclingQueue<Thing>.self, newElement: Thing())
   }
 }

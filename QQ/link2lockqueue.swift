@@ -12,17 +12,12 @@ import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 
 /// Double-lock queue
 ///
-/// Note that if `T` is a type that involves a reference -- i.e. either is an `AnyObject` or
-/// directly references one internally, the queue will hold a live copy of the reference
-/// past the moment it gets dequeued, until the successful `dequeue()` operation that follows it.
-/// If that behaviour is undesirable, use another queue type.
-///
 /// Two-lock queue algorithm adapted from Maged M. Michael and Michael L. Scott.,
 /// "Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms",
 /// in Principles of Distributed Computing '96 (PODC96)
 /// See also: http://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
 
-final public class Link2LockQueue<T>: QueueType, Sequence, IteratorProtocol
+final public class TwoLockQueue<T>: QueueType, Sequence, IteratorProtocol
 {
   public typealias Element = T
   typealias Node = QueueNode<T>
