@@ -1,18 +1,24 @@
 //
-//  linkqueue-unsafe.swift
+//  queue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-final public class UnsafeQueue<T>: QueueType
+import let  Darwin.libkern.OSAtomic.OS_SPINLOCK_INIT
+import func Darwin.libkern.OSAtomic.OSSpinLockLock
+import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
+
+final public class Queue<T>: QueueType
 {
   public typealias Element = T
   typealias Node = QueueNode<T>
 
   private var head: Node? = nil
   private var tail: Node! = nil
+
+  private var lock = OS_SPINLOCK_INIT
 
   public init() { }
 
@@ -45,6 +51,7 @@ final public class UnsafeQueue<T>: QueueType
   {
     let node = Node(initializedWith: newElement)
 
+    OSSpinLockLock(&lock)
     if head == nil
     {
       head = node
@@ -55,13 +62,16 @@ final public class UnsafeQueue<T>: QueueType
       tail.next = node
       tail = node
     }
+    OSSpinLockUnlock(&lock)
   }
 
   public func dequeue() -> T?
   {
+    OSSpinLockLock(&lock)
     if let node = head
-    {
+    { // Promote the 2nd item to 1st
       head = node.next
+      OSSpinLockUnlock(&lock)
 
       let element = node.move()
       node.deallocate()
@@ -69,6 +79,7 @@ final public class UnsafeQueue<T>: QueueType
     }
 
     // queue is empty
+    OSSpinLockUnlock(&lock)
     return nil
   }
 }

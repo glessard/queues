@@ -1,5 +1,5 @@
 //
-//  LinkQueueTests.swift
+//  QueueTests.swift
 //  QQTests
 //
 //  Created by Guillaume Lessard on 2014-09-09.
