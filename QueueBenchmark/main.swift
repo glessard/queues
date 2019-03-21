@@ -126,6 +126,13 @@ print("\(dt/iterations) ns per iteration")
 dt = measure(SPSCLockFreeRecyclingQueue(ref))
 print("\(dt/iterations) ns per iteration with references")
 
+print("Single-Consumer Optimistic Queue")
+dt = measure(SingleConsumerOptimisticQueue(iterations))
+print("\(dt/iterations) ns per iteration")
+
+dt = measure(SingleConsumerOptimisticQueue(ref))
+print("\(dt/iterations) ns per iteration with references")
+
 
 print("\nQueues without thread-safety")
 
