@@ -1,5 +1,5 @@
 //
-//  linkqueue-mpsc-lockfree.swift
+//  mpsc-lockfree-queue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard

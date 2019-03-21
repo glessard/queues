@@ -1,5 +1,5 @@
 //
-//  linkqueue-spsc-lockfree.swift
+//  spsc-lockfree-recycling-queue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard
@@ -18,22 +18,26 @@
 
 import CAtomics
 
-final public class SPSCLockFreeQueue<T>: QueueType
+final public class SPSCLockFreeRecyclingQueue<T>: QueueType
 {
   public typealias Element = T
   private typealias Node = SPSCNode<T>
 
-  private var hptr: PaddedMutableRawPointer
+  private var hptr: AtomicPaddedMutableRawPointer
   private var head: Node {
-    get { return Node(storage: hptr.pointer) }
-    set { hptr.pointer = newValue.storage }
+    get { return Node(storage: hptr.load(.acquire)) }
+    set { hptr.store(newValue.storage, .release) }
   }
   private var tail: Node
+  private var oldest: Node
+  private var headCopy: Node
 
   public init()
   { // set up an initial dummy node
     tail = Node.dummy
-    hptr = PaddedMutableRawPointer(tail.storage)
+    hptr = AtomicPaddedMutableRawPointer(tail.storage)
+    oldest = tail
+    headCopy = tail
     assert(tail == head)
   }
 
@@ -47,7 +51,14 @@ final public class SPSCLockFreeQueue<T>: QueueType
       node.deinitialize()
       node.deallocate()
     }
-    head.deallocate()
+    head.next = nil
+
+    next = oldest
+    while let node = next
+    {
+      next = node.next
+      node.deallocate()
+    }
   }
 
   public var isEmpty: Bool { return head == tail }
@@ -65,9 +76,35 @@ final public class SPSCLockFreeQueue<T>: QueueType
     return i
   }
 
+  private func node(with element: T) -> Node
+  {
+    if oldest != headCopy
+    {
+      let node = oldest
+      guard let nextOldest = node.nptr.load(.relaxed) else { fatalError() }
+      oldest = Node(storage: nextOldest)
+      node.initialize(to: element)
+      return node
+    }
+    else
+    {
+      headCopy = self.head
+      if oldest != headCopy
+      {
+        let node = oldest
+        guard let nextOldest = node.nptr.load(.relaxed) else { fatalError() }
+        oldest = Node(storage: nextOldest)
+        node.initialize(to: element)
+        return node
+      }
+    }
+
+    return Node(initializedWith: element)
+  }
+
   public func enqueue(_ newElement: T)
   {
-    let node = Node(initializedWith: newElement)
+    let node = self.node(with: newElement)
 
     self.tail.next = node
     self.tail = node
@@ -84,8 +121,7 @@ final public class SPSCLockFreeQueue<T>: QueueType
     // node is now a dummy node and points ot the first real node;
     // make self.head point to it for the next call to dequeue()
     self.head = node
-    // we can now dispose of the previous head node
-    head.deallocate()
+    // the previous head node is now ready for reuse
     return element
   }
 }
@@ -105,7 +141,7 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
     self.storage = storage
   }
 
-  private init?(storage: UnsafeMutableRawPointer?)
+  init?(storage: UnsafeMutableRawPointer?)
   {
     guard let storage = storage else { return nil }
     self.storage = storage
@@ -135,7 +171,7 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
     storage.deallocate()
   }
 
-  private var nptr: AtomicOptionalMutableRawPointer {
+  var nptr: AtomicOptionalMutableRawPointer {
     unsafeAddress {
       return UnsafeRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }

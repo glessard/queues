@@ -1,5 +1,5 @@
 //
-//  fastqueue.swift
+//  lockfree-optimistic-queue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
