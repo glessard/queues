@@ -15,127 +15,117 @@ class MPSCQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(MPSCLinkQueue<Int>.self, element: 0)
+    QueueTestCount(MPSCLockFreeQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(MPSCLinkQueue<UInt64>.self)
+    QueueIntTest(MPSCLockFreeQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(MPSCLinkQueue<Thing>.self)
+    QueueRefTest(MPSCLockFreeQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(MPSCLinkQueue<Thing>.self)
+    QueuePerformanceTestFill(MPSCLockFreeQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(MPSCLinkQueue<Thing>.self)
+    QueuePerformanceTestSpin(MPSCLockFreeQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(MPSCLinkQueue<Thing>.self)
+    QueuePerformanceTestEmpty(MPSCLockFreeQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(MPSCLinkQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(MPSCLockFreeQueue<Thing>.self, newElement: Thing())
   }
 
   func testPerformanceMT()
   {
-    QueuePerformanceTestMultiThreaded(type: MPSCLinkQueue<Thing>.self)
+    QueuePerformanceTestMultiThreaded(type: MPSCLockFreeQueue<Thing>.self)
   }
 }
 
-class SPSCLinkQueueTests: QQTests
+class SPSCLockFreeQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(SPSCLinkQueue<Int>.self, element: 0)
+    QueueTestCount(SPSCLockFreeQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(SPSCLinkQueue<UInt64>.self)
+    QueueIntTest(SPSCLockFreeQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(SPSCLinkQueue<Thing>.self)
+    QueueRefTest(SPSCLockFreeQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(SPSCLinkQueue<Thing>.self)
+    QueuePerformanceTestFill(SPSCLockFreeQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(SPSCLinkQueue<Thing>.self)
+    QueuePerformanceTestSpin(SPSCLockFreeQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(SPSCLinkQueue<Thing>.self)
+    QueuePerformanceTestEmpty(SPSCLockFreeQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(SPSCLinkQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(SPSCLockFreeQueue<Thing>.self, newElement: Thing())
   }
-
-//  func testPerformanceMT()
-//  {
-//    QueuePerformanceTestMultiThreaded(type: SPSCLinkQueue<Thing>.self)
-//  }
 }
 
-class SPSCFastQueueTests: QQTests
+class SPSCLockFreeRecyclingQueueTests: QQTests
 {
   func testQueue()
   {
-    QueueTestCount(SPSCFastQueue<Int>.self, element: 0)
+    QueueTestCount(SPSCLockFreeRecyclingQueue<Int>.self, element: 0)
   }
 
   func testQueueInt()
   {
-    QueueIntTest(SPSCFastQueue<UInt64>.self)
+    QueueIntTest(SPSCLockFreeRecyclingQueue<UInt64>.self)
   }
 
   func testQueueRef()
   {
-    QueueRefTest(SPSCFastQueue<Thing>.self)
+    QueueRefTest(SPSCLockFreeRecyclingQueue<Thing>.self)
   }
 
   func testPerformanceFill()
   {
-    QueuePerformanceTestFill(SPSCFastQueue<Thing>.self)
+    QueuePerformanceTestFill(SPSCLockFreeRecyclingQueue<Thing>.self)
   }
 
   func testPerformanceSpin()
   {
-    QueuePerformanceTestSpin(SPSCFastQueue<Thing>.self)
+    QueuePerformanceTestSpin(SPSCLockFreeRecyclingQueue<Thing>.self)
   }
 
   func testPerformanceEmpty()
   {
-    QueuePerformanceTestEmpty(SPSCFastQueue<Thing>.self)
+    QueuePerformanceTestEmpty(SPSCLockFreeRecyclingQueue<Thing>.self)
   }
 
   func testEmpty()
   {
-    QueueInitEmptyTest(SPSCFastQueue<Thing>.self, newElement: Thing())
+    QueueInitEmptyTest(SPSCLockFreeRecyclingQueue<Thing>.self, newElement: Thing())
   }
-
-  //  func testPerformanceMT()
-  //  {
-  //    QueuePerformanceTestMultiThreaded(type: SPSCFastQueue<Thing>.self)
-  //  }
 }

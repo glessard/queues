@@ -18,7 +18,7 @@
 
 import CAtomics
 
-final public class SPSCFastQueue<T>: QueueType
+final public class SPSCLockFreeRecyclingQueue<T>: QueueType
 {
   public typealias Element = T
   private typealias Node = SPSCNode<T>
