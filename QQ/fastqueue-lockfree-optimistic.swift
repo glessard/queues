@@ -10,9 +10,9 @@ import CAtomics
 
 /// Lock-free queue with node recycling
 ///
-/// Note that this algorithm is not designed for tri-state memory as used in Swift.
-/// This means that it does not work correctly in multi-threaded situations (as in, accesses memory in an incorrect state.)
-/// It was an interesting experiment.
+/// Note that node recycling is necessary with this algorithm.
+/// A non-recycling algorithm is possible by using hazard pointers,
+/// or possibly by relying on ARC.
 ///
 /// Lock-free queue algorithm adapted from Edya Ladan-Mozes and Nir Shavit,
 /// "An optimistic approach to lock-free FIFO queues",
@@ -22,15 +22,15 @@ import CAtomics
 /// Proceedings of the 18th International Conference on Distributed Computing (DISC) 2004
 /// http://people.csail.mit.edu/edya/publications/OptimisticFIFOQueue-DISC2004.pdf
 
-final public class OptimisticFastQueue<T>: QueueType
+final public class OptimisticLockFreeQueue<T>: QueueType
 {
   public typealias Element = T
-  typealias Node = LockFreeNode<T>
+  typealias Node = LockFreeNode
 
   private var head = AtomicTaggedMutableRawPointer()
   private var tail = AtomicTaggedMutableRawPointer()
 
-  private let pool = AtomicStack<LockFreeNode<T>>()
+  private let pool = AtomicStack<Node>()
 
   public init()
   {
@@ -49,8 +49,11 @@ final public class OptimisticFastQueue<T>: QueueType
     while last != head
     {
       let prev = Node(storage: last.prev.ptr)
-      last.deinitialize()
-      last.deallocate()
+      if let pointer = last.data.swap(nil, .acquire)?.assumingMemoryBound(to: T.self)
+      {
+        pointer.deinitialize(count: 1)
+        pointer.deallocate()
+      }
       last = prev
     }
     head.deallocate()
@@ -73,12 +76,14 @@ final public class OptimisticFastQueue<T>: QueueType
 
   private func node(with element: T) -> Node
   {
+    let pointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
+    pointer.initialize(to: element)
     if let reused = pool.pop()
     {
-      reused.initialize(to: element)
+      reused.initialize(to: pointer)
       return reused
     }
-    return Node(initializedWith: element)
+    return Node(initializedWith: pointer)
   }
 
   public func enqueue(_ newElement: T)
@@ -115,14 +120,15 @@ final public class OptimisticFastQueue<T>: QueueType
             continue
           }
           if let node = Node(storage: next.ptr),
-             let element = node.read() // must happen before deinitialize in another thread
+             let element = node.data.load(.acquire)
           {
-            let newhead = TaggedMutableRawPointer(node.storage, tag: head.tag &+ 1)
+            let newhead = head.incremented(with: node.storage)
             if self.head.CAS(head, newhead, .weak, .release)
             {
-              node.deinitialize()
               pool.push(Node(storage: head.ptr))
-              return element
+              let pointer = element.assumingMemoryBound(to: T.self)
+              defer { pointer.deallocate() }
+              return pointer.move()
             }
           }
         }

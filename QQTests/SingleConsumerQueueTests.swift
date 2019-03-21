@@ -54,49 +54,6 @@ class MPSCQueueTests: QQTests
   }
 }
 
-class OptimisticMPSCLinkQueueTests: QQTests
-{
-  func testQueue()
-  {
-    QueueTestCount(OptimisticMPSCLinkQueue<Int>.self, element: 0)
-  }
-
-  func testQueueInt()
-  {
-    QueueIntTest(OptimisticMPSCLinkQueue<UInt64>.self)
-  }
-
-  func testQueueRef()
-  {
-    QueueRefTest(OptimisticMPSCLinkQueue<Thing>.self)
-  }
-
-  func testPerformanceFill()
-  {
-    QueuePerformanceTestFill(OptimisticMPSCLinkQueue<Thing>.self)
-  }
-
-  func testPerformanceSpin()
-  {
-    QueuePerformanceTestSpin(OptimisticMPSCLinkQueue<Thing>.self)
-  }
-
-  func testPerformanceEmpty()
-  {
-    QueuePerformanceTestEmpty(OptimisticMPSCLinkQueue<Thing>.self)
-  }
-
-  func testEmpty()
-  {
-    QueueInitEmptyTest(OptimisticMPSCLinkQueue<Thing>.self, newElement: Thing())
-  }
-
-  func testPerformanceMT()
-  {
-    QueuePerformanceTestMultiThreaded(type: OptimisticMPSCLinkQueue<Thing>.self)
-  }
-}
-
 class SPSCLinkQueueTests: QQTests
 {
   func testQueue()
