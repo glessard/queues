@@ -105,6 +105,13 @@ print("\(dt/iterations) ns per iteration")
 dt = measure(LockFreeReferenceQueue(ref))
 print("\(dt/iterations) ns per iteration with references")
 
+print("Optimistic Lock-Free Queue")
+dt = measure(OptimisticLockFreeQueue(iterations))
+print("\(dt/iterations) ns per iteration")
+
+dt = measure(OptimisticLockFreeReferenceQueue(ref))
+print("\(dt/iterations) ns per iteration with references")
+
 print("Lock-free MPSC queue (Vyukov)")
 dt = measure(MPSCLockFreeQueue(iterations))
 print("\(dt/iterations) ns per iteration")
