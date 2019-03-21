@@ -54,6 +54,7 @@ final public class OptimisticLockFreeQueue<T>: QueueType
         pointer.deinitialize(count: 1)
         pointer.deallocate()
       }
+      last.deallocate()
       last = prev
     }
     head.deallocate()
