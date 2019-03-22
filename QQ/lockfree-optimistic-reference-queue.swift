@@ -1,5 +1,5 @@
 //
-//  fastqueue.swift
+//  lockfree-optimistic-queue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard on 2014-08-16.
@@ -22,7 +22,7 @@ import CAtomics
 /// Proceedings of the 18th International Conference on Distributed Computing (DISC) 2004
 /// http://people.csail.mit.edu/edya/publications/OptimisticFIFOQueue-DISC2004.pdf
 
-final public class OptimisticLockFreeQueue<T>: QueueType
+final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
 {
   public typealias Element = T
   typealias Node = LockFreeNode
@@ -77,14 +77,13 @@ final public class OptimisticLockFreeQueue<T>: QueueType
 
   private func node(with element: T) -> Node
   {
-    let pointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
-    pointer.initialize(to: element)
+    let u = Unmanaged.passRetained(element).toOpaque()
     if let reused = pool.pop()
     {
-      reused.initialize(to: pointer)
+      reused.initialize(to: u)
       return reused
     }
-    return Node(initializedWith: pointer)
+    return Node(initializedWith: u)
   }
 
   public func enqueue(_ newElement: T)
@@ -127,9 +126,7 @@ final public class OptimisticLockFreeQueue<T>: QueueType
             if self.head.CAS(head, newhead, .weak, .release)
             {
               pool.push(Node(storage: head.ptr))
-              let pointer = element.assumingMemoryBound(to: T.self)
-              defer { pointer.deallocate() }
-              return pointer.move()
+              return Unmanaged<T>.fromOpaque(element).takeRetainedValue()
             }
           }
         }

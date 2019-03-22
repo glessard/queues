@@ -1,5 +1,5 @@
 //
-//  linkqueue-mpsc-lockfree.swift
+//  mpsc-lockfree-queue.swift
 //  QQ
 //
 //  Created by Guillaume Lessard
@@ -25,7 +25,7 @@
 
 import CAtomics
 
-final public class MPSCLinkQueue<T>: QueueType
+final public class MPSCLockFreeQueue<T>: QueueType
 {
   public typealias Element = T
   private typealias Node = MPSCNode<T>

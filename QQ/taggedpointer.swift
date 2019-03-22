@@ -15,3 +15,11 @@ extension TaggedMutableRawPointer: Equatable
     return (lhs.ptr == rhs.ptr) && (lhs.tag == rhs.tag)
   }
 }
+
+extension TaggedOptionalMutableRawPointer: Equatable
+{
+  public static func ==(lhs: TaggedOptionalMutableRawPointer, rhs: TaggedOptionalMutableRawPointer) -> Bool
+  {
+    return (lhs.ptr == rhs.ptr) && (lhs.tag == rhs.tag)
+  }
+}
