@@ -30,14 +30,12 @@ final public class SPSCLockFreeRecyclingQueue<T>: QueueType
   }
   private var tail: Node
   private var oldest: Node
-  private var headCopy: Node
 
   public init()
   { // set up an initial dummy node
     tail = Node.dummy
     hptr = AtomicPaddedMutableRawPointer(tail.storage)
     oldest = tail
-    headCopy = tail
     assert(tail == head)
   }
 
@@ -78,25 +76,12 @@ final public class SPSCLockFreeRecyclingQueue<T>: QueueType
 
   private func node(with element: T) -> Node
   {
-    if oldest != headCopy
+    if oldest != self.head
     {
       let node = oldest
-      guard let nextOldest = node.nptr.load(.relaxed) else { fatalError() }
-      oldest = Node(storage: nextOldest)
+      oldest = node.next!
       node.initialize(to: element)
       return node
-    }
-    else
-    {
-      headCopy = self.head
-      if oldest != headCopy
-      {
-        let node = oldest
-        guard let nextOldest = node.nptr.load(.relaxed) else { fatalError() }
-        oldest = Node(storage: nextOldest)
-        node.initialize(to: element)
-        return node
-      }
     }
 
     return Node(initializedWith: element)
