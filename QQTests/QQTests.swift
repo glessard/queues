@@ -37,7 +37,7 @@ class QQTests: XCTestCase
         q.enqueue(element)
         c += 1
         let b = q.count
-        XCTAssertEqual(b-a, 1, "element count improperly incremented: \(b)+1 != \(a)")
+        XCTAssertEqual(b-a, 1, "element count improperly incremented: \(b) ≠ \(a)+1")
         XCTAssertEqual(c, b, "expected \(c) and \(b) equal")
       }
       else
