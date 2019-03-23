@@ -10,12 +10,11 @@ import CAtomics
 
 private let prevOffset = 0
 private let nextOffset = prevOffset + MemoryLayout<TaggedMutableRawPointer>.stride
-private let linkOffset = nextOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride
-private let dataOffset = linkOffset + MemoryLayout<UnsafeMutableRawPointer?>.stride
+private let dataOffset = nextOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride
 
 private let nullNode = TaggedOptionalMutableRawPointer(nil, tag: 0)
 
-struct LockFreeNode: OSAtomicNode, StackNode, Equatable
+struct LockFreeNode: OSAtomicNode, Equatable
 {
   let storage: UnsafeMutableRawPointer
 
@@ -38,8 +37,6 @@ struct LockFreeNode: OSAtomicNode, StackNode, Equatable
     prev = TaggedMutableRawPointer()
     (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 1)
     next = AtomicTaggedOptionalMutableRawPointer(nullNode)
-    (storage+linkOffset).bindMemory(to: UnsafeMutableRawPointer?.self, capacity: 1)
-    link = nil
     (storage+dataOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
     data = AtomicOptionalMutableRawPointer(pointer)
   }
@@ -54,15 +51,6 @@ struct LockFreeNode: OSAtomicNode, StackNode, Equatable
   func deallocate()
   {
     storage.deallocate()
-  }
-
-  var link: UnsafeMutableRawPointer? {
-    @inlinable unsafeAddress {
-      return UnsafeRawPointer(storage+linkOffset).assumingMemoryBound(to: UnsafeMutableRawPointer?.self)
-    }
-    @inlinable nonmutating unsafeMutableAddress {
-      return (storage+linkOffset).assumingMemoryBound(to: UnsafeMutableRawPointer?.self)
-    }
   }
 
   var prev: TaggedMutableRawPointer {
