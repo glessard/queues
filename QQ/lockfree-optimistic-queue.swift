@@ -29,8 +29,7 @@ final public class OptimisticLockFreeQueue<T>: QueueType
 
   private var head = AtomicTaggedMutableRawPointer()
   private var tail = AtomicTaggedMutableRawPointer()
-
-  private let pool = AtomicStack<Node>()
+  private var pool = AtomicTaggedMutableRawPointer()
 
   public init()
   {
@@ -38,6 +37,7 @@ final public class OptimisticLockFreeQueue<T>: QueueType
     let tmrp = TaggedMutableRawPointer(node.storage, tag: 1)
     head.initialize(tmrp)
     tail.initialize(tmrp)
+    pool.initialize(tmrp)
   }
 
   deinit
@@ -57,7 +57,14 @@ final public class OptimisticLockFreeQueue<T>: QueueType
       last.deallocate()
       last = prev
     }
-    head.deallocate()
+    head.next.store(TaggedOptionalMutableRawPointer(nil, tag: 0), .release)
+
+    var next = self.pool.load(.acquire).ptr as Optional
+    while let node = Node(storage: next)
+    {
+      next = node.next.load(.acquire).ptr
+      node.deallocate()
+    }
   }
 
   public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
@@ -65,11 +72,11 @@ final public class OptimisticLockFreeQueue<T>: QueueType
   public var count: Int {
     var i = 0
     // count from the current tail to the current head
-    var current = self.tail.load(.acquire)
-    let head =    self.head.load(.acquire)
-    while current.ptr != head.ptr
+    var current = self.tail.load(.acquire).ptr
+    let head =    self.head.load(.acquire).ptr
+    while current != head
     { // Iterate along the linked nodes while counting
-      current = Node(storage: current.ptr).prev
+      current = Node(storage: current).prev.ptr
       i += 1
     }
     return i
@@ -79,11 +86,28 @@ final public class OptimisticLockFreeQueue<T>: QueueType
   {
     let pointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
     pointer.initialize(to: element)
-    if let reused = pool.pop()
+
+    var pool = self.pool.load(.acquire)
+    while pool.ptr != self.head.load(.relaxed).ptr
     {
-      reused.initialize(to: pointer)
-      return reused
+      let node = Node(storage: pool.ptr)
+      if let n = node.next.load(.acquire).ptr
+      {
+        let next = pool.incremented(with: n)
+        if self.pool.loadCAS(&pool, next, .strong, .acqrel, .acquire)
+        {
+          node.initialize(to: pointer)
+          return node
+        }
+      }
+      else
+      { // this can happen if another thread has succeeded
+        // in advancing the pool pointer and has already
+        // started initializing the node for enqueueing
+        pool = self.pool.load(.acquire)
+      }
     }
+
     return Node(initializedWith: pointer)
   }
 
@@ -126,7 +150,6 @@ final public class OptimisticLockFreeQueue<T>: QueueType
             let newhead = head.incremented(with: node.storage)
             if self.head.CAS(head, newhead, .weak, .release)
             {
-              pool.push(Node(storage: head.ptr))
               let pointer = element.assumingMemoryBound(to: T.self)
               defer { pointer.deallocate() }
               return pointer.move()

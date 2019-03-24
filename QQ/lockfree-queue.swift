@@ -26,8 +26,7 @@ final public class LockFreeQueue<T>: QueueType
 
   private var head = AtomicTaggedMutableRawPointer()
   private var tail = AtomicTaggedMutableRawPointer()
-
-  private let pool = AtomicStack<Node>()
+  private var pool = AtomicTaggedMutableRawPointer()
 
   public init()
   {
@@ -35,6 +34,7 @@ final public class LockFreeQueue<T>: QueueType
     let tmrp = TaggedMutableRawPointer(node.storage, tag: 1)
     head.initialize(tmrp)
     tail.initialize(tmrp)
+    pool.initialize(tmrp)
   }
 
   deinit
@@ -52,7 +52,14 @@ final public class LockFreeQueue<T>: QueueType
       }
       node.deallocate()
     }
-    head.deallocate()
+    head.next.store(TaggedOptionalMutableRawPointer(nil, tag: 0), .release)
+
+    next = Node(storage: pool.load(.acquire).ptr)
+    while let node = next
+    {
+      next = Node(storage: node.next.load(.acquire).ptr)
+      node.deallocate()
+    }
   }
 
   public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
@@ -74,11 +81,28 @@ final public class LockFreeQueue<T>: QueueType
   {
     let pointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
     pointer.initialize(to: element)
-    if let reused = pool.pop()
+
+    var pool = self.pool.load(.acquire)
+    while pool.ptr != self.head.load(.relaxed).ptr
     {
-      reused.initialize(to: pointer)
-      return reused
+      let node = Node(storage: pool.ptr)
+      if let n = node.next.load(.acquire).ptr
+      {
+        let next = pool.incremented(with: n)
+        if self.pool.loadCAS(&pool, next, .strong, .acqrel, .acquire)
+        {
+          node.initialize(to: pointer)
+          return node
+        }
+      }
+      else
+      { // this can happen if another thread has succeeded
+        // in advancing the pool pointer and has already
+        // started initializing the node for enqueueing
+        pool = self.pool.load(.acquire)
+      }
     }
+
     return Node(initializedWith: pointer)
   }
 
@@ -142,7 +166,6 @@ final public class LockFreeQueue<T>: QueueType
             let newhead = head.incremented(with: node.storage)
             if self.head.CAS(head, newhead, .weak, .release)
             {
-              pool.push(Node(storage: head.ptr))
               let pointer = element.assumingMemoryBound(to: T.self)
               defer { pointer.deallocate() }
               return pointer.move()

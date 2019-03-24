@@ -54,6 +54,49 @@ class MPSCQueueTests: QQTests
   }
 }
 
+class MPSCRecyclingQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTestCount(MPSCLockFreeRecyclingQueue<Int>.self, element: 0)
+  }
+
+  func testQueueInt()
+  {
+    QueueIntTest(MPSCLockFreeRecyclingQueue<UInt64>.self)
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(MPSCLockFreeRecyclingQueue<Thing>.self)
+  }
+
+  func testPerformanceFill()
+  {
+    QueuePerformanceTestFill(MPSCLockFreeRecyclingQueue<Thing>.self)
+  }
+
+  func testPerformanceSpin()
+  {
+    QueuePerformanceTestSpin(MPSCLockFreeRecyclingQueue<Thing>.self)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(MPSCLockFreeRecyclingQueue<Thing>.self)
+  }
+
+  func testEmpty()
+  {
+    QueueInitEmptyTest(MPSCLockFreeRecyclingQueue<Thing>.self, newElement: Thing())
+  }
+
+  func testPerformanceMT()
+  {
+    QueuePerformanceTestMultiThreaded(type: MPSCLockFreeRecyclingQueue<Thing>.self)
+  }
+}
+
 class SPSCLockFreeQueueTests: QQTests
 {
   func testQueue()

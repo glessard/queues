@@ -119,6 +119,13 @@ print("\(dt/iterations) ns per iteration")
 dt = measure(MPSCLockFreeQueue(ref))
 print("\(dt/iterations) ns per iteration with references")
 
+print("Lock-free MPSC queue with node recycling")
+dt = measure(MPSCLockFreeRecyclingQueue(iterations))
+print("\(dt/iterations) ns per iteration")
+
+dt = measure(MPSCLockFreeRecyclingQueue(ref))
+print("\(dt/iterations) ns per iteration with references")
+
 print("Lock-free SPSC queue (Vyukov)")
 dt = measure(SPSCLockFreeQueue(iterations))
 print("\(dt/iterations) ns per iteration")
