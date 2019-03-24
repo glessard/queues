@@ -84,7 +84,7 @@ final public class SingleConsumerOptimisticQueue<T>: QueueType
 
     // success, update the old tail's next link
     let oldTailNext = TaggedOptionalMutableRawPointer(node.storage, tag: oldTail.tag)
-    Node(storage: oldTail.ptr).next.store(oldTailNext, .relaxed)
+    Node(storage: oldTail.ptr).next.store(oldTailNext, .release)
   }
 
   public func dequeue() -> T?

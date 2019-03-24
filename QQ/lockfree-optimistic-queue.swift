@@ -124,7 +124,7 @@ final public class OptimisticLockFreeQueue<T>: QueueType
 
     // success, update the old tail's next link
     let lastNext = TaggedOptionalMutableRawPointer(node.storage, tag: oldTail.tag)
-    Node(storage: oldTail.ptr).next.store(lastNext, .relaxed)
+    Node(storage: oldTail.ptr).next.store(lastNext, .release)
   }
 
   public func dequeue() -> T?
