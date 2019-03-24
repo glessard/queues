@@ -482,10 +482,11 @@
 			};
 			buildConfigurationList = 035A98211A539CF600F4B44B /* Build configuration list for PBXProject "QQ" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 035A981D1A539CF600F4B44B;
 			productRefGroup = 035A98281A539CF600F4B44B /* Products */;
