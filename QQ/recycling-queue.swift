@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import let  Darwin.libkern.OSAtomic.OS_SPINLOCK_INIT
-import func Darwin.libkern.OSAtomic.OSSpinLockLock
-import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
+import struct Darwin.os.lock.os_unfair_lock_s
+import func   Darwin.os.lock.os_unfair_lock_lock
+import func   Darwin.os.lock.os_unfair_lock_unlock
 
 final public class RecyclingQueue<T>: QueueType
 {
@@ -19,7 +19,7 @@ final public class RecyclingQueue<T>: QueueType
   private var tail: Node! = nil
 
   private let pool = AtomicStack<Node>()
-  private var lock = OS_SPINLOCK_INIT
+  private var lock = os_unfair_lock_s()
 
   public init() { }
 
@@ -63,7 +63,7 @@ final public class RecyclingQueue<T>: QueueType
   {
     let node = self.node(with: newElement)
 
-    OSSpinLockLock(&lock)
+    os_unfair_lock_lock(&lock)
     if head == nil
     {
       head = node
@@ -74,16 +74,16 @@ final public class RecyclingQueue<T>: QueueType
       tail.next = node
       tail = node
     }
-    OSSpinLockUnlock(&lock)
+    os_unfair_lock_unlock(&lock)
   }
 
   public func dequeue() -> T?
   {
-    OSSpinLockLock(&lock)
+    os_unfair_lock_lock(&lock)
     if let node = head
     { // Promote the 2nd item to 1st
       head = node.next
-      OSSpinLockUnlock(&lock)
+      os_unfair_lock_unlock(&lock)
 
       let element = node.move()
       pool.push(node)
@@ -91,7 +91,7 @@ final public class RecyclingQueue<T>: QueueType
     }
 
     // queue is empty
-    OSSpinLockUnlock(&lock)
+    os_unfair_lock_unlock(&lock)
     return nil
   }
 }

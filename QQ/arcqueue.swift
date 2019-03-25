@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import let  Darwin.libkern.OSAtomic.OS_SPINLOCK_INIT
-import func Darwin.libkern.OSAtomic.OSSpinLockLock
-import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
+import struct Darwin.os.lock.os_unfair_lock_s
+import func   Darwin.os.lock.os_unfair_lock_lock
+import func   Darwin.os.lock.os_unfair_lock_unlock
 
 /// An ARC-based queue with a spin-lock for thread safety.
 
@@ -19,7 +19,7 @@ final public class ARCQueue<T>: QueueType
   private var head: Node<T>? = nil
   private var tail: Node<T>! = nil
 
-  private var lock = OS_SPINLOCK_INIT
+  private var lock = os_unfair_lock_s()
 
   public init() { }
 
@@ -42,7 +42,7 @@ final public class ARCQueue<T>: QueueType
   {
     let node = Node(newElement)
 
-    OSSpinLockLock(&lock)
+    os_unfair_lock_lock(&lock)
     if head == nil
     {
       head = node
@@ -53,12 +53,12 @@ final public class ARCQueue<T>: QueueType
       tail.next = node
       tail = node
     }
-    OSSpinLockUnlock(&lock)
+    os_unfair_lock_unlock(&lock)
   }
 
   public func dequeue() -> T?
   {
-    OSSpinLockLock(&lock)
+    os_unfair_lock_lock(&lock)
     if let node = head
     {
       // Promote the 2nd node to 1st
@@ -68,12 +68,12 @@ final public class ARCQueue<T>: QueueType
       // Logical housekeeping
       if head == nil { tail = nil }
 
-      OSSpinLockUnlock(&lock)
+      os_unfair_lock_unlock(&lock)
       return node.elem
     }
 
     // queue is empty
-    OSSpinLockUnlock(&lock)
+    os_unfair_lock_unlock(&lock)
     return nil
   }
 }

@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import let  Darwin.libkern.OSAtomic.OS_SPINLOCK_INIT
-import func Darwin.libkern.OSAtomic.OSSpinLockLock
-import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
+import struct Darwin.os.lock.os_unfair_lock_s
+import func   Darwin.os.lock.os_unfair_lock_lock
+import func   Darwin.os.lock.os_unfair_lock_unlock
 
 /// Double-lock queue
 ///
@@ -25,8 +25,8 @@ final public class TwoLockQueue<T>: QueueType, Sequence, IteratorProtocol
   private var head: Node
   private var tail: Node
 
-  private var hlock = OS_SPINLOCK_INIT
-  private var tlock = OS_SPINLOCK_INIT
+  private var hlock = os_unfair_lock_s()
+  private var tlock = os_unfair_lock_s()
 
   public init()
   {
@@ -66,28 +66,28 @@ final public class TwoLockQueue<T>: QueueType, Sequence, IteratorProtocol
   {
     let node = Node(initializedWith: newElement)
 
-    OSSpinLockLock(&tlock)
+    os_unfair_lock_lock(&tlock)
     tail.next = node
     tail = node
-    OSSpinLockUnlock(&tlock)
+    os_unfair_lock_unlock(&tlock)
   }
 
   public func dequeue() -> T?
   {
-    OSSpinLockLock(&hlock)
+    os_unfair_lock_lock(&hlock)
     let oldhead = head
     if let next = head.next
     {
       head = next
       let element = next.move()
-      OSSpinLockUnlock(&hlock)
+      os_unfair_lock_unlock(&hlock)
 
       oldhead.deallocate()
       return element
     }
 
     // queue is empty
-    OSSpinLockUnlock(&hlock)
+    os_unfair_lock_unlock(&hlock)
     return nil
   }
 }
