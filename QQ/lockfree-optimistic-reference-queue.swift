@@ -27,29 +27,30 @@ final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
   public typealias Element = T
   typealias Node = LockFreeNode
 
-  private var head = AtomicTaggedMutableRawPointer()
-  private var tail = AtomicTaggedMutableRawPointer()
-  private var pool = AtomicTaggedMutableRawPointer()
+  let storage = UnsafeMutablePointer<AtomicTaggedMutableRawPointer>.allocate(capacity: 3)
+  private var head: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> { return storage+0 }
+  private var tail: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> { return storage+1 }
+  private var pool: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> { return storage+2 }
 
   public init()
   {
     let node = Node.dummy
     let tmrp = TaggedMutableRawPointer(node.storage, tag: 1)
-    head.initialize(tmrp)
-    tail.initialize(tmrp)
-    pool.initialize(tmrp)
+    CAtomicsInitialize(head, tmrp)
+    CAtomicsInitialize(tail, tmrp)
+    CAtomicsInitialize(pool, tmrp)
   }
 
   deinit
   {
     // empty the queue
     // delete from tail to head because the `prev` pointer is most reliable
-    let head = Node(storage: self.head.load(.acquire).ptr)
-    var last = Node(storage: self.tail.load(.acquire).ptr)
+    let head = Node(storage: CAtomicsLoad(self.head, .acquire).ptr)
+    var last = Node(storage: CAtomicsLoad(self.tail, .acquire).ptr)
     while last != head
     {
       let prev = Node(storage: last.prev.ptr)
-      if let pointer = last.data.swap(nil, .acquire)?.assumingMemoryBound(to: T.self)
+      if let pointer = CAtomicsExchange(last.data, nil, .acquire)?.assumingMemoryBound(to: T.self)
       {
         pointer.deinitialize(count: 1)
         pointer.deallocate()
@@ -57,23 +58,24 @@ final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
       last.deallocate()
       last = prev
     }
-    head.next.store(TaggedOptionalMutableRawPointer(nil, tag: 0), .release)
+    CAtomicsStore(head.next,  TaggedOptionalMutableRawPointer(nil, tag: 0), .release)
 
-    var next = self.pool.load(.acquire).ptr as Optional
+    var next = CAtomicsLoad(self.pool, .acquire).ptr as Optional
     while let node = Node(storage: next)
     {
-      next = node.next.load(.acquire).ptr
+      next = CAtomicsLoad(node.next, .acquire).ptr
       node.deallocate()
     }
+    storage.deallocate()
   }
 
-  public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
+  public var isEmpty: Bool { return CAtomicsLoad(head, .relaxed).ptr == CAtomicsLoad(tail, .relaxed).ptr }
 
   public var count: Int {
     var i = 0
     // count from the current tail to the current head
-    var current = self.tail.load(.acquire).ptr
-    let head =    self.head.load(.acquire).ptr
+    var current = CAtomicsLoad(self.tail, .acquire).ptr
+    let head =    CAtomicsLoad(self.head, .acquire).ptr
     while current != head
     { // Iterate along the linked nodes while counting
       current = Node(storage: current).prev.ptr
@@ -86,14 +88,14 @@ final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
   {
     let reference = Unmanaged.passRetained(element).toOpaque()
 
-    var pool = self.pool.load(.acquire)
-    while pool.ptr != self.head.load(.relaxed).ptr
+    var pool = CAtomicsLoad(self.pool, .acquire)
+    while pool.ptr != CAtomicsLoad(head, .acquire).ptr
     {
       let node = Node(storage: pool.ptr)
-      if let n = node.next.load(.acquire).ptr
+      if let n = CAtomicsLoad(node.next, .acquire).ptr
       {
         let next = pool.incremented(with: n)
-        if self.pool.loadCAS(&pool, next, .strong, .acqrel, .acquire)
+        if CAtomicsCompareAndExchange(self.pool, &pool, next, .strong, .acqrel, .acquire)
         {
           node.initialize(to: reference)
           return node
@@ -103,7 +105,7 @@ final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
       { // this can happen if another thread has succeeded
         // in advancing the pool pointer and has already
         // started initializing the node for enqueueing
-        pool = self.pool.load(.acquire)
+        pool = CAtomicsLoad(self.pool, .acquire)
       }
     }
 
@@ -114,27 +116,27 @@ final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
   {
     let node = self.node(with: newElement)
 
-    var oldTail = self.tail.load(.acquire)
+    var oldTail = CAtomicsLoad(tail, .acquire)
     var newTail: TaggedMutableRawPointer
     repeat {
       node.prev = oldTail.incremented()
       newTail =   oldTail.incremented(with: node.storage)
-    } while !self.tail.loadCAS(&oldTail, newTail, .weak, .release, .relaxed)
+    } while !CAtomicsCompareAndExchange(tail, &oldTail, newTail, .weak, .release, .relaxed)
 
     // success, update the old tail's next link
     let lastNext = TaggedOptionalMutableRawPointer(node.storage, tag: oldTail.tag)
-    Node(storage: oldTail.ptr).next.store(lastNext, .release)
+    CAtomicsStore(Node(storage: oldTail.ptr).next, lastNext, .release)
   }
 
   public func dequeue() -> T?
   {
     while true
     {
-      let head = self.head.load(.acquire)
-      let tail = self.tail.load(.acquire)
-      let next = Node(storage: head.ptr).next.load(.acquire)
+      let head = CAtomicsLoad(self.head, .acquire)
+      let tail = CAtomicsLoad(self.tail, .acquire)
+      let next = CAtomicsLoad(Node(storage: head.ptr).next, .acquire)
 
-      if head == self.head.load(.acquire)
+      if head == CAtomicsLoad(self.head, .acquire)
       {
         if head != tail
         { // queue is not empty
@@ -144,10 +146,10 @@ final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
             continue
           }
           if let node = Node(storage: next.ptr),
-             let element = node.data.load(.acquire)
+             let element = CAtomicsLoad(node.data, .acquire)
           {
             let newhead = head.incremented(with: node.storage)
-            if self.head.CAS(head, newhead, .weak, .release)
+            if CAtomicsCompareAndExchange(self.head, head, newhead, .weak, .release)
             {
               return Unmanaged<T>.fromOpaque(element).takeRetainedValue()
             }
@@ -161,14 +163,14 @@ final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
   private func fixlist(tail oldtail: TaggedMutableRawPointer, head oldhead: TaggedMutableRawPointer)
   {
     var current = oldtail
-    while oldhead == self.head.load(.relaxed) && current != oldhead
+    while oldhead == CAtomicsLoad(self.head, .relaxed) && current != oldhead
     {
       let currentNode  = Node(storage: current.ptr)
       let previousNode = Node(storage: currentNode.prev.ptr)
 
       let tag = current.tag &- 1
       let updated = TaggedOptionalMutableRawPointer(current.ptr, tag: tag)
-      previousNode.next.store(updated, .relaxed)
+      CAtomicsStore(previousNode.next, updated, .relaxed)
       current = TaggedMutableRawPointer(previousNode.storage, tag: tag)
     }
   }
