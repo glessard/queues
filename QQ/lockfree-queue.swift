@@ -24,53 +24,55 @@ final public class LockFreeQueue<T>: QueueType
   public typealias Element = T
   typealias Node = LockFreeNode
 
-  private var head = AtomicTaggedMutableRawPointer()
-  private var tail = AtomicTaggedMutableRawPointer()
-  private var pool = AtomicTaggedMutableRawPointer()
+  let storage = UnsafeMutablePointer<AtomicTaggedMutableRawPointer>.allocate(capacity: 3)
+  private var head: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> { return storage+0 }
+  private var tail: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> { return storage+1 }
+  private var pool: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> { return storage+2 }
 
   public init()
   {
     let node = Node.dummy
     let tmrp = TaggedMutableRawPointer(node.storage, tag: 1)
-    head.initialize(tmrp)
-    tail.initialize(tmrp)
-    pool.initialize(tmrp)
+    CAtomicsInitialize(head, tmrp)
+    CAtomicsInitialize(tail, tmrp)
+    CAtomicsInitialize(pool, tmrp)
   }
 
   deinit
   {
     // empty the queue
-    let head = Node(storage: self.head.load(.acquire).ptr)
-    var next = Node(storage: head.next.load(.acquire).ptr)
+    let head = Node(storage: CAtomicsLoad(self.head, .acquire).ptr)
+    var next = Node(storage: CAtomicsLoad(head.next, .acquire).ptr)
     while let node = next
     {
-      next = Node(storage: node.next.load(.acquire).ptr)
-      if let pointer = node.data.swap(nil, .acquire)?.assumingMemoryBound(to: T.self)
+      next = Node(storage: CAtomicsLoad(node.next, .acquire).ptr)
+      if let pointer = CAtomicsExchange(node.data, nil, .acquire)?.assumingMemoryBound(to: T.self)
       {
         pointer.deinitialize(count: 1)
         pointer.deallocate()
       }
       node.deallocate()
     }
-    head.next.store(TaggedOptionalMutableRawPointer(nil, tag: 0), .release)
+    CAtomicsStore(head.next, TaggedOptionalMutableRawPointer(nil, tag: 0), .release)
 
-    next = Node(storage: pool.load(.acquire).ptr)
+    next = Node(storage: CAtomicsLoad(pool, .acquire).ptr)
     while let node = next
     {
-      next = Node(storage: node.next.load(.acquire).ptr)
+      next = Node(storage: CAtomicsLoad(node.next, .acquire).ptr)
       node.deallocate()
     }
+    storage.deallocate()
   }
 
-  public var isEmpty: Bool { return head.load(.relaxed).ptr == tail.load(.relaxed).ptr }
+  public var isEmpty: Bool { return CAtomicsLoad(head, .relaxed).ptr == CAtomicsLoad(tail, .relaxed).ptr }
 
   public var count: Int {
     var i = 0
-    let tail = Node(storage: self.tail.load(.relaxed).ptr)
-    var next = Node(storage: self.head.load(.relaxed).ptr).next.load(.relaxed).ptr
+    let tail = Node(storage: CAtomicsLoad(self.tail, .relaxed).ptr)
+    var next = CAtomicsLoad(Node(storage: CAtomicsLoad(self.head, .relaxed).ptr).next, .relaxed).ptr
     while let current = Node(storage: next)
     { // Iterate along the linked nodes while counting
-      next = current.next.load(.relaxed).ptr
+      next = CAtomicsLoad(current.next, .relaxed).ptr
       i += 1
       if current == tail { break }
     }
@@ -82,14 +84,14 @@ final public class LockFreeQueue<T>: QueueType
     let pointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
     pointer.initialize(to: element)
 
-    var pool = self.pool.load(.acquire)
-    while pool.ptr != self.head.load(.relaxed).ptr
+    var pool = CAtomicsLoad(self.pool, .acquire)
+    while pool.ptr != CAtomicsLoad(head, .relaxed).ptr
     {
       let node = Node(storage: pool.ptr)
-      if let n = node.next.load(.acquire).ptr
+      if let n = CAtomicsLoad(node.next, .acquire).ptr
       {
         let next = pool.incremented(with: n)
-        if self.pool.loadCAS(&pool, next, .strong, .acqrel, .acquire)
+        if CAtomicsCompareAndExchange(self.pool, &pool, next, .strong, .acqrel, .acquire)
         {
           node.initialize(to: pointer)
           return node
@@ -99,7 +101,7 @@ final public class LockFreeQueue<T>: QueueType
       { // this can happen if another thread has succeeded
         // in advancing the pool pointer and has already
         // started initializing the node for enqueueing
-        pool = self.pool.load(.acquire)
+        pool = CAtomicsLoad(self.pool, .acquire)
       }
     }
 
@@ -112,23 +114,23 @@ final public class LockFreeQueue<T>: QueueType
 
     while true
     {
-      let tail = self.tail.load(.acquire)
+      let tail = CAtomicsLoad(self.tail, .acquire)
       let tailNode = Node(storage: tail.ptr)
 
-      let next = tailNode.next.load(.acquire)
+      let next = CAtomicsLoad(tailNode.next, .acquire)
       if let nextNode = Node(storage: next.ptr)
       { // tail wasn't pointing to the actual last node; try to fix it.
         let next = TaggedMutableRawPointer(nextNode.storage, tag: next.tag &+ 1)
-        _ = self.tail.CAS(tail, next, .strong, .release)
+        CAtomicsCompareAndExchange(self.tail, tail, next, .strong, .release)
       }
       else
       { // try to link the new node to the end of the list
         let baseNode = TaggedOptionalMutableRawPointer()
         let nextNode = next.incremented(with: node.storage)
-        if tailNode.next.CAS(baseNode, nextNode, .weak, .release)
+        if CAtomicsCompareAndExchange(tailNode.next, baseNode, nextNode, .weak, .release)
         { // success. try to have tail point to the inserted node.
           let newTail = tail.incremented(with: node.storage)
-          _ = self.tail.CAS(tail, newTail, .strong, .release)
+          CAtomicsCompareAndExchange(self.tail, tail, newTail, .strong, .release)
           break
         }
       }
@@ -139,18 +141,18 @@ final public class LockFreeQueue<T>: QueueType
   {
     while true
     {
-      let head = self.head.load(.acquire)
-      let tail = self.tail.load(.relaxed)
-      let next = Node(storage: head.ptr).next.load(.acquire)
+      let head = CAtomicsLoad(self.head, .acquire)
+      let tail = CAtomicsLoad(self.tail, .relaxed)
+      let next = CAtomicsLoad(Node(storage: head.ptr).next, .acquire)
 
-      if head == self.head.load(.acquire)
+      if head == CAtomicsLoad(self.head, .acquire)
       {
         if head.ptr == tail.ptr
         { // either the queue is empty, or the tail is lagging behind
           if let nextPtr = next.ptr
           { // tail was behind the actual last node; try to advance it.
             let newTail = tail.incremented(with: nextPtr)
-            _ = self.tail.CAS(tail, newTail, .strong, .release)
+            CAtomicsCompareAndExchange(self.tail, tail, newTail, .strong, .release)
           }
           else
           { // queue is empty
@@ -161,10 +163,10 @@ final public class LockFreeQueue<T>: QueueType
         { // no need to deal with tail
           // read element before CAS, otherwise another dequeue racing ahead might free the node too early.
           if let node = Node(storage: next.ptr),
-             let element = node.data.load(.acquire)
+             let element = CAtomicsLoad(node.data, .acquire)
           {
             let newhead = head.incremented(with: node.storage)
-            if self.head.CAS(head, newhead, .weak, .release)
+            if CAtomicsCompareAndExchange(self.head, head, newhead, .weak, .release)
             {
               let pointer = element.assumingMemoryBound(to: T.self)
               defer { pointer.deallocate() }

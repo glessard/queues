@@ -25,34 +25,53 @@
 
 import CAtomics
 
+private let poolOffset = 0
+private let headOffset = poolOffset + MemoryLayout<AtomicTaggedMutableRawPointer>.stride
+private let tailOffset = headOffset + MemoryLayout<AtomicMutableRawPointer>.stride
+private let storedSize = tailOffset + MemoryLayout<AtomicMutableRawPointer>.stride
+
 final public class MPSCLockFreeRecyclingQueue<T>: QueueType
 {
   public typealias Element = T
   private typealias Node = MPSCNode<T>
 
-  private var hptr: AtomicPaddedMutableRawPointer
+  private let storage = UnsafeMutableRawPointer.allocate(byteCount: storedSize,
+                                                         alignment: MemoryLayout<AtomicTaggedMutableRawPointer>.alignment)
+
+  private var hptr: UnsafeMutablePointer<AtomicMutableRawPointer> {
+    return (storage+headOffset).assumingMemoryBound(to: AtomicMutableRawPointer.self )
+  }
   private var head: Node {
-    get { return Node(storage: hptr.load(.acquire)) }
-    set { hptr.store(newValue.storage, .release) }
+    get { return Node(storage: CAtomicsLoad(hptr, .acquire)) }
+    set { CAtomicsStore(hptr, newValue.storage, .release) }
   }
-  private var tptr: AtomicPaddedMutableRawPointer
+
+  private var tptr: UnsafeMutablePointer<AtomicMutableRawPointer> {
+    return (storage+tailOffset).assumingMemoryBound(to: AtomicMutableRawPointer.self )
+  }
   private var tail: Node {
-    get { return Node(storage: tptr.load(.acquire)) }
-    set { tptr.store(newValue.storage, .release) }
+    get { return Node(storage: CAtomicsLoad(tptr, .acquire)) }
+    set { CAtomicsStore(tptr, newValue.storage, .release) }
   }
-  private var pptr: AtomicTaggedMutableRawPointer
+
+  private var pptr: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> {
+    return (storage+poolOffset).assumingMemoryBound(to: AtomicTaggedMutableRawPointer.self )
+  }
   private var pool: TaggedMutableRawPointer {
-    get { return pptr.load(.acquire) }
-    set { pptr.store(newValue, .release) }
+    get { return CAtomicsLoad(pptr, .acquire) }
+    set { CAtomicsStore(pptr, newValue, .release) }
   }
 
   public init()
-  { // set up an initial dummy node
+  {
+    storage.bindMemory(to: AtomicTaggedMutableRawPointer.self, capacity: 1)
+    (storage+MemoryLayout<AtomicTaggedMutableRawPointer>.stride).bindMemory(to: AtomicMutableRawPointer.self, capacity: 2)
+
+    // set up an initial dummy node
     let dummy = Node.dummy
-    hptr = AtomicPaddedMutableRawPointer(dummy.storage)
-    tptr = AtomicPaddedMutableRawPointer(dummy.storage)
-    let tagged = TaggedMutableRawPointer(dummy.storage, tag: 1)
-    pptr = AtomicTaggedMutableRawPointer(tagged)
+    CAtomicsInitialize(hptr, dummy.storage)
+    CAtomicsInitialize(tptr, dummy.storage)
+    CAtomicsInitialize(pptr, TaggedMutableRawPointer(dummy.storage, tag: 1))
   }
 
   deinit {
@@ -73,9 +92,10 @@ final public class MPSCLockFreeRecyclingQueue<T>: QueueType
       next = node.next
       node.deallocate()
     }
+    storage.deallocate()
   }
 
-  public var isEmpty: Bool { return head.storage == tptr.load(.relaxed) }
+  public var isEmpty: Bool { return CAtomicsLoad(hptr, .relaxed) == CAtomicsLoad(tptr, .relaxed) }
 
   public var count: Int {
     var i = 0
@@ -97,13 +117,13 @@ final public class MPSCLockFreeRecyclingQueue<T>: QueueType
   private func node(with element: T) -> Node
   {
     var pool = self.pool
-    while pool.ptr != self.hptr.load(.relaxed)
+    while pool.ptr != CAtomicsLoad(hptr, .relaxed)
     {
       let node = Node(storage: pool.ptr)
       if let n = node.next
       {
         let next = pool.incremented(with: n.storage)
-        if self.pptr.loadCAS(&pool, next, .weak, .acqrel, .acquire)
+        if CAtomicsCompareAndExchange(pptr, &pool, next, .weak, .acqrel, .acquire)
         {
           node.initialize(to: element)
           return node
@@ -125,7 +145,7 @@ final public class MPSCLockFreeRecyclingQueue<T>: QueueType
     let node = self.node(with: newElement)
 
     // simultaneous producers synchronize with each other here
-    let previousTailPointer = self.tptr.swap(node.storage, .acqrel)
+    let previousTailPointer = CAtomicsExchange(tptr, node.storage, .acqrel)
     let previousTail = Node(storage: previousTailPointer)
 
     /**
@@ -146,7 +166,7 @@ final public class MPSCLockFreeRecyclingQueue<T>: QueueType
 
     if next == nil
     { // check whether the queue is actually empty
-      if head.storage == tptr.load(.relaxed)
+      if head.storage == CAtomicsLoad(tptr, .relaxed)
       { // the queue is empty
         return nil
       }
@@ -203,7 +223,7 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
     let size = offset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    nptr = AtomicOptionalMutableRawPointer(nil)
+    nptr.pointee = AtomicOptionalMutableRawPointer(nil)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
@@ -220,18 +240,15 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
     storage.deallocate()
   }
 
-  private var nptr: AtomicOptionalMutableRawPointer {
-    unsafeAddress {
-      return UnsafeRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
-    }
-    nonmutating unsafeMutableAddress {
-      return (storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+  private var nptr: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
+    get {
+      return UnsafeMutableRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }
   }
 
   var next: MPSCNode? {
-    get             { return MPSCNode(storage: nptr.load(.acquire)) }
-    nonmutating set { nptr.store(newValue?.storage, .release) }
+    get             { return MPSCNode(storage: CAtomicsLoad(nptr, .acquire)) }
+    nonmutating set { CAtomicsStore(nptr, newValue?.storage, .release) }
   }
 
   private var data: UnsafeMutablePointer<Element> {
@@ -240,7 +257,7 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
 
   func initialize(to element: Element)
   {
-    nptr.store(nil, .relaxed)
+    CAtomicsStore(nptr, nil, .relaxed)
     data.initialize(to: element)
   }
 

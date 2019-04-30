@@ -36,9 +36,9 @@ struct LockFreeNode: OSAtomicNode, Equatable
     (storage+prevOffset).bindMemory(to: TaggedMutableRawPointer.self, capacity: 1)
     prev = TaggedMutableRawPointer()
     (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 1)
-    next = AtomicTaggedOptionalMutableRawPointer(nullNode)
+    next.pointee = AtomicTaggedOptionalMutableRawPointer(nullNode)
     (storage+dataOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    data = AtomicOptionalMutableRawPointer(pointer)
+    data.pointee = AtomicOptionalMutableRawPointer(pointer)
   }
 
   static var dummy: LockFreeNode { return LockFreeNode() }
@@ -62,27 +62,21 @@ struct LockFreeNode: OSAtomicNode, Equatable
     }
   }
 
-  var next: AtomicTaggedOptionalMutableRawPointer {
-    @inlinable unsafeAddress {
-      return UnsafeRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
-    }
-    @inlinable nonmutating unsafeMutableAddress {
+  var next: UnsafeMutablePointer<AtomicTaggedOptionalMutableRawPointer> {
+    @inlinable get {
       return (storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
     }
   }
 
-  var data: AtomicOptionalMutableRawPointer {
-    @inlinable unsafeAddress {
-      return UnsafeRawPointer(storage+dataOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
-    }
-    @inlinable nonmutating unsafeMutableAddress {
+  var data: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
+    @inlinable get {
       return (storage+dataOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }
   }
 
   func initialize(to element: UnsafeMutableRawPointer)
   {
-    next.store(nullNode, .relaxed)
-    data.store(element, .release)
+    CAtomicsStore(next, nullNode, .relaxed)
+    CAtomicsStore(data, element, .release)
   }
 }

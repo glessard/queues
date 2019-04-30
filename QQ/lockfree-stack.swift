@@ -23,38 +23,38 @@ protocol StackNode: OSAtomicNode
 
 class AtomicStack<T: StackNode>
 {
-  private var head: AtomicTaggedOptionalMutableRawPointer
+  private let head = UnsafeMutablePointer<AtomicTaggedOptionalMutableRawPointer>.allocate(capacity: 1)
 
   init()
   {
-    let node01 = TaggedOptionalMutableRawPointer(nil, tag: 1)
-    head = AtomicTaggedOptionalMutableRawPointer(node01)
+    CAtomicsInitialize(head, TaggedOptionalMutableRawPointer(nil, tag: 1))
   }
 
   deinit {
     while let node = self.pop() { node.deallocate() }
+    head.deallocate()
   }
 
   func push(_ node: T)
   {
-    var oldHead = self.head.load(.relaxed)
+    var oldHead = CAtomicsLoad(head, .relaxed)
     var newHead: TaggedOptionalMutableRawPointer
     repeat {
       node.link = oldHead.ptr
       newHead = oldHead.incremented(with: node.storage)
-    } while !self.head.loadCAS(&oldHead, newHead, .weak, .release, .relaxed)
+    } while !CAtomicsCompareAndExchange(head, &oldHead, newHead, .weak, .release, .relaxed)
   }
 
   func pop() -> T?
   {
-    var oldHead = self.head.load(.acquire)
+    var oldHead = CAtomicsLoad(head, .acquire)
     var newHead: TaggedOptionalMutableRawPointer
     var node: T
     repeat {
       guard let storage = oldHead.ptr else { return nil }
       node = T(storage: storage)
       newHead = oldHead.incremented(with: node.link)
-    } while !self.head.loadCAS(&oldHead, newHead, .weak, .acquire, .acquire)
+    } while !CAtomicsCompareAndExchange(head, &oldHead, newHead, .weak, .acquire, .acquire)
     return node
   }
 }
