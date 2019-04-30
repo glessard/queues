@@ -31,13 +31,13 @@ final public class SingleConsumerOptimisticQueue<T>: QueueType
   private typealias Node = OptimisticNode<T>
 
   private var head: TaggedMutableRawPointer
-  private var tail: AtomicTaggedMutableRawPointer
+  private let tail = UnsafeMutablePointer<AtomicTaggedMutableRawPointer>.allocate(capacity: 1)
 
   public init()
   {
     let node = Node.dummy
     head = TaggedMutableRawPointer(node.storage, tag: 1)
-    tail = AtomicTaggedMutableRawPointer(head)
+    CAtomicsInitialize(tail, head)
   }
 
   deinit
@@ -45,7 +45,7 @@ final public class SingleConsumerOptimisticQueue<T>: QueueType
     // empty the queue
     // delete from tail to head because the `prev` pointer is most reliable
     let head = Node(storage: self.head.ptr)
-    var last = Node(storage: self.tail.load(.acquire).ptr)
+    var last = Node(storage: CAtomicsLoad(tail, .acquire).ptr)
     while last != head
     {
       let prev = Node(storage: last.prev.ptr)
@@ -54,14 +54,15 @@ final public class SingleConsumerOptimisticQueue<T>: QueueType
       last = prev
     }
     head.deallocate()
+    tail.deallocate()
   }
 
-  public var isEmpty: Bool { return head.ptr == tail.load(.relaxed).ptr }
+  public var isEmpty: Bool { return head.ptr == CAtomicsLoad(tail, .relaxed).ptr }
 
   public var count: Int {
     var i = 0
     // count from the current tail until head
-    var current = tail.load(.acquire)
+    var current = CAtomicsLoad(tail, .acquire)
     let head =    self.head
     while current.ptr != head.ptr
     { // Iterate along the linked nodes while counting
@@ -75,30 +76,30 @@ final public class SingleConsumerOptimisticQueue<T>: QueueType
   {
     let node = Node(initializedWith: newElement)
 
-    var oldTail = self.tail.load(.acquire)
+    var oldTail = CAtomicsLoad(tail, .acquire)
     var newTail: TaggedMutableRawPointer
     repeat {
       node.prev = oldTail.incremented()
       newTail =   oldTail.incremented(with: node.storage)
-    } while !self.tail.loadCAS(&oldTail, newTail, .weak, .release, .relaxed)
+    } while !CAtomicsCompareAndExchange(tail, &oldTail, newTail, .weak, .release, .relaxed)
 
     // success, update the old tail's next link
     let oldTailNext = TaggedOptionalMutableRawPointer(node.storage, tag: oldTail.tag)
-    Node(storage: oldTail.ptr).next.store(oldTailNext, .release)
+    CAtomicsStore(Node(storage: oldTail.ptr).next, oldTailNext, .release)
   }
 
   public func dequeue() -> T?
   {
     let head = self.head
-    var next = Node(storage: head.ptr).next.load(.acquire)
+    var next = CAtomicsLoad(Node(storage: head.ptr).next, .acquire)
 
     if next == nullNode || (next.tag != head.tag)
     { // the queue might actually be empty
-      let tail = self.tail.load(.acquire)
+      let tail = CAtomicsLoad(self.tail, .acquire)
       if head == tail { return nil }
 
       fixlist(tail: tail, head: head)
-      next = Node(storage: head.ptr).next.load(.acquire)
+      next = CAtomicsLoad(Node(storage: head.ptr).next, .acquire)
     }
 
     guard let node = Node(storage: next.ptr) else { fatalError(#function) }
@@ -118,7 +119,7 @@ final public class SingleConsumerOptimisticQueue<T>: QueueType
 
       let tag = current.tag &- 1
       let updated = TaggedOptionalMutableRawPointer(current.ptr, tag: tag)
-      currentPrev.next.store(updated, .relaxed)
+      CAtomicsStore(currentPrev.next, updated, .relaxed)
       current = TaggedMutableRawPointer(currentPrev.storage, tag: tag)
     }
   }
@@ -160,7 +161,7 @@ private struct OptimisticNode<Element>: OSAtomicNode, Equatable
     (storage+prevOffset).bindMemory(to: TaggedMutableRawPointer.self, capacity: 1)
     prev = TaggedMutableRawPointer()
     (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 1)
-    next = AtomicTaggedOptionalMutableRawPointer(nullNode)
+    next.pointee = AtomicTaggedOptionalMutableRawPointer(nullNode)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
@@ -186,11 +187,8 @@ private struct OptimisticNode<Element>: OSAtomicNode, Equatable
     }
   }
 
-  var next: AtomicTaggedOptionalMutableRawPointer {
-    @inlinable unsafeAddress {
-      return UnsafeRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
-    }
-    @inlinable nonmutating unsafeMutableAddress {
+  var next: UnsafeMutablePointer<AtomicTaggedOptionalMutableRawPointer> {
+    @inlinable get {
       return (storage+nextOffset).assumingMemoryBound(to: AtomicTaggedOptionalMutableRawPointer.self)
     }
   }
