@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Guillaume Lessard. All rights reserved.
 //
 
-import let  Darwin.libkern.OSAtomic.OS_SPINLOCK_INIT
-import func Darwin.libkern.OSAtomic.OSSpinLockLock
-import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
+import struct Darwin.os.lock.os_unfair_lock_s
+import func   Darwin.os.lock.os_unfair_lock_lock
+import func   Darwin.os.lock.os_unfair_lock_unlock
 
 final public class Queue<T>: QueueType
 {
@@ -18,9 +18,9 @@ final public class Queue<T>: QueueType
   private var head: Node? = nil
   private var tail: Node! = nil
 
-  private var lock = OS_SPINLOCK_INIT
+  private let lock = UnsafeMutablePointer<os_unfair_lock_s>.allocate(capacity: 1)
 
-  public init() { }
+  public init() { lock.pointee = os_unfair_lock_s() }
 
   deinit
   {
@@ -30,6 +30,7 @@ final public class Queue<T>: QueueType
       node.deinitialize()
       node.deallocate()
     }
+    lock.deallocate()
   }
 
   public var isEmpty: Bool { return head == nil }
@@ -51,7 +52,7 @@ final public class Queue<T>: QueueType
   {
     let node = Node(initializedWith: newElement)
 
-    OSSpinLockLock(&lock)
+    os_unfair_lock_lock(lock)
     if head == nil
     {
       head = node
@@ -62,16 +63,16 @@ final public class Queue<T>: QueueType
       tail.next = node
       tail = node
     }
-    OSSpinLockUnlock(&lock)
+    os_unfair_lock_unlock(lock)
   }
 
   public func dequeue() -> T?
   {
-    OSSpinLockLock(&lock)
+    os_unfair_lock_lock(lock)
     if let node = head
     { // Promote the 2nd item to 1st
       head = node.next
-      OSSpinLockUnlock(&lock)
+      os_unfair_lock_unlock(lock)
 
       let element = node.move()
       node.deallocate()
@@ -79,7 +80,7 @@ final public class Queue<T>: QueueType
     }
 
     // queue is empty
-    OSSpinLockUnlock(&lock)
+    os_unfair_lock_unlock(lock)
     return nil
   }
 }

@@ -9,6 +9,8 @@
 import Cocoa
 import XCTest
 
+import CAtomics
+
 @testable import QQ
 
 class QQTests: XCTestCase
@@ -181,14 +183,13 @@ class QQTests: XCTestCase
   {
     guard threads > 0 else { return Int.max }
 
-    let iterations = Int32(iterations)
-    var i: Int32 = 0
+    var c = AtomicInt(0)
 
     let queue = Q(Q.Element())
     let start = mach_absolute_time()
     DispatchQueue.concurrentPerform(iterations: threads) {
       _ in
-      while i < iterations
+      while CAtomicsLoad(&c, .relaxed) < iterations
       {
         if (arc4random() & 1) == 1
         {
@@ -198,13 +199,13 @@ class QQTests: XCTestCase
         {
           if let _ = queue.dequeue()
           {
-            OSAtomicIncrement32Barrier(&i)
+            CAtomicsAdd(&c, 1, .relaxed)
           }
         }
       }
     }
     let dt = mach_absolute_time() - start
-    return numericCast(dt)/numericCast(i)
+    return numericCast(dt)/numericCast(CAtomicsLoad(&c, .relaxed))
   }
 
   func QueuePerformanceTestMultiThreaded<Q: QueueType>(type: Q.Type) where Q.Element: TestItem
