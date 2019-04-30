@@ -23,10 +23,10 @@ final public class SPSCLockFreeRecyclingQueue<T>: QueueType
   public typealias Element = T
   private typealias Node = SPSCNode<T>
 
-  private var hptr: AtomicPaddedMutableRawPointer
+  private var hptr = UnsafeMutablePointer<AtomicMutableRawPointer>.allocate(capacity: 1)
   private var head: Node {
-    get { return Node(storage: hptr.load(.acquire)) }
-    set { hptr.store(newValue.storage, .release) }
+    get { return Node(storage: CAtomicsLoad(hptr, .acquire)) }
+    set { CAtomicsStore(hptr, newValue.storage, .release) }
   }
   private var tail: Node
   private var oldest: Node
@@ -34,7 +34,7 @@ final public class SPSCLockFreeRecyclingQueue<T>: QueueType
   public init()
   { // set up an initial dummy node
     tail = Node.dummy
-    hptr = AtomicPaddedMutableRawPointer(tail.storage)
+    CAtomicsInitialize(hptr, tail.storage)
     oldest = tail
     assert(tail == head)
   }
@@ -57,6 +57,7 @@ final public class SPSCLockFreeRecyclingQueue<T>: QueueType
       next = node.next
       node.deallocate()
     }
+    hptr.deallocate()
   }
 
   public var isEmpty: Bool { return head == tail }
@@ -139,7 +140,7 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
     let size = offset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    nptr = AtomicOptionalMutableRawPointer(nil)
+    nptr.pointee = AtomicOptionalMutableRawPointer(nil)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
@@ -156,18 +157,15 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
     storage.deallocate()
   }
 
-  var nptr: AtomicOptionalMutableRawPointer {
-    unsafeAddress {
-      return UnsafeRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
-    }
-    nonmutating unsafeMutableAddress {
-      return (storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+  private var nptr: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
+    get {
+      return UnsafeMutableRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }
   }
 
   var next: SPSCNode? {
-    get             { return SPSCNode(storage: nptr.load(.acquire)) }
-    nonmutating set { nptr.store(newValue?.storage, .release) }
+    get             { return SPSCNode(storage: CAtomicsLoad(nptr, .acquire)) }
+    nonmutating set { CAtomicsStore(nptr, newValue?.storage, .release) }
   }
 
   private var data: UnsafeMutablePointer<Element> {
@@ -176,7 +174,7 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
 
   func initialize(to element: Element)
   {
-    nptr.store(nil, .relaxed)
+    CAtomicsStore(nptr, nil, .relaxed)
     data.initialize(to: element)
   }
 
