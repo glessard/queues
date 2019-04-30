@@ -23,17 +23,17 @@ final public class SPSCLockFreeQueue<T>: QueueType
   public typealias Element = T
   private typealias Node = SPSCNode<T>
 
-  private var hptr: PaddedMutableRawPointer
+  private var hptr: UnsafeMutableRawPointer
   private var head: Node {
-    get { return Node(storage: hptr.pointer) }
-    set { hptr.pointer = newValue.storage }
+    get { return Node(storage: hptr) }
+    set { hptr = newValue.storage }
   }
   private var tail: Node
 
   public init()
   { // set up an initial dummy node
     tail = Node.dummy
-    hptr = PaddedMutableRawPointer(tail.storage)
+    hptr = UnsafeMutableRawPointer(tail.storage)
     assert(tail == head)
   }
 
@@ -118,7 +118,7 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
     let size = offset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    nptr = AtomicOptionalMutableRawPointer(nil)
+    nptr.pointee = AtomicOptionalMutableRawPointer(nil)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
@@ -135,18 +135,15 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
     storage.deallocate()
   }
 
-  private var nptr: AtomicOptionalMutableRawPointer {
-    unsafeAddress {
-      return UnsafeRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
-    }
-    nonmutating unsafeMutableAddress {
-      return (storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+  private var nptr: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
+    get {
+      return UnsafeMutableRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }
   }
 
   var next: SPSCNode? {
-    get             { return SPSCNode(storage: nptr.load(.acquire)) }
-    nonmutating set { nptr.store(newValue?.storage, .release) }
+    get             { return SPSCNode(storage: CAtomicsLoad(nptr, .acquire)) }
+    nonmutating set { CAtomicsStore(nptr, newValue?.storage, .release) }
   }
 
   private var data: UnsafeMutablePointer<Element> {
@@ -155,7 +152,7 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
 
   func initialize(to element: Element)
   {
-    nptr.store(nil, .relaxed)
+    CAtomicsStore(nptr, nil, .relaxed)
     data.initialize(to: element)
   }
 
