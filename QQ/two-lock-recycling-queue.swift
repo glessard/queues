@@ -10,10 +10,7 @@ import let  Darwin.libkern.OSAtomic.OS_SPINLOCK_INIT
 import func Darwin.libkern.OSAtomic.OSSpinLockLock
 import func Darwin.libkern.OSAtomic.OSSpinLockUnlock
 
-import struct CAtomics.AtomicOptionalMutableRawPointer
-import struct CAtomics.AtomicNonNullMutableRawPointer
-import struct CAtomics.AtomicTaggedMutableRawPointer
-import struct CAtomics.TaggedMutableRawPointer
+import CAtomics
 
 /// Double-lock queue with node recycling
 ///
@@ -27,23 +24,23 @@ final public class TwoLockRecyclingQueue<T>: QueueType
   public typealias Element = T
   private typealias Node = Q2Node<T>
 
-  private var hptr = AtomicNonNullMutableRawPointer()
+  private var hptr = UnsafeMutablePointer<AtomicMutableRawPointer>.allocate(capacity: 1)
   private var head: Node {
-    get { return Node(storage: hptr.load(.relaxed)) }
-    set { hptr.store(newValue.storage, .relaxed) }
+    get { return Node(storage: CAtomicsLoad(hptr, .relaxed)) }
+    set { CAtomicsStore(hptr, newValue.storage, .relaxed) }
   }
   private var tail: Node
 
   private var hlock = OS_SPINLOCK_INIT
   private var tlock = OS_SPINLOCK_INIT
 
-  private var pool = AtomicTaggedMutableRawPointer()
+  private var pool = UnsafeMutablePointer<AtomicTaggedMutableRawPointer>.allocate(capacity: 1)
 
   public init()
   {
     tail = Node.dummy
-    hptr.initialize(tail.storage)
-    pool.initialize(TaggedMutableRawPointer(tail.storage, tag: 1))
+    CAtomicsInitialize(hptr, tail.storage)
+    CAtomicsInitialize(pool, TaggedMutableRawPointer(tail.storage, tag: 1))
   }
 
   deinit
@@ -58,12 +55,14 @@ final public class TwoLockRecyclingQueue<T>: QueueType
     }
     head.next = nil
 
-    next = Node(storage: pool.load(.acquire).ptr)
+    next = Node(storage: CAtomicsLoad(pool, .acquire).ptr)
     while let node = next
     {
       next = node.next
       node.deallocate()
     }
+    pool.deallocate()
+    hptr.deallocate()
   }
 
   public var isEmpty: Bool { return head.storage == tail.storage }
@@ -83,14 +82,14 @@ final public class TwoLockRecyclingQueue<T>: QueueType
 
   private func node(with element: T) -> Node
   {
-    var pool = self.pool.load(.acquire)
-    while pool.ptr != self.hptr.load(.relaxed)
+    var pool = CAtomicsLoad(self.pool, .acquire)
+    while pool.ptr != CAtomicsLoad(hptr, .relaxed)
     {
       let node = Node(storage: pool.ptr)
       if let n = node.next
       {
         let next = pool.incremented(with: n.storage)
-        if self.pool.loadCAS(&pool, next, .strong, .acqrel, .acquire)
+        if CAtomicsCompareAndExchange(self.pool, &pool, next, .strong, .acqrel, .acquire)
         {
           node.initialize(to: element)
           return node
@@ -100,7 +99,7 @@ final public class TwoLockRecyclingQueue<T>: QueueType
       { // this can happen if another thread has succeeded
         // in advancing the pool pointer and has already
         // started initializing the node for enqueueing
-        pool = self.pool.load(.acquire)
+        pool = CAtomicsLoad(self.pool, .acquire)
       }
     }
 
@@ -142,7 +141,7 @@ private struct Q2Node<Element>: OSAtomicNode, Equatable
   let storage: UnsafeMutableRawPointer
 
   private var dataOffset: Int {
-    return max(MemoryLayout<AtomicOptionalMutableRawPointer>.stride, MemoryLayout<Element>.alignment)
+    return max(MemoryLayout<AtomicMutableRawPointer>.stride, MemoryLayout<Element>.alignment)
   }
 
   init(storage: UnsafeMutableRawPointer)
@@ -163,7 +162,7 @@ private struct Q2Node<Element>: OSAtomicNode, Equatable
     let size = offset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    nptr = AtomicOptionalMutableRawPointer(nil)
+    CAtomicsInitialize(nptr, nil)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
@@ -180,18 +179,15 @@ private struct Q2Node<Element>: OSAtomicNode, Equatable
     storage.deallocate()
   }
 
-  private var nptr: AtomicOptionalMutableRawPointer {
-    unsafeAddress {
-      return UnsafeRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
-    }
-    nonmutating unsafeMutableAddress {
+  private var nptr: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
+    get {
       return (storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }
   }
 
   var next: Q2Node? {
-    get             { return Q2Node(storage: nptr.load(.relaxed)) }
-    nonmutating set { nptr.store(newValue?.storage, .relaxed) }
+    get             { return Q2Node(storage: CAtomicsLoad(nptr, .relaxed)) }
+    nonmutating set { CAtomicsStore(nptr, newValue?.storage, .relaxed) }
   }
 
   private var data: UnsafeMutablePointer<Element> {
@@ -200,7 +196,7 @@ private struct Q2Node<Element>: OSAtomicNode, Equatable
 
   func initialize(to element: Element)
   {
-    nptr.store(nil, .relaxed)
+    CAtomicsStore(nptr, nil, .relaxed)
     data.initialize(to: element)
   }
 
