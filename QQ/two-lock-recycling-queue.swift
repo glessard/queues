@@ -24,24 +24,34 @@ final public class TwoLockRecyclingQueue<T>: QueueType
   public typealias Element = T
   private typealias Node = Q2Node<T>
 
-  private var hptr = UnsafeMutablePointer<AtomicMutableRawPointer>.allocate(capacity: 1)
+  private let storage = UnsafeMutableRawPointer.allocate(byteCount: MemoryLayout<TwoLockQueueData>.size,
+                                                         alignment: MemoryLayout<TwoLockQueueData>.alignment)
+
+  private var hptr: UnsafeMutablePointer<AtomicMutableRawPointer> {
+    return (storage + hptrOffset).assumingMemoryBound(to: AtomicMutableRawPointer.self)
+  }
   private var head: Node {
     get { return Node(storage: CAtomicsLoad(hptr, .relaxed)) }
     set { CAtomicsStore(hptr, newValue.storage, .relaxed) }
   }
   private var tail: Node
 
-  private let lock = UnsafeMutablePointer<os_unfair_lock_s>.allocate(capacity: 2)
-  private var hlock: UnsafeMutablePointer<os_unfair_lock_s> { return lock+0 }
-  private var tlock: UnsafeMutablePointer<os_unfair_lock_s> { return lock+1 }
+  private var hlock: UnsafeMutablePointer<os_unfair_lock_s> {
+    return (storage + hlockOffset).assumingMemoryBound(to: os_unfair_lock_s.self)
+  }
+  private var tlock: UnsafeMutablePointer<os_unfair_lock_s> {
+    return (storage + tlockOffset).assumingMemoryBound(to: os_unfair_lock_s.self)
+  }
 
-  private var pool = UnsafeMutablePointer<AtomicTaggedMutableRawPointer>.allocate(capacity: 1)
+  private var pool: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> {
+    return (storage + poolOffset).assumingMemoryBound(to: AtomicTaggedMutableRawPointer.self)
+  }
 
   public init()
   {
-    lock[0] = os_unfair_lock_s()
-    lock[1] = os_unfair_lock_s()
     tail = Node.dummy
+    hlock.pointee = os_unfair_lock_s()
+    tlock.pointee = os_unfair_lock_s()
     CAtomicsInitialize(hptr, tail.storage)
     CAtomicsInitialize(pool, TaggedMutableRawPointer(tail.storage, tag: 1))
   }
@@ -64,9 +74,7 @@ final public class TwoLockRecyclingQueue<T>: QueueType
       next = node.next
       node.deallocate()
     }
-    pool.deallocate()
-    hptr.deallocate()
-    lock.deallocate()
+    storage.deallocate()
   }
 
   public var isEmpty: Bool { return head.storage == tail.storage }
@@ -137,6 +145,20 @@ final public class TwoLockRecyclingQueue<T>: QueueType
     return nil
   }
 }
+
+private struct TwoLockQueueData
+{
+  let hptr: AtomicMutableRawPointer
+  let pool: AtomicTaggedMutableRawPointer
+
+  let hlock: os_unfair_lock_s
+  let tlock: os_unfair_lock_s
+}
+
+private let hptrOffset =  MemoryLayout.offset(of: \TwoLockQueueData.hptr)!
+private let poolOffset =  MemoryLayout.offset(of: \TwoLockQueueData.pool)!
+private let hlockOffset = MemoryLayout.offset(of: \TwoLockQueueData.hlock)!
+private let tlockOffset = MemoryLayout.offset(of: \TwoLockQueueData.tlock)!
 
 private let nextOffset = 0
 
