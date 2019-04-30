@@ -31,13 +31,16 @@ final public class TwoLockRecyclingQueue<T>: QueueType
   }
   private var tail: Node
 
-  private var hlock = os_unfair_lock_s()
-  private var tlock = os_unfair_lock_s()
+  private let lock = UnsafeMutablePointer<os_unfair_lock_s>.allocate(capacity: 2)
+  private var hlock: UnsafeMutablePointer<os_unfair_lock_s> { return lock+0 }
+  private var tlock: UnsafeMutablePointer<os_unfair_lock_s> { return lock+1 }
 
   private var pool = UnsafeMutablePointer<AtomicTaggedMutableRawPointer>.allocate(capacity: 1)
 
   public init()
   {
+    lock[0] = os_unfair_lock_s()
+    lock[1] = os_unfair_lock_s()
     tail = Node.dummy
     CAtomicsInitialize(hptr, tail.storage)
     CAtomicsInitialize(pool, TaggedMutableRawPointer(tail.storage, tag: 1))
@@ -63,6 +66,7 @@ final public class TwoLockRecyclingQueue<T>: QueueType
     }
     pool.deallocate()
     hptr.deallocate()
+    lock.deallocate()
   }
 
   public var isEmpty: Bool { return head.storage == tail.storage }
@@ -110,26 +114,26 @@ final public class TwoLockRecyclingQueue<T>: QueueType
   {
     let node = self.node(with: newElement)
 
-    os_unfair_lock_lock(&tlock)
+    os_unfair_lock_lock(tlock)
     tail.next = node
     tail = node
-    os_unfair_lock_unlock(&tlock)
+    os_unfair_lock_unlock(tlock)
   }
 
   public func dequeue() -> T?
   {
-    os_unfair_lock_lock(&hlock)
+    os_unfair_lock_lock(hlock)
     if let next = head.next
     {
       head = next
       let element = next.move()
-      os_unfair_lock_unlock(&hlock)
+      os_unfair_lock_unlock(hlock)
 
       return element
     }
 
     // queue is empty
-    os_unfair_lock_unlock(&hlock)
+    os_unfair_lock_unlock(hlock)
     return nil
   }
 }

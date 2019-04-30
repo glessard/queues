@@ -19,9 +19,11 @@ final public class ARCQueue<T>: QueueType
   private var head: Node<T>? = nil
   private var tail: Node<T>! = nil
 
-  private var lock = os_unfair_lock_s()
+  private let lock = UnsafeMutablePointer<os_unfair_lock_s>.allocate(capacity: 1)
 
-  public init() { }
+  public init() { lock.pointee = os_unfair_lock_s() }
+
+  deinit { lock.deallocate() }
 
   public var isEmpty: Bool { return head == nil }
 
@@ -42,7 +44,7 @@ final public class ARCQueue<T>: QueueType
   {
     let node = Node(newElement)
 
-    os_unfair_lock_lock(&lock)
+    os_unfair_lock_lock(lock)
     if head == nil
     {
       head = node
@@ -53,12 +55,12 @@ final public class ARCQueue<T>: QueueType
       tail.next = node
       tail = node
     }
-    os_unfair_lock_unlock(&lock)
+    os_unfair_lock_unlock(lock)
   }
 
   public func dequeue() -> T?
   {
-    os_unfair_lock_lock(&lock)
+    os_unfair_lock_lock(lock)
     if let node = head
     {
       // Promote the 2nd node to 1st
@@ -68,12 +70,12 @@ final public class ARCQueue<T>: QueueType
       // Logical housekeeping
       if head == nil { tail = nil }
 
-      os_unfair_lock_unlock(&lock)
+      os_unfair_lock_unlock(lock)
       return node.elem
     }
 
     // queue is empty
-    os_unfair_lock_unlock(&lock)
+    os_unfair_lock_unlock(lock)
     return nil
   }
 }
