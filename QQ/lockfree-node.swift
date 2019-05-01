@@ -8,9 +8,16 @@
 
 import CAtomics
 
-private let prevOffset = 0
-private let nextOffset = prevOffset + MemoryLayout<TaggedMutableRawPointer>.stride
-private let dataOffset = nextOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride
+private struct LockFreeNodeData
+{
+  var prev: TaggedMutableRawPointer
+  var next: AtomicTaggedOptionalMutableRawPointer
+  var data: AtomicOptionalMutableRawPointer
+}
+
+private let prevOffset = MemoryLayout.offset(of: \LockFreeNodeData.prev)!
+private let nextOffset = MemoryLayout.offset(of: \LockFreeNodeData.next)!
+private let dataOffset = MemoryLayout.offset(of: \LockFreeNodeData.data)!
 
 private let nullNode = TaggedOptionalMutableRawPointer(nil, tag: 0)
 
@@ -31,14 +38,14 @@ struct LockFreeNode: OSAtomicNode, Equatable
 
   private init(pointer: UnsafeMutableRawPointer? = nil)
   {
-    storage = UnsafeMutableRawPointer.allocate(byteCount: dataOffset + MemoryLayout<AtomicOptionalMutableRawPointer>.stride,
-                                               alignment: MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.alignment)
+    storage = UnsafeMutableRawPointer.allocate(byteCount: MemoryLayout<LockFreeNodeData>.size,
+                                               alignment: MemoryLayout<LockFreeNodeData>.alignment)
     (storage+prevOffset).bindMemory(to: TaggedMutableRawPointer.self, capacity: 1)
     prev = TaggedMutableRawPointer()
     (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 1)
-    next.pointee = AtomicTaggedOptionalMutableRawPointer(nullNode)
+    CAtomicsInitialize(next, nullNode)
     (storage+dataOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    data.pointee = AtomicOptionalMutableRawPointer(pointer)
+    CAtomicsInitialize(data, pointer)
   }
 
   static var dummy: LockFreeNode { return LockFreeNode() }

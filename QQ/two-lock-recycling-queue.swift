@@ -48,11 +48,15 @@ final public class TwoLockRecyclingQueue<T>: QueueType
   }
 
   public init()
-  {
+  { // set up an initial dummy node
     tail = Node.dummy
+    (storage+hlockOffset).bindMemory(to: os_unfair_lock_s.self, capacity: 1)
     hlock.pointee = os_unfair_lock_s()
+    (storage+tlockOffset).bindMemory(to: os_unfair_lock_s.self, capacity: 1)
     tlock.pointee = os_unfair_lock_s()
+    (storage+hptrOffset).bindMemory(to: AtomicMutableRawPointer.self, capacity: 1)
     CAtomicsInitialize(hptr, tail.storage)
+    (storage+poolOffset).bindMemory(to: AtomicTaggedMutableRawPointer.self, capacity: 1)
     CAtomicsInitialize(pool, TaggedMutableRawPointer(tail.storage, tag: 1))
   }
 
