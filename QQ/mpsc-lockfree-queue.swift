@@ -180,7 +180,7 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
 
   private var nptr: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
     get {
-      return UnsafeMutableRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+      return (storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }
   }
 
