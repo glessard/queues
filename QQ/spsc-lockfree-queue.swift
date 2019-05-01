@@ -118,7 +118,7 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
     let size = offset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    nptr.pointee = AtomicOptionalMutableRawPointer(nil)
+    CAtomicsInitialize(nptr, nil)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
@@ -137,7 +137,7 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
 
   private var nptr: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
     get {
-      return UnsafeMutableRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+      return (storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }
   }
 

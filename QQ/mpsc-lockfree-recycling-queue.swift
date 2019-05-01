@@ -25,18 +25,13 @@
 
 import CAtomics
 
-private let poolOffset = 0
-private let headOffset = poolOffset + MemoryLayout<AtomicTaggedMutableRawPointer>.stride
-private let tailOffset = headOffset + MemoryLayout<AtomicMutableRawPointer>.stride
-private let storedSize = tailOffset + MemoryLayout<AtomicMutableRawPointer>.stride
-
 final public class MPSCLockFreeRecyclingQueue<T>: QueueType
 {
   public typealias Element = T
   private typealias Node = MPSCNode<T>
 
-  private let storage = UnsafeMutableRawPointer.allocate(byteCount: storedSize,
-                                                         alignment: MemoryLayout<AtomicTaggedMutableRawPointer>.alignment)
+  private let storage = UnsafeMutableRawPointer.allocate(byteCount: MemoryLayout<MPSCQueueData>.size,
+                                                         alignment: MemoryLayout<MPSCQueueData>.alignment)
 
   private var hptr: UnsafeMutablePointer<AtomicMutableRawPointer> {
     return (storage+headOffset).assumingMemoryBound(to: AtomicMutableRawPointer.self )
@@ -63,14 +58,13 @@ final public class MPSCLockFreeRecyclingQueue<T>: QueueType
   }
 
   public init()
-  {
-    storage.bindMemory(to: AtomicTaggedMutableRawPointer.self, capacity: 1)
-    (storage+MemoryLayout<AtomicTaggedMutableRawPointer>.stride).bindMemory(to: AtomicMutableRawPointer.self, capacity: 2)
-
-    // set up an initial dummy node
+  { // set up an initial dummy node
     let dummy = Node.dummy
+    (storage+headOffset).bindMemory(to: AtomicMutableRawPointer.self, capacity: 1)
     CAtomicsInitialize(hptr, dummy.storage)
+    (storage+tailOffset).bindMemory(to: AtomicMutableRawPointer.self, capacity: 1)
     CAtomicsInitialize(tptr, dummy.storage)
+    (storage+poolOffset).bindMemory(to: AtomicTaggedMutableRawPointer.self, capacity: 2)
     CAtomicsInitialize(pptr, TaggedMutableRawPointer(dummy.storage, tag: 1))
   }
 
@@ -195,6 +189,17 @@ final public class MPSCLockFreeRecyclingQueue<T>: QueueType
   }
 }
 
+private struct MPSCQueueData
+{
+  let head: AtomicTaggedMutableRawPointer
+  let tail: AtomicMutableRawPointer
+  let pool: AtomicMutableRawPointer
+}
+
+private let headOffset = MemoryLayout.offset(of: \MPSCQueueData.head)!
+private let tailOffset = MemoryLayout.offset(of: \MPSCQueueData.tail)!
+private let poolOffset = MemoryLayout.offset(of: \MPSCQueueData.pool)!
+
 private let nextOffset = 0
 
 private struct MPSCNode<Element>: OSAtomicNode, Equatable
@@ -223,7 +228,7 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
     let size = offset + MemoryLayout<Element>.stride
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
-    nptr.pointee = AtomicOptionalMutableRawPointer(nil)
+    CAtomicsInitialize(nptr, nil)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
@@ -242,7 +247,7 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
 
   private var nptr: UnsafeMutablePointer<AtomicOptionalMutableRawPointer> {
     get {
-      return UnsafeMutableRawPointer(storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
+      return (storage+nextOffset).assumingMemoryBound(to: AtomicOptionalMutableRawPointer.self)
     }
   }
 

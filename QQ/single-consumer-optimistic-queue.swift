@@ -125,19 +125,24 @@ final public class SingleConsumerOptimisticQueue<T>: QueueType
   }
 }
 
-private let prevOffset = 0
-private let nextMask   = MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.alignment - 1
-private let nextOffset = (prevOffset + MemoryLayout<TaggedMutableRawPointer>.stride + nextMask) & ~nextMask
-
 private let nullNode = TaggedOptionalMutableRawPointer(nil, tag: 0)
 
-private struct OptimisticNode<Element>: OSAtomicNode, Equatable
+private struct NodePrefix
+{
+  var prev: TaggedMutableRawPointer
+  var next: AtomicTaggedOptionalMutableRawPointer
+}
+
+private let prevOffset = MemoryLayout.offset(of: \NodePrefix.prev)!
+private let nextOffset = MemoryLayout.offset(of: \NodePrefix.next)!
+
+private struct OptimisticNode<Element>: Equatable
 {
   let storage: UnsafeMutableRawPointer
 
   private var dataOffset: Int {
     let dataMask = MemoryLayout<Element>.alignment - 1
-    return (nextOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride + dataMask) & ~dataMask
+    return (MemoryLayout<NodePrefix>.size + dataMask) & ~dataMask
   }
 
   init(storage: UnsafeMutableRawPointer)
@@ -153,15 +158,14 @@ private struct OptimisticNode<Element>: OSAtomicNode, Equatable
 
   private init()
   {
-    let alignment  = MemoryLayout<TaggedMutableRawPointer>.alignment
-    let dataMask   = MemoryLayout<Element>.alignment - 1
-    let dataOffset = (nextOffset + MemoryLayout<AtomicTaggedOptionalMutableRawPointer>.stride + dataMask) & ~dataMask
-    let size = dataOffset + MemoryLayout<Element>.stride
+    let size = MemoryLayout<NodePrefix>.size + MemoryLayout<Element>.size
+    let alignment  = MemoryLayout<NodePrefix>.alignment
+    assert(alignment == 16)
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+prevOffset).bindMemory(to: TaggedMutableRawPointer.self, capacity: 1)
     prev = TaggedMutableRawPointer()
     (storage+nextOffset).bindMemory(to: AtomicTaggedOptionalMutableRawPointer.self, capacity: 1)
-    next.pointee = AtomicTaggedOptionalMutableRawPointer(nullNode)
+    CAtomicsInitialize(next, nullNode)
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
 
