@@ -63,13 +63,16 @@ final public class ARCQueue<T>: QueueType
     os_unfair_lock_lock(lock)
     if let node = head
     {
-      // Promote the 2nd node to 1st
-      head = node.next
-      node.next = nil
-
-      // Logical housekeeping
-      if head == nil { tail = nil }
-
+      if node.next == nil
+      { // the queue is now empty
+        head = nil
+        tail = nil
+      }
+      else
+      { // Promote the 2nd node to 1st
+        head = node.next
+        node.next = nil
+      }
       os_unfair_lock_unlock(lock)
       return node.elem
     }
