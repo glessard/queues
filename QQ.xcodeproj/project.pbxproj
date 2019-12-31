@@ -14,13 +14,11 @@
 		031D1759218BD5C800F4B44B /* spsc-lockfree-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031D174D218BCD6F00F4B44B /* spsc-lockfree-queue.swift */; };
 		031D175D218BD8B700F4B44B /* spsc-lockfree-recycling-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031D175C218BD8B700F4B44B /* spsc-lockfree-recycling-queue.swift */; };
 		031D175E218BD8B700F4B44B /* spsc-lockfree-recycling-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031D175C218BD8B700F4B44B /* spsc-lockfree-recycling-queue.swift */; };
-		031D1766218BDA9F00F4B44B /* CAtomics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033E19032141E90300F4B44B /* CAtomics.framework */; };
 		031DEDEE1B17ADFB00F4B44B /* two-lock-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 031DEDED1B17ADFB00F4B44B /* two-lock-queue.swift */; };
 		03223F171A64560600F4B44B /* QueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F161A64560600F4B44B /* QueueTests.swift */; };
 		03223F201A645BA900F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
 		03223F211A645BFD00F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
 		032A5E1121C307F700F4B44B /* lockfree-reference-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 032A5E1021C307F700F4B44B /* lockfree-reference-queue.swift */; };
-		033E190B2141E95100F4B44B /* CAtomics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033E19032141E90300F4B44B /* CAtomics.framework */; };
 		034B8C6D2178AA2B00F4B44B /* queue-array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034B8C6C2178AA2B00F4B44B /* queue-array.swift */; };
 		034B8C732178ABB000F4B44B /* queue-array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034B8C6C2178AA2B00F4B44B /* queue-array.swift */; };
 		035A98471A539D7300F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
@@ -54,6 +52,10 @@
 		038ACC7E1BA0ED4A00F4B44B /* recycling-queue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC7C1BA0ECA500F4B44B /* recycling-queue-unsafe.swift */; };
 		039D7028224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 039D7027224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift */; };
 		039D7029224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 039D7027224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift */; };
+		03AF423323BBD0D00086343E /* CAtomics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03AF422C23BBD0A90086343E /* CAtomics.framework */; };
+		03AF423423BBD0D00086343E /* CAtomics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 03AF422C23BBD0A90086343E /* CAtomics.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		03AF423623BBD0D80086343E /* CAtomics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03AF422C23BBD0A90086343E /* CAtomics.framework */; };
+		03AF423723BBD0D80086343E /* CAtomics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 03AF422C23BBD0A90086343E /* CAtomics.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		03B125242183836300F4B44B /* SingleConsumerQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B125232183836300F4B44B /* SingleConsumerQueueTests.swift */; };
 		03B817FD2219E00D00F4B44B /* lockfree-stack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E31779220904FC00F4B44B /* lockfree-stack.swift */; };
 		03CED8831E01C43D00F4B44B /* lockfree-optimistic-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC2E1AF8A38300F4B44B /* lockfree-optimistic-queue.swift */; };
@@ -72,68 +74,54 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		031D1764218BDA9600F4B44B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 031CA35C20DBDCAD00F4B44B;
-			remoteInfo = CAtomics;
-		};
-		033E18FE2141E90300F4B44B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 031CA33E20DBDC0400F4B44B;
-			remoteInfo = Atomics;
-		};
-		033E19002141E90300F4B44B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 031CA34720DBDC0400F4B44B;
-			remoteInfo = AtomicsTests;
-		};
-		033E19022141E90300F4B44B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 031CA35D20DBDCAD00F4B44B;
-			remoteInfo = CAtomics;
-		};
-		033E19042141E90300F4B44B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 031CA36520DBDCAE00F4B44B;
-			remoteInfo = CAtomicsTests;
-		};
-		033E19062141E90300F4B44B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 0382B62620DC4A2B00F4B44B;
-			remoteInfo = AtomicsTestApp;
-		};
-		033E19082141E90300F4B44B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 0382B63920DC4A2D00F4B44B;
-			remoteInfo = AtomicsTestAppTests;
-		};
-		033E190C2141E98E00F4B44B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 031CA35C20DBDCAD00F4B44B;
-			remoteInfo = CAtomics;
-		};
 		035A98341A539CF600F4B44B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 035A981E1A539CF600F4B44B /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 035A98261A539CF600F4B44B;
 			remoteInfo = QQ;
+		};
+		03AF422723BBD0A90086343E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 031CA33E20DBDC0400F4B44B;
+			remoteInfo = SwiftAtomics;
+		};
+		03AF422923BBD0A90086343E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 031CA34720DBDC0400F4B44B;
+			remoteInfo = SwiftAtomicsTests;
+		};
+		03AF422B23BBD0A90086343E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 031CA35D20DBDCAD00F4B44B;
+			remoteInfo = CAtomics;
+		};
+		03AF422D23BBD0A90086343E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 031CA36520DBDCAE00F4B44B;
+			remoteInfo = CAtomicsTests;
+		};
+		03AF422F23BBD0A90086343E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0382B62620DC4A2B00F4B44B;
+			remoteInfo = AtomicsTestApp;
+		};
+		03AF423123BBD0A90086343E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0382B63920DC4A2D00F4B44B;
+			remoteInfo = AtomicsTestAppTests;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -147,6 +135,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		03AF423523BBD0D00086343E /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				03AF423423BBD0D00086343E /* CAtomics.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		03AF423823BBD0D80086343E /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				03AF423723BBD0D80086343E /* CAtomics.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -157,7 +167,6 @@
 		03223F161A64560600F4B44B /* QueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QueueTests.swift; sourceTree = "<group>"; };
 		03223F1E1A645B8800F4B44B /* thing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = thing.swift; path = QQTests/thing.swift; sourceTree = SOURCE_ROOT; };
 		032A5E1021C307F700F4B44B /* lockfree-reference-queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "lockfree-reference-queue.swift"; sourceTree = "<group>"; };
-		033E18F52141E90300F4B44B /* Atomics.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Atomics.xcodeproj; path = Dependencies/Atomics/Xcode/Atomics.xcodeproj; sourceTree = "<group>"; };
 		034B8C6C2178AA2B00F4B44B /* queue-array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "queue-array.swift"; sourceTree = "<group>"; };
 		035A98271A539CF600F4B44B /* QQ.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = QQ.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		035A982B1A539CF600F4B44B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -181,6 +190,7 @@
 		038ACC781BA0E54200F4B44B /* taggedpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = taggedpointer.swift; sourceTree = "<group>"; };
 		038ACC7C1BA0ECA500F4B44B /* recycling-queue-unsafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "recycling-queue-unsafe.swift"; sourceTree = "<group>"; };
 		039D7027224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mpsc-lockfree-recycling-queue.swift"; sourceTree = "<group>"; };
+		03AF421E23BBD0A90086343E /* Atomics.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Atomics.xcodeproj; path = "Dependencies/Atomics/Xcode-Old/Atomics.xcodeproj"; sourceTree = "<group>"; };
 		03B125232183836300F4B44B /* SingleConsumerQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleConsumerQueueTests.swift; sourceTree = "<group>"; };
 		03B14A0C1AEB05FF00F4B44B /* lockfree-queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "lockfree-queue.swift"; sourceTree = "<group>"; };
 		03E31779220904FC00F4B44B /* lockfree-stack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "lockfree-stack.swift"; sourceTree = "<group>"; };
@@ -196,7 +206,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				033E190B2141E95100F4B44B /* CAtomics.framework in Frameworks */,
+				03AF423323BBD0D00086343E /* CAtomics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,7 +221,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				031D1766218BDA9F00F4B44B /* CAtomics.framework in Frameworks */,
+				03AF423623BBD0D80086343E /* CAtomics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,22 +231,9 @@
 		033E18F42141E8FD00F4B44B /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
-				033E18F52141E90300F4B44B /* Atomics.xcodeproj */,
+				03AF421E23BBD0A90086343E /* Atomics.xcodeproj */,
 			);
 			name = Dependencies;
-			sourceTree = "<group>";
-		};
-		033E18F62141E90300F4B44B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				033E18FF2141E90300F4B44B /* Atomics.framework */,
-				033E19012141E90300F4B44B /* AtomicsTests.xctest */,
-				033E19032141E90300F4B44B /* CAtomics.framework */,
-				033E19052141E90300F4B44B /* CAtomicsTests.xctest */,
-				033E19072141E90300F4B44B /* AtomicsTestApp.app */,
-				033E19092141E90300F4B44B /* AtomicsTestAppTests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		033E190A2141E95100F4B44B /* Frameworks */ = {
@@ -349,6 +346,19 @@
 			name = Definitions;
 			sourceTree = "<group>";
 		};
+		03AF421F23BBD0A90086343E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				03AF422823BBD0A90086343E /* SwiftAtomics.framework */,
+				03AF422A23BBD0A90086343E /* SwiftAtomicsTests.xctest */,
+				03AF422C23BBD0A90086343E /* CAtomics.framework */,
+				03AF422E23BBD0A90086343E /* CAtomicsTests.xctest */,
+				03AF423023BBD0A90086343E /* AtomicsTestApp.app */,
+				03AF423223BBD0A90086343E /* AtomicsTestAppTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		03E4E2701C55E6FD00F4B44B /* Lock-free Queues */ = {
 			isa = PBXGroup;
 			children = (
@@ -409,11 +419,11 @@
 				035A98231A539CF600F4B44B /* Frameworks */,
 				035A98241A539CF600F4B44B /* Headers */,
 				035A98251A539CF600F4B44B /* Resources */,
+				03AF423523BBD0D00086343E /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				033E190D2141E98E00F4B44B /* PBXTargetDependency */,
 			);
 			name = QQ;
 			productName = QQ;
@@ -445,11 +455,11 @@
 				035A98501A53B0A500F4B44B /* Sources */,
 				035A98511A53B0A500F4B44B /* Frameworks */,
 				035A98521A53B0A500F4B44B /* CopyFiles */,
+				03AF423823BBD0D80086343E /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				031D1765218BDA9600F4B44B /* PBXTargetDependency */,
 			);
 			name = QueueBenchmark;
 			productName = QueueBenchmark;
@@ -463,7 +473,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0700;
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = "Guillaume Lessard";
 				TargetAttributes = {
 					035A98261A539CF600F4B44B = {
@@ -493,8 +503,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 033E18F62141E90300F4B44B /* Products */;
-					ProjectRef = 033E18F52141E90300F4B44B /* Atomics.xcodeproj */;
+					ProductGroup = 03AF421F23BBD0A90086343E /* Products */;
+					ProjectRef = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -507,46 +517,46 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		033E18FF2141E90300F4B44B /* Atomics.framework */ = {
+		03AF422823BBD0A90086343E /* SwiftAtomics.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
-			path = Atomics.framework;
-			remoteRef = 033E18FE2141E90300F4B44B /* PBXContainerItemProxy */;
+			path = SwiftAtomics.framework;
+			remoteRef = 03AF422723BBD0A90086343E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		033E19012141E90300F4B44B /* AtomicsTests.xctest */ = {
+		03AF422A23BBD0A90086343E /* SwiftAtomicsTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
-			path = AtomicsTests.xctest;
-			remoteRef = 033E19002141E90300F4B44B /* PBXContainerItemProxy */;
+			path = SwiftAtomicsTests.xctest;
+			remoteRef = 03AF422923BBD0A90086343E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		033E19032141E90300F4B44B /* CAtomics.framework */ = {
+		03AF422C23BBD0A90086343E /* CAtomics.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = CAtomics.framework;
-			remoteRef = 033E19022141E90300F4B44B /* PBXContainerItemProxy */;
+			remoteRef = 03AF422B23BBD0A90086343E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		033E19052141E90300F4B44B /* CAtomicsTests.xctest */ = {
+		03AF422E23BBD0A90086343E /* CAtomicsTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = CAtomicsTests.xctest;
-			remoteRef = 033E19042141E90300F4B44B /* PBXContainerItemProxy */;
+			remoteRef = 03AF422D23BBD0A90086343E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		033E19072141E90300F4B44B /* AtomicsTestApp.app */ = {
+		03AF423023BBD0A90086343E /* AtomicsTestApp.app */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.application;
 			path = AtomicsTestApp.app;
-			remoteRef = 033E19062141E90300F4B44B /* PBXContainerItemProxy */;
+			remoteRef = 03AF422F23BBD0A90086343E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		033E19092141E90300F4B44B /* AtomicsTestAppTests.xctest */ = {
+		03AF423223BBD0A90086343E /* AtomicsTestAppTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = AtomicsTestAppTests.xctest;
-			remoteRef = 033E19082141E90300F4B44B /* PBXContainerItemProxy */;
+			remoteRef = 03AF423123BBD0A90086343E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -653,16 +663,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		031D1765218BDA9600F4B44B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = CAtomics;
-			targetProxy = 031D1764218BDA9600F4B44B /* PBXContainerItemProxy */;
-		};
-		033E190D2141E98E00F4B44B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = CAtomics;
-			targetProxy = 033E190C2141E98E00F4B44B /* PBXContainerItemProxy */;
-		};
 		035A98351A539CF600F4B44B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 035A98261A539CF600F4B44B /* QQ */;
@@ -717,13 +717,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/CAtomics;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -770,12 +770,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/CAtomics;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -856,6 +856,7 @@
 		035A98591A53B0A500F4B44B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -868,6 +869,7 @@
 		035A985A1A53B0A500F4B44B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 			};
