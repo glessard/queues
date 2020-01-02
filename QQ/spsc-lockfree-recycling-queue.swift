@@ -112,14 +112,20 @@ final public class SPSCLockFreeRecyclingQueue<T>: QueueType
   }
 }
 
-private let nextOffset = 0
+private struct NodePrefix
+{
+  var next: AtomicTaggedOptionalMutableRawPointer
+}
+
+private let nextOffset = MemoryLayout.offset(of: \NodePrefix.next)!
 
 private struct SPSCNode<Element>: OSAtomicNode, Equatable
 {
   let storage: UnsafeMutableRawPointer
 
   private var dataOffset: Int {
-    return max(MemoryLayout<AtomicOptionalMutableRawPointer>.stride, MemoryLayout<Element>.alignment)
+    let dataMask = MemoryLayout<Element>.alignment - 1
+    return (MemoryLayout<NodePrefix>.size + dataMask) & ~dataMask
   }
 
   init(storage: UnsafeMutableRawPointer)
@@ -135,9 +141,9 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
 
   private init()
   {
-    let alignment = max(MemoryLayout<AtomicOptionalMutableRawPointer>.alignment, MemoryLayout<Element>.alignment)
-    let offset = max(MemoryLayout<AtomicOptionalMutableRawPointer>.stride, MemoryLayout<Element>.alignment)
-    let size = offset + MemoryLayout<Element>.stride
+    let size = MemoryLayout<NodePrefix>.size + MemoryLayout<Element>.size
+    let alignment  = MemoryLayout<NodePrefix>.alignment
+    assert(alignment == 16)
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
     CAtomicsInitialize(nptr, nil)
