@@ -191,9 +191,9 @@ final public class MPSCLockFreeRecyclingQueue<T>: QueueType
 
 private struct MPSCQueueData
 {
-  let head: AtomicTaggedMutableRawPointer
-  let tail: AtomicMutableRawPointer
-  let pool: AtomicMutableRawPointer
+  var head: AtomicMutableRawPointer
+  var tail: AtomicMutableRawPointer
+  var pool: AtomicTaggedMutableRawPointer
 }
 
 private let headOffset = MemoryLayout.offset(of: \MPSCQueueData.head)!
