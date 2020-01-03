@@ -1,3 +1,0 @@
-[submodule "Dependencies/Atomics"]
-	path = Dependencies/Atomics
-	url = https://github.com/glessard/swift-atomics.git

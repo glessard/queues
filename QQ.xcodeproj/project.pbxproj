@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -19,6 +19,7 @@
 		03223F201A645BA900F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
 		03223F211A645BFD00F4B44B /* thing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03223F1E1A645B8800F4B44B /* thing.swift */; };
 		032A5E1121C307F700F4B44B /* lockfree-reference-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 032A5E1021C307F700F4B44B /* lockfree-reference-queue.swift */; };
+		0341E16923C5540F0086343E /* CAtomics in Frameworks */ = {isa = PBXBuildFile; productRef = 0341E16823C5540F0086343E /* CAtomics */; };
 		034B8C6D2178AA2B00F4B44B /* queue-array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034B8C6C2178AA2B00F4B44B /* queue-array.swift */; };
 		034B8C732178ABB000F4B44B /* queue-array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034B8C6C2178AA2B00F4B44B /* queue-array.swift */; };
 		035A98471A539D7300F4B44B /* queuetype.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035A98461A539D7300F4B44B /* queuetype.swift */; };
@@ -52,10 +53,7 @@
 		038ACC7E1BA0ED4A00F4B44B /* recycling-queue-unsafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 038ACC7C1BA0ECA500F4B44B /* recycling-queue-unsafe.swift */; };
 		039D7028224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 039D7027224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift */; };
 		039D7029224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 039D7027224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift */; };
-		03AF423323BBD0D00086343E /* CAtomics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03AF422C23BBD0A90086343E /* CAtomics.framework */; };
-		03AF423423BBD0D00086343E /* CAtomics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 03AF422C23BBD0A90086343E /* CAtomics.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		03AF423623BBD0D80086343E /* CAtomics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03AF422C23BBD0A90086343E /* CAtomics.framework */; };
-		03AF423723BBD0D80086343E /* CAtomics.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 03AF422C23BBD0A90086343E /* CAtomics.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		03AF423C23BFCCFE0086343E /* CAtomics in Frameworks */ = {isa = PBXBuildFile; productRef = 03AF423B23BFCCFE0086343E /* CAtomics */; };
 		03B125242183836300F4B44B /* SingleConsumerQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B125232183836300F4B44B /* SingleConsumerQueueTests.swift */; };
 		03B817FD2219E00D00F4B44B /* lockfree-stack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E31779220904FC00F4B44B /* lockfree-stack.swift */; };
 		03CED8831E01C43D00F4B44B /* lockfree-optimistic-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC2E1AF8A38300F4B44B /* lockfree-optimistic-queue.swift */; };
@@ -81,48 +79,6 @@
 			remoteGlobalIDString = 035A98261A539CF600F4B44B;
 			remoteInfo = QQ;
 		};
-		03AF422723BBD0A90086343E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 031CA33E20DBDC0400F4B44B;
-			remoteInfo = SwiftAtomics;
-		};
-		03AF422923BBD0A90086343E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 031CA34720DBDC0400F4B44B;
-			remoteInfo = SwiftAtomicsTests;
-		};
-		03AF422B23BBD0A90086343E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 031CA35D20DBDCAD00F4B44B;
-			remoteInfo = CAtomics;
-		};
-		03AF422D23BBD0A90086343E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 031CA36520DBDCAE00F4B44B;
-			remoteInfo = CAtomicsTests;
-		};
-		03AF422F23BBD0A90086343E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 0382B62620DC4A2B00F4B44B;
-			remoteInfo = AtomicsTestApp;
-		};
-		03AF423123BBD0A90086343E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 0382B63920DC4A2D00F4B44B;
-			remoteInfo = AtomicsTestAppTests;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -141,7 +97,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				03AF423423BBD0D00086343E /* CAtomics.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -152,7 +107,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				03AF423723BBD0D80086343E /* CAtomics.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -190,7 +144,6 @@
 		038ACC781BA0E54200F4B44B /* taggedpointer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = taggedpointer.swift; sourceTree = "<group>"; };
 		038ACC7C1BA0ECA500F4B44B /* recycling-queue-unsafe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "recycling-queue-unsafe.swift"; sourceTree = "<group>"; };
 		039D7027224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "mpsc-lockfree-recycling-queue.swift"; sourceTree = "<group>"; };
-		03AF421E23BBD0A90086343E /* Atomics.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Atomics.xcodeproj; path = "Dependencies/Atomics/Xcode-Old/Atomics.xcodeproj"; sourceTree = "<group>"; };
 		03B125232183836300F4B44B /* SingleConsumerQueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleConsumerQueueTests.swift; sourceTree = "<group>"; };
 		03B14A0C1AEB05FF00F4B44B /* lockfree-queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "lockfree-queue.swift"; sourceTree = "<group>"; };
 		03E31779220904FC00F4B44B /* lockfree-stack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "lockfree-stack.swift"; sourceTree = "<group>"; };
@@ -206,7 +159,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03AF423323BBD0D00086343E /* CAtomics.framework in Frameworks */,
+				03AF423C23BFCCFE0086343E /* CAtomics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,7 +174,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03AF423623BBD0D80086343E /* CAtomics.framework in Frameworks */,
+				0341E16923C5540F0086343E /* CAtomics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -231,7 +184,6 @@
 		033E18F42141E8FD00F4B44B /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
-				03AF421E23BBD0A90086343E /* Atomics.xcodeproj */,
 			);
 			name = Dependencies;
 			sourceTree = "<group>";
@@ -346,19 +298,6 @@
 			name = Definitions;
 			sourceTree = "<group>";
 		};
-		03AF421F23BBD0A90086343E /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				03AF422823BBD0A90086343E /* SwiftAtomics.framework */,
-				03AF422A23BBD0A90086343E /* SwiftAtomicsTests.xctest */,
-				03AF422C23BBD0A90086343E /* CAtomics.framework */,
-				03AF422E23BBD0A90086343E /* CAtomicsTests.xctest */,
-				03AF423023BBD0A90086343E /* AtomicsTestApp.app */,
-				03AF423223BBD0A90086343E /* AtomicsTestAppTests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		03E4E2701C55E6FD00F4B44B /* Lock-free Queues */ = {
 			isa = PBXGroup;
 			children = (
@@ -426,6 +365,9 @@
 			dependencies = (
 			);
 			name = QQ;
+			packageProductDependencies = (
+				03AF423B23BFCCFE0086343E /* CAtomics */,
+			);
 			productName = QQ;
 			productReference = 035A98271A539CF600F4B44B /* QQ.framework */;
 			productType = "com.apple.product-type.framework";
@@ -462,6 +404,9 @@
 			dependencies = (
 			);
 			name = QueueBenchmark;
+			packageProductDependencies = (
+				0341E16823C5540F0086343E /* CAtomics */,
+			);
 			productName = QueueBenchmark;
 			productReference = 035A98541A53B0A500F4B44B /* QueueBenchmark */;
 			productType = "com.apple.product-type.tool";
@@ -499,14 +444,11 @@
 				Base,
 			);
 			mainGroup = 035A981D1A539CF600F4B44B;
+			packageReferences = (
+				03AF423A23BFCCFE0086343E /* XCRemoteSwiftPackageReference "swift-atomics" */,
+			);
 			productRefGroup = 035A98281A539CF600F4B44B /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 03AF421F23BBD0A90086343E /* Products */;
-					ProjectRef = 03AF421E23BBD0A90086343E /* Atomics.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				035A98261A539CF600F4B44B /* QQ */,
@@ -515,51 +457,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		03AF422823BBD0A90086343E /* SwiftAtomics.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = SwiftAtomics.framework;
-			remoteRef = 03AF422723BBD0A90086343E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		03AF422A23BBD0A90086343E /* SwiftAtomicsTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = SwiftAtomicsTests.xctest;
-			remoteRef = 03AF422923BBD0A90086343E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		03AF422C23BBD0A90086343E /* CAtomics.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = CAtomics.framework;
-			remoteRef = 03AF422B23BBD0A90086343E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		03AF422E23BBD0A90086343E /* CAtomicsTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = CAtomicsTests.xctest;
-			remoteRef = 03AF422D23BBD0A90086343E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		03AF423023BBD0A90086343E /* AtomicsTestApp.app */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.application;
-			path = AtomicsTestApp.app;
-			remoteRef = 03AF422F23BBD0A90086343E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		03AF423223BBD0A90086343E /* AtomicsTestAppTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = AtomicsTestAppTests.xctest;
-			remoteRef = 03AF423123BBD0A90086343E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		035A98251A539CF600F4B44B /* Resources */ = {
@@ -773,8 +670,9 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_INCLUDE_PATHS = $SRCROOT/QQ/CAtomics;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -793,7 +691,11 @@
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = QQ/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tffenterprises.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -812,7 +714,11 @@
 				FRAMEWORK_VERSION = A;
 				INFOPLIST_FILE = QQ/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tffenterprises.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -832,7 +738,11 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = QQTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tffenterprises.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -847,7 +757,11 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = QQTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tffenterprises.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -915,6 +829,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		03AF423A23BFCCFE0086343E /* XCRemoteSwiftPackageReference "swift-atomics" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/glessard/swift-atomics.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0341E16823C5540F0086343E /* CAtomics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 03AF423A23BFCCFE0086343E /* XCRemoteSwiftPackageReference "swift-atomics" */;
+			productName = CAtomics;
+		};
+		03AF423B23BFCCFE0086343E /* CAtomics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 03AF423A23BFCCFE0086343E /* XCRemoteSwiftPackageReference "swift-atomics" */;
+			productName = CAtomics;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 035A981E1A539CF600F4B44B /* Project object */;
 }
