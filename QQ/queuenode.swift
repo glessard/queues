@@ -6,8 +6,6 @@
 //  Copyright © 2017 Guillaume Lessard. All rights reserved.
 //
 
-import struct CAtomics.AtomicOptionalMutableRawPointer
-
 private let linkOffset = 0
 private let nextOffset = linkOffset + MemoryLayout<UnsafeMutableRawPointer?>.stride
 
