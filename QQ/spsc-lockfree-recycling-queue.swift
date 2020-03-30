@@ -114,7 +114,7 @@ final public class SPSCLockFreeRecyclingQueue<T>: QueueType
 
 private struct NodePrefix
 {
-  var next: AtomicTaggedOptionalMutableRawPointer
+  var next: AtomicOptionalMutableRawPointer
 }
 
 private let nextOffset = MemoryLayout.offset(of: \NodePrefix.next)!

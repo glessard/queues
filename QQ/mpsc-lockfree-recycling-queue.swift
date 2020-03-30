@@ -202,7 +202,7 @@ private let poolOffset = MemoryLayout.offset(of: \MPSCQueueData.pool)!
 
 private struct NodePrefix
 {
-  var next: AtomicTaggedOptionalMutableRawPointer
+  var next: AtomicOptionalMutableRawPointer
 }
 
 private let nextOffset = MemoryLayout.offset(of: \NodePrefix.next)!

@@ -135,7 +135,7 @@ final public class MPSCLockFreeQueue<T>: QueueType
 
 private struct NodePrefix
 {
-  var next: AtomicTaggedOptionalMutableRawPointer
+  var next: AtomicOptionalMutableRawPointer
 }
 
 private let nextOffset = MemoryLayout.offset(of: \NodePrefix.next)!

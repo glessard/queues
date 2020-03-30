@@ -92,7 +92,7 @@ final public class SPSCLockFreeQueue<T>: QueueType
 
 private struct NodePrefix
 {
-  var next: AtomicTaggedOptionalMutableRawPointer
+  var next: AtomicOptionalMutableRawPointer
 }
 
 private let nextOffset = MemoryLayout.offset(of: \NodePrefix.next)!
