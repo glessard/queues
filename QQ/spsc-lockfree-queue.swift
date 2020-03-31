@@ -119,9 +119,10 @@ private struct SPSCNode<Element>: OSAtomicNode, Equatable
 
   private init()
   {
-    let size = MemoryLayout<NodePrefix>.size + MemoryLayout<Element>.size
-    let alignment  = MemoryLayout<NodePrefix>.alignment
-    assert(alignment == 16)
+    let alignment  = max(MemoryLayout<NodePrefix>.alignment, MemoryLayout<Element>.alignment)
+    let dataMask   = MemoryLayout<Element>.alignment - 1
+    let dataOffset = (MemoryLayout<NodePrefix>.size + dataMask) & ~dataMask
+    let size = dataOffset + MemoryLayout<Element>.size
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
     (storage+nextOffset).bindMemory(to: AtomicOptionalMutableRawPointer.self, capacity: 1)
     CAtomicsInitialize(nptr, nil)

@@ -6,17 +6,22 @@
 //  Copyright © 2017 Guillaume Lessard. All rights reserved.
 //
 
-private let linkOffset = 0
-private let nextOffset = linkOffset + MemoryLayout<UnsafeMutableRawPointer?>.stride
+private struct NodePrefix
+{
+  var link: UnsafeMutableRawPointer?
+  var next: UnsafeMutableRawPointer?
+}
+
+private let linkOffset = MemoryLayout.offset(of: \NodePrefix.link)!
+private let nextOffset = MemoryLayout.offset(of: \NodePrefix.next)!
 
 struct QueueNode<Element>: OSAtomicNode, StackNode, Equatable
 {
   let storage: UnsafeMutableRawPointer
 
   private var dataOffset: Int {
-    let a = MemoryLayout<Element>.alignment
-    let d = (nextOffset + MemoryLayout<UnsafeMutableRawPointer?>.stride - a)/a
-    return a*d+a
+    let dataMask = MemoryLayout<Element>.alignment - 1
+    return (MemoryLayout<NodePrefix>.size + dataMask) & ~dataMask
   }
 
   init(storage: UnsafeMutableRawPointer)
@@ -32,14 +37,13 @@ struct QueueNode<Element>: OSAtomicNode, StackNode, Equatable
 
   private init()
   {
-    let a = MemoryLayout<Element>.alignment
-    let d = (nextOffset + MemoryLayout<UnsafeMutableRawPointer?>.stride - a)/a
-    let size = a*d+a + MemoryLayout<Element>.stride
-    let alignment = max(MemoryLayout<Element>.alignment, MemoryLayout<UnsafeMutableRawPointer?>.alignment)
+    let alignment  = max(MemoryLayout<NodePrefix>.alignment, MemoryLayout<Element>.alignment)
+    let dataMask   = MemoryLayout<Element>.alignment - 1
+    let dataOffset = (MemoryLayout<NodePrefix>.size + dataMask) & ~dataMask
+    let size = dataOffset + MemoryLayout<Element>.size
     storage = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: alignment)
-    (storage+linkOffset).bindMemory(to: UnsafeMutableRawPointer?.self, capacity: 1)
+    (storage+linkOffset).bindMemory(to: UnsafeMutableRawPointer?.self, capacity: 2)
     link = nil
-    (storage+nextOffset).bindMemory(to: UnsafeMutableRawPointer?.self, capacity: 1)
     next = nil
     (storage+dataOffset).bindMemory(to: Element.self, capacity: 1)
   }
