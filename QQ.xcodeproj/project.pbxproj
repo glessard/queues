@@ -55,6 +55,7 @@
 		039D7029224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 039D7027224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift */; };
 		03AF423C23BFCCFE0086343E /* CAtomics in Frameworks */ = {isa = PBXBuildFile; productRef = 03AF423B23BFCCFE0086343E /* CAtomics */; };
 		03B125242183836300F4B44B /* SingleConsumerQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B125232183836300F4B44B /* SingleConsumerQueueTests.swift */; };
+		03B7730B243392E60086343E /* CAtomics in Frameworks */ = {isa = PBXBuildFile; productRef = 03B7730A243392E60086343E /* CAtomics */; };
 		03B817FD2219E00D00F4B44B /* lockfree-stack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E31779220904FC00F4B44B /* lockfree-stack.swift */; };
 		03CED8831E01C43D00F4B44B /* lockfree-optimistic-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC2E1AF8A38300F4B44B /* lockfree-optimistic-queue.swift */; };
 		03CED8851E01F39A00F4B44B /* lockfree-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B14A0C1AEB05FF00F4B44B /* lockfree-queue.swift */; };
@@ -167,6 +168,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03B7730B243392E60086343E /* CAtomics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -386,6 +388,9 @@
 				035A98351A539CF600F4B44B /* PBXTargetDependency */,
 			);
 			name = QQTests;
+			packageProductDependencies = (
+				03B7730A243392E60086343E /* CAtomics */,
+			);
 			productName = QQTests;
 			productReference = 035A98321A539CF600F4B44B /* QQTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -848,6 +853,11 @@
 			productName = CAtomics;
 		};
 		03AF423B23BFCCFE0086343E /* CAtomics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 03AF423A23BFCCFE0086343E /* XCRemoteSwiftPackageReference "swift-atomics" */;
+			productName = CAtomics;
+		};
+		03B7730A243392E60086343E /* CAtomics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 03AF423A23BFCCFE0086343E /* XCRemoteSwiftPackageReference "swift-atomics" */;
 			productName = CAtomics;
