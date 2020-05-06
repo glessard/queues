@@ -7,6 +7,7 @@
 //
 
 import Darwin.Mach
+import QQ
 
 let iterations: UInt64 = 1_000_000
 var then = mach_absolute_time()

@@ -9,7 +9,7 @@
 import Foundation
 import XCTest
 
-@testable import QQ
+import QQ
 
 class QueueTests: QQTests
 {

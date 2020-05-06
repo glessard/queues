@@ -9,7 +9,7 @@
 import Foundation
 import XCTest
 
-@testable import QQ
+import QQ
 
 class MPSCQueueTests: QQTests
 {
@@ -173,6 +173,7 @@ class SPSCLockFreeRecyclingQueueTests: QQTests
   }
 }
 
+/*
 class SingleConsumerOptimisticQueueTests: QQTests
 {
   func testQueue()
@@ -215,3 +216,4 @@ class SingleConsumerOptimisticQueueTests: QQTests
     QueuePerformanceTestMultiThreaded(type: SingleConsumerOptimisticQueue<Thing>.self)
   }
 }
+ */
