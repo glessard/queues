@@ -200,12 +200,6 @@ private struct MPSCNode<Element>: OSAtomicNode, Equatable
     return (storage+dataOffset).assumingMemoryBound(to: Element.self)
   }
 
-  func initialize(to element: Element)
-  {
-    CAtomicsStore(nptr, nil, .relaxed)
-    data.initialize(to: element)
-  }
-
   func deinitialize()
   {
     data.deinitialize(count: 1)
