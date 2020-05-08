@@ -7,6 +7,7 @@
 //
 
 import Darwin.Mach
+import QQ
 
 let iterations: UInt64 = 1_000_000
 var then = mach_absolute_time()
@@ -138,13 +139,6 @@ dt = measure(SPSCLockFreeRecyclingQueue(iterations))
 print("\(dt/iterations) ns per iteration")
 
 dt = measure(SPSCLockFreeRecyclingQueue(ref))
-print("\(dt/iterations) ns per iteration with references")
-
-print("Single-Consumer Optimistic Queue")
-dt = measure(SingleConsumerOptimisticQueue(iterations))
-print("\(dt/iterations) ns per iteration")
-
-dt = measure(SingleConsumerOptimisticQueue(ref))
 print("\(dt/iterations) ns per iteration with references")
 
 

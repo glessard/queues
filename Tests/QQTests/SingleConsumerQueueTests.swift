@@ -9,7 +9,7 @@
 import Foundation
 import XCTest
 
-@testable import QQ
+import QQ
 
 class MPSCQueueTests: QQTests
 {
@@ -170,48 +170,5 @@ class SPSCLockFreeRecyclingQueueTests: QQTests
   func testEmpty()
   {
     QueueInitEmptyTest(SPSCLockFreeRecyclingQueue<Thing>.self, newElement: Thing())
-  }
-}
-
-class SingleConsumerOptimisticQueueTests: QQTests
-{
-  func testQueue()
-  {
-    QueueTestCount(SingleConsumerOptimisticQueue<Int>.self, element: 0)
-  }
-
-  func testQueueInt()
-  {
-    QueueIntTest(SingleConsumerOptimisticQueue<UInt64>.self)
-  }
-
-  func testQueueRef()
-  {
-    QueueRefTest(SingleConsumerOptimisticQueue<Thing>.self)
-  }
-
-  func testPerformanceFill()
-  {
-    QueuePerformanceTestFill(SingleConsumerOptimisticQueue<Thing>.self)
-  }
-
-  func testPerformanceSpin()
-  {
-    QueuePerformanceTestSpin(SingleConsumerOptimisticQueue<Thing>.self)
-  }
-
-  func testPerformanceEmpty()
-  {
-    QueuePerformanceTestEmpty(SingleConsumerOptimisticQueue<Thing>.self)
-  }
-
-  func testEmpty()
-  {
-    QueueInitEmptyTest(SingleConsumerOptimisticQueue<Thing>.self, newElement: Thing())
-  }
-
-  func testPerformanceMT()
-  {
-    QueuePerformanceTestMultiThreaded(type: SingleConsumerOptimisticQueue<Thing>.self)
   }
 }

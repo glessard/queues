@@ -11,7 +11,7 @@ import XCTest
 
 import CAtomics
 
-@testable import QQ
+import QQ
 
 class QQTests: XCTestCase
 {
