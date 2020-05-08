@@ -38,7 +38,6 @@
 		03CED8851E01F39A00F4B44B /* lockfree-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B14A0C1AEB05FF00F4B44B /* lockfree-queue.swift */; };
 		03E3177F220904FC00F4B44B /* lockfree-stack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E31779220904FC00F4B44B /* lockfree-stack.swift */; };
 		03E4CC1C1AF7563300F4B44B /* two-lock-recycling-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E4CC1B1AF7563300F4B44B /* two-lock-recycling-queue.swift */; };
-		03F1F7462244216800F4B44B /* single-consumer-optimistic-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F1F7452244216800F4B44B /* single-consumer-optimistic-queue.swift */; };
 		03F1F758224449C600F4B44B /* lockfree-optimistic-reference-queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F1F757224449C600F4B44B /* lockfree-optimistic-reference-queue.swift */; };
 		03FE12D91EA85DB400F4B44B /* queuenode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FE12D81EA85DB400F4B44B /* queuenode.swift */; };
 /* End PBXBuildFile section */
@@ -100,7 +99,6 @@
 		03E31779220904FC00F4B44B /* lockfree-stack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "lockfree-stack.swift"; sourceTree = "<group>"; };
 		03E4CC1B1AF7563300F4B44B /* two-lock-recycling-queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "two-lock-recycling-queue.swift"; sourceTree = "<group>"; };
 		03E4CC2E1AF8A38300F4B44B /* lockfree-optimistic-queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "lockfree-optimistic-queue.swift"; sourceTree = "<group>"; };
-		03F1F7452244216800F4B44B /* single-consumer-optimistic-queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "single-consumer-optimistic-queue.swift"; sourceTree = "<group>"; };
 		03F1F757224449C600F4B44B /* lockfree-optimistic-reference-queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "lockfree-optimistic-reference-queue.swift"; sourceTree = "<group>"; };
 		03FE12D81EA85DB400F4B44B /* queuenode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = queuenode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -242,7 +240,6 @@
 				032A5E1021C307F700F4B44B /* lockfree-reference-queue.swift */,
 				03E4CC2E1AF8A38300F4B44B /* lockfree-optimistic-queue.swift */,
 				03F1F757224449C600F4B44B /* lockfree-optimistic-reference-queue.swift */,
-				03F1F7452244216800F4B44B /* single-consumer-optimistic-queue.swift */,
 				035B5500218296EB00F4B44B /* mpsc-lockfree-queue.swift */,
 				039D7027224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift */,
 				031D174D218BCD6F00F4B44B /* spsc-lockfree-queue.swift */,
@@ -407,7 +404,6 @@
 				035A98471A539D7300F4B44B /* queuetype.swift in Sources */,
 				035A984A1A53A04300F4B44B /* queue.swift in Sources */,
 				039D7028224708B700F4B44B /* mpsc-lockfree-recycling-queue.swift in Sources */,
-				03F1F7462244216800F4B44B /* single-consumer-optimistic-queue.swift in Sources */,
 				035DB9791BA3943400F4B44B /* arcqueue-unsafe.swift in Sources */,
 				035AB24A1D7FD0D000F4B44B /* lockfree-node.swift in Sources */,
 				032A5E1121C307F700F4B44B /* lockfree-reference-queue.swift in Sources */,
