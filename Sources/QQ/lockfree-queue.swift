@@ -24,11 +24,10 @@ final public class LockFreeQueue<T>: QueueType
   public typealias Element = T
   typealias Node = LockFreeNode
 
-  let storage = UnsafeMutablePointer<AtomicTaggedMutableRawPointer>.allocate(capacity: 4)
+  let storage = UnsafeMutablePointer<AtomicTaggedMutableRawPointer>.allocate(capacity: 3)
   private var head: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> { return storage+0 }
   private var tail: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> { return storage+1 }
-  private var poolhead: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> { return storage+2 }
-  private var pooltail: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> { return storage+3 }
+  private var pool: UnsafeMutablePointer<AtomicTaggedMutableRawPointer> { return storage+2 }
 
   public init()
   {
@@ -36,8 +35,7 @@ final public class LockFreeQueue<T>: QueueType
     let tmrp = TaggedMutableRawPointer(node.storage, tag: 1)
     CAtomicsInitialize(head, tmrp)
     CAtomicsInitialize(tail, tmrp)
-    CAtomicsInitialize(poolhead, tmrp)
-    CAtomicsInitialize(pooltail, tmrp)
+    CAtomicsInitialize(pool, tmrp)
   }
 
   deinit
@@ -57,7 +55,7 @@ final public class LockFreeQueue<T>: QueueType
     }
     CAtomicsStore(head.next, TaggedOptionalMutableRawPointer(nil, tag: 0), .release)
 
-    next = Node(storage: CAtomicsLoad(poolhead, .acquire).ptr)
+    next = Node(storage: CAtomicsLoad(pool, .acquire).ptr)
     while let node = next
     {
       next = Node(storage: CAtomicsLoad(node.next, .acquire).ptr)
@@ -86,14 +84,14 @@ final public class LockFreeQueue<T>: QueueType
     let pointer = UnsafeMutablePointer<T>.allocate(capacity: 1)
     pointer.initialize(to: element)
 
-    var pool = CAtomicsLoad(self.poolhead, .acquire)
-    while pool.ptr != CAtomicsLoad(pooltail, .relaxed).ptr
+    var pool = CAtomicsLoad(self.pool, .acquire)
+    while pool.ptr != CAtomicsLoad(head, .relaxed).ptr
     {
       let node = Node(storage: pool.ptr)
       if let n = CAtomicsLoad(node.next, .acquire).ptr
       {
         let next = pool.incremented(with: n)
-        if CAtomicsCompareAndExchange(self.poolhead, &pool, next, .strong, .acqrel, .acquire)
+        if CAtomicsCompareAndExchange(self.pool, &pool, next, .strong, .acqrel, .acquire)
         {
           node.initialize(to: pointer)
           return node
@@ -103,7 +101,7 @@ final public class LockFreeQueue<T>: QueueType
       { // this can happen if another thread has succeeded
         // in advancing the pool pointer and has already
         // started initializing the node for enqueueing
-        pool = CAtomicsLoad(self.poolhead, .acquire)
+        pool = CAtomicsLoad(self.pool, .acquire)
       }
     }
 
@@ -171,7 +169,6 @@ final public class LockFreeQueue<T>: QueueType
             if CAtomicsCompareAndExchange(self.head, head, newhead, .weak, .release)
             {
               let pointer = element.assumingMemoryBound(to: T.self)
-              CAtomicsStore(pooltail, head, .release)
               defer { pointer.deallocate() }
               return pointer.move()
             }
