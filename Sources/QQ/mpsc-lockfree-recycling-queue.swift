@@ -117,7 +117,7 @@ final public class MPSCLockFreeRecyclingQueue<T>: QueueType
       if let n = node.next
       {
         let next = pool.incremented(with: n.storage)
-        if CAtomicsCompareAndExchange(pptr, &pool, next, .weak, .acqrel, .acquire)
+        if CAtomicsCompareAndExchangeWeak(pptr, &pool, next, .acqrel, .acquire)
         {
           node.initialize(to: element)
           return node

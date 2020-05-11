@@ -95,7 +95,7 @@ final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
       if let n = CAtomicsLoad(node.next, .acquire).ptr
       {
         let next = pool.incremented(with: n)
-        if CAtomicsCompareAndExchange(self.pool, &pool, next, .strong, .acqrel, .acquire)
+        if CAtomicsCompareAndExchangeWeak(self.pool, &pool, next, .acqrel, .acquire)
         {
           node.initialize(to: reference)
           return node
@@ -121,7 +121,7 @@ final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
     repeat {
       node.prev = oldTail.incremented()
       newTail =   oldTail.incremented(with: node.storage)
-    } while !CAtomicsCompareAndExchange(tail, &oldTail, newTail, .weak, .release, .relaxed)
+    } while !CAtomicsCompareAndExchangeWeak(tail, &oldTail, newTail, .release, .relaxed)
 
     // success, update the old tail's next link
     let lastNext = TaggedOptionalMutableRawPointer(node.storage, tag: oldTail.tag)
@@ -132,7 +132,7 @@ final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
   {
     while true
     {
-      let head = CAtomicsLoad(self.head, .acquire)
+      var head = CAtomicsLoad(self.head, .acquire)
       let tail = CAtomicsLoad(self.tail, .acquire)
       let next = CAtomicsLoad(Node(storage: head.ptr).next, .acquire)
 
@@ -149,7 +149,7 @@ final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
              let element = CAtomicsLoad(node.data, .acquire)
           {
             let newhead = head.incremented(with: node.storage)
-            if CAtomicsCompareAndExchange(self.head, head, newhead, .weak, .release)
+            if CAtomicsCompareAndExchangeWeak(self.head, &head, newhead, .release, .relaxed)
             {
               return Unmanaged<T>.fromOpaque(element).takeRetainedValue()
             }
