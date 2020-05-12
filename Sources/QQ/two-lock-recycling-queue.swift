@@ -105,7 +105,7 @@ final public class TwoLockRecyclingQueue<T>: QueueType
       if let n = node.next
       {
         let next = pool.incremented(with: n.storage)
-        if CAtomicsCompareAndExchange(self.pool, &pool, next, .strong, .acqrel, .acquire)
+        if CAtomicsCompareAndExchangeWeak(self.pool, &pool, next, .acqrel, .acquire)
         {
           node.initialize(to: element)
           return node

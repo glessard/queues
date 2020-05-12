@@ -42,7 +42,7 @@ class AtomicStack<T: StackNode>
     repeat {
       node.link = oldHead.ptr
       newHead = oldHead.incremented(with: node.storage)
-    } while !CAtomicsCompareAndExchange(head, &oldHead, newHead, .weak, .release, .relaxed)
+    } while !CAtomicsCompareAndExchangeWeak(head, &oldHead, newHead, .release, .relaxed)
   }
 
   func pop() -> T?
@@ -54,7 +54,7 @@ class AtomicStack<T: StackNode>
       guard let storage = oldHead.ptr else { return nil }
       node = T(storage: storage)
       newHead = oldHead.incremented(with: node.link)
-    } while !CAtomicsCompareAndExchange(head, &oldHead, newHead, .weak, .acquire, .acquire)
+    } while !CAtomicsCompareAndExchangeWeak(head, &oldHead, newHead, .acquire, .acquire)
     return node
   }
 }

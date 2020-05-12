@@ -89,7 +89,7 @@ final public class LockFreeReferenceQueue<T: AnyObject>: QueueType
       if let n = CAtomicsLoad(node.next, .acquire).ptr
       {
         let next = pool.incremented(with: n)
-        if CAtomicsCompareAndExchange(self.pool, &pool, next, .strong, .acqrel, .acquire)
+        if CAtomicsCompareAndExchangeWeak(self.pool, &pool, next, .acqrel, .acquire)
         {
           node.initialize(to: reference)
           return node
@@ -112,23 +112,23 @@ final public class LockFreeReferenceQueue<T: AnyObject>: QueueType
 
     while true
     {
-      let tail = CAtomicsLoad(self.tail, .acquire)
+      var tail = CAtomicsLoad(self.tail, .acquire)
       let tailNode = Node(storage: tail.ptr)
 
       let next = CAtomicsLoad(tailNode.next, .acquire)
       if let nextNode = Node(storage: next.ptr)
       { // tail wasn't pointing to the actual last node; try to fix it.
         let next = TaggedMutableRawPointer(nextNode.storage, tag: next.tag &+ 1)
-        CAtomicsCompareAndExchange(self.tail, tail, next, .strong, .release)
+        CAtomicsCompareAndExchangeWeak(self.tail, &tail, next, .release, .relaxed)
       }
       else
       { // try to link the new node to the end of the list
-        let baseNode = TaggedOptionalMutableRawPointer()
+        var baseNode = TaggedOptionalMutableRawPointer()
         let nextNode = next.incremented(with: node.storage)
-        if CAtomicsCompareAndExchange(tailNode.next, baseNode, nextNode, .weak, .release)
+        if CAtomicsCompareAndExchangeWeak(tailNode.next, &baseNode, nextNode, .release, .relaxed)
         { // success. try to have tail point to the inserted node.
           let newTail = tail.incremented(with: node.storage)
-          CAtomicsCompareAndExchange(self.tail, tail, newTail, .strong, .release)
+          CAtomicsCompareAndExchangeWeak(self.tail, &tail, newTail, .release, .relaxed)
           break
         }
       }
@@ -139,8 +139,8 @@ final public class LockFreeReferenceQueue<T: AnyObject>: QueueType
   {
     while true
     {
-      let head = CAtomicsLoad(self.head, .acquire)
-      let tail = CAtomicsLoad(self.tail, .relaxed)
+      var head = CAtomicsLoad(self.head, .acquire)
+      var tail = CAtomicsLoad(self.tail, .relaxed)
       let next = CAtomicsLoad(Node(storage: head.ptr).next, .acquire)
 
       if head == CAtomicsLoad(self.head, .acquire)
@@ -150,7 +150,7 @@ final public class LockFreeReferenceQueue<T: AnyObject>: QueueType
           if let nextPtr = next.ptr
           { // tail was behind the actual last node; try to advance it.
             let newTail = tail.incremented(with: nextPtr)
-            CAtomicsCompareAndExchange(self.tail, tail, newTail, .strong, .release)
+            CAtomicsCompareAndExchangeWeak(self.tail, &tail, newTail, .release, .relaxed)
           }
           else
           { // queue is empty
@@ -164,7 +164,7 @@ final public class LockFreeReferenceQueue<T: AnyObject>: QueueType
              let element = CAtomicsLoad(node.data, .acquire)
           {
             let newhead = head.incremented(with: node.storage)
-            if CAtomicsCompareAndExchange(self.head, head, newhead, .weak, .release)
+            if CAtomicsCompareAndExchangeWeak(self.head, &head, newhead, .release, .relaxed)
             {
               return Unmanaged<T>.fromOpaque(element).takeRetainedValue()
             }
