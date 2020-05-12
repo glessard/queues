@@ -294,6 +294,49 @@ class LockFreeReferenceQueueTests: QQTests
   }
 }
 
+class OptimisticLockFreeReferenceQueueTests: QQTests
+{
+  func testQueue()
+  {
+    QueueTestCount(OptimisticLockFreeReferenceQueue<Thing>.self, element: Thing())
+  }
+
+  func testQueueRef()
+  {
+    QueueRefTest(OptimisticLockFreeReferenceQueue<Thing>.self)
+  }
+
+  func testPerformanceFill()
+  {
+    QueuePerformanceTestFill(OptimisticLockFreeReferenceQueue<Thing>.self)
+  }
+
+  func testPerformanceSpin()
+  {
+    QueuePerformanceTestSpin(OptimisticLockFreeReferenceQueue<Thing>.self)
+  }
+
+  func testPerformanceEmpty()
+  {
+    QueuePerformanceTestEmpty(OptimisticLockFreeReferenceQueue<Thing>.self)
+  }
+
+  func testEmpty()
+  {
+    QueueInitEmptyTest(OptimisticLockFreeReferenceQueue<Thing>.self, newElement: Thing())
+  }
+
+  func testMT()
+  {
+    MultiThreadedBenchmark(OptimisticLockFreeReferenceQueue<Thing>.self)
+  }
+
+  func testPerformanceMT()
+  {
+    QueuePerformanceTestMultiThreaded(type: OptimisticLockFreeReferenceQueue<Thing>.self)
+  }
+}
+
 class UnsafeRecyclingQueueTests: QQTests
 {
   func testQueue()

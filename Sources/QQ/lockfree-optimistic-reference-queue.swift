@@ -50,10 +50,9 @@ final public class OptimisticLockFreeReferenceQueue<T: AnyObject>: QueueType
     while last != head
     {
       let prev = Node(storage: last.prev.ptr)
-      if let pointer = CAtomicsExchange(last.data, nil, .acquire)?.assumingMemoryBound(to: T.self)
+      if let opaque = CAtomicsExchange(last.data, nil, .acquire)
       {
-        pointer.deinitialize(count: 1)
-        pointer.deallocate()
+        Unmanaged<T>.fromOpaque(opaque).release()
       }
       last.deallocate()
       last = prev
